@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Menu</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8C97A;
+  --gold-dim: #8B6B2A;
+  --ink: #0E0C0A;
+  --surface: #161210;
+  --surface2: #1E1A13;
+  --surface3: #2A2418;
+  --border: rgba(201,168,76,0.18);
+  --border-med: rgba(201,168,76,0.32);
+  --border-strong: rgba(201,168,76,0.5);
+  --text: #E8DFC8;
+  --text-muted: #9E8E6A;
+  --text-dim: #6A5E42;
+  --green: #5AC47A;
+  --blue: #7BA7C7;
+  --warn: #E8C97A;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;font-size:17px;min-height:100vh;overflow-x:hidden;}
+
+/* HEADER */
+.hdr{border-bottom:1px solid var(--border-strong);padding:1rem 1.75rem;display:flex;align-items:center;justify-content:space-between;background:rgba(14,12,10,0.95);position:sticky;top:0;z-index:200;backdrop-filter:blur(8px);}
+.hdr-logo{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);}
+.hdr-sub{font-size:0.68rem;color:var(--text-dim);letter-spacing:0.14em;text-transform:uppercase;margin-top:2px;}
+.nav{display:flex;gap:4px;}
+.nav-btn{padding:0.45rem 0.9rem;border:1px solid transparent;background:none;color:var(--text-muted);font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:3px;transition:all 0.15s;}
+.nav-btn:hover{color:var(--gold-light);border-color:var(--border);}
+.nav-btn.active{color:var(--gold);border-color:var(--border-strong);background:rgba(201,168,76,0.07);}
+
+.view{display:none;}.view.active{display:block;}
+
+/* HOME HERO */
+.home-hero{padding:2.75rem 2rem 1.75rem;text-align:center;border-bottom:1px solid var(--border);}
+.home-eyebrow{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:0.6rem;}
+.home-title{font-family:'Cinzel',serif;font-size:2rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);margin-bottom:0.5rem;line-height:1.1;}
+.home-sub{font-size:1rem;color:var(--text-muted);font-style:italic;}
+
+/* COMING UP STRIP — auto-scrolling carousel */
+.strip-section{padding:1.75rem 0 0;border-bottom:1px solid var(--border);overflow:hidden;}
+.strip-header{display:flex;align-items:baseline;justify-content:space-between;padding:0 2rem;margin-bottom:1.1rem;}
+.strip-label{font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:8px;}
+.strip-label::before{content:'—';font-size:0.6rem;opacity:0.6;}
+.strip-see-all{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;border-bottom:1px solid var(--border);padding-bottom:1px;transition:all 0.15s;}
+.strip-see-all:hover{color:var(--gold);}
+.strip-empty{padding:1.5rem 2rem 1.5rem;font-size:0.9rem;color:var(--text-dim);font-style:italic;}
+
+/* Carousel track */
+.carousel-outer{overflow:hidden;position:relative;width:100%;padding-bottom:1.5rem;}
+.carousel-outer::before,.carousel-outer::after{content:'';position:absolute;top:0;bottom:1.5rem;width:80px;z-index:10;pointer-events:none;}
+.carousel-outer::before{left:0;background:linear-gradient(to right,var(--ink),transparent);}
+.carousel-outer::after{right:0;background:linear-gradient(to left,var(--ink),transparent);}
+.carousel-track{display:flex;gap:14px;padding:0 2rem;width:max-content;animation:marquee 40s linear infinite;}
+.carousel-track:hover{animation-play-state:paused;}
+@keyframes marquee{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+/* Banner cards — text fallback or image face */
+.banner-card{flex-shrink:0;width:170px;cursor:pointer;transition:transform 0.15s;}
+.banner-card:hover{transform:translateY(-3px);}
+.banner-card-face{width:170px;height:213px;border-radius:3px;border:1px solid var(--border);background:var(--surface2);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.25rem 1rem;position:relative;overflow:hidden;margin-bottom:0.65rem;transition:border-color 0.15s;}
+.banner-card:hover .banner-card-face{border-color:var(--border-strong);}
+.banner-card-face.urgency{border-color:rgba(232,201,122,0.5);}
+.banner-card-face.is-planned{border-color:rgba(90,196,122,0.4);}
+.banner-card-face.has-image{padding:0;border:none;}
+.banner-card-face.has-image img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;}
+.banner-card-face.has-image .face-img-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.72) 0%,rgba(0,0,0,0.1) 55%,rgba(0,0,0,0) 100%);}
+.banner-card-face.has-image .face-title{position:absolute;bottom:0.9rem;left:0.8rem;right:0.8rem;text-align:left;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.7);z-index:2;}
+.banner-card-face.has-image .face-season-label{position:absolute;top:0.7rem;left:0.8rem;color:rgba(255,255,255,0.7);z-index:2;}
+.banner-card-face.has-image .face-ornament{display:none;}
+.banner-card-face.has-image .face-badge-soon,.banner-card-face.has-image .face-badge-planned{z-index:3;}
+
+/* Botanical line art SVG background per season — purely CSS */
+.face-summer{background:linear-gradient(170deg,#141008 0%,#1a1408 100%);}
+.face-fall{background:linear-gradient(170deg,#12100a 0%,#1a1008 100%);}
+.face-winter{background:linear-gradient(170deg,#0e1014 0%,#0e1218 100%);}
+.face-spring{background:linear-gradient(170deg,#0e1208 0%,#101408 100%);}
+
+.face-deco{position:absolute;inset:0;opacity:0.07;}
+.face-deco-line{position:absolute;border:1px solid var(--gold);}
+
+.face-season-label{font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem;}
+.face-title{font-family:'Cinzel',serif;font-size:0.78rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);text-align:center;line-height:1.3;}
+.face-ornament{font-family:'Cinzel',serif;font-size:0.6rem;color:var(--gold);opacity:0.6;margin-top:0.75rem;letter-spacing:0.2em;}
+
+.face-badge-soon{position:absolute;top:8px;right:8px;font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;border-radius:2px;background:rgba(232,201,122,0.15);color:var(--warn);border:1px solid rgba(232,201,122,0.45);}
+.face-badge-planned{position:absolute;top:8px;right:8px;font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;border-radius:2px;background:rgba(90,196,122,0.12);color:var(--green);border:1px solid rgba(90,196,122,0.4);}
+
+.banner-card-name{font-family:'Cinzel',serif;font-size:0.64rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);margin-bottom:0.15rem;}
+.banner-card-date{font-size:0.78rem;color:var(--text-dim);}
+
+/* HOME SECTIONS */
+.ornament{text-align:center;padding:1.25rem 0;color:var(--text-dim);font-size:0.65rem;letter-spacing:0.35em;font-family:'Cinzel',serif;}
+.home-sections{padding:0 2rem 3rem;}
+.home-section{margin-top:2rem;}
+.home-section-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);}
+.home-section-title{font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted);}
+.home-section-sub{font-size:0.82rem;color:var(--text-dim);font-style:italic;margin-top:0.2rem;}
+.home-section-link{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;border-bottom:1px solid var(--border);padding-bottom:1px;transition:all 0.15s;}
+.home-section-link:hover{color:var(--gold);}
+.list-preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0.75rem;}
+.list-preview-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:0.9rem 1rem;cursor:pointer;transition:all 0.15s;}
+.list-preview-card:hover{border-color:var(--border-med);background:var(--surface2);}
+.lpc-title{font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:0.55rem;}
+.lpc-items{font-size:0.85rem;color:var(--text-muted);line-height:1.6;}
+.lpc-count{font-size:0.75rem;color:var(--text-dim);margin-top:0.4rem;}
+
+/* SEASONAL VIEW */
+.seasonal-header{padding:1.25rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.seasonal-header-title{font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-dim);}
+.btn-add-event{padding:0.45rem 1rem;border:1px solid var(--border-strong);background:rgba(201,168,76,0.07);color:var(--gold);font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;border-radius:3px;transition:all 0.15s;}
+.btn-add-event:hover{background:rgba(201,168,76,0.14);}
+
+/* Month grouped list — like admin seasonal */
+.month-group{border-bottom:1px solid var(--border);}
+.month-group-header{padding:0.75rem 1.75rem;background:#110E0B;border-bottom:1px solid var(--border);}
+.month-group-label{font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);}
+.event-row{display:flex;align-items:center;padding:0.85rem 1.75rem;border-bottom:1px solid rgba(201,168,76,0.07);transition:background 0.12s;cursor:pointer;}
+.event-row:last-child{border-bottom:none;}
+.event-row:hover{background:var(--surface);}
+.event-row-name{font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);flex:1;}
+.event-row-window{font-size:0.82rem;color:var(--text-dim);margin-right:1.25rem;}
+.event-row-badges{display:flex;gap:6px;margin-right:1.25rem;align-items:center;}
+.row-badge{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;border-radius:2px;}
+.rb-planned{color:var(--green);border:1px solid rgba(90,196,122,0.4);}
+.rb-soon{color:var(--warn);border:1px solid rgba(232,201,122,0.4);}
+.rb-open{color:var(--text-dim);border:1px solid var(--border);}
+.rb-done{color:var(--text-dim);border:1px solid var(--border);opacity:0.5;}
+.event-row-actions{display:flex;gap:6px;flex-shrink:0;}
+.row-edit-btn,.row-del-btn{font-family:'Cinzel',serif;font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:2px;cursor:pointer;transition:all 0.15s;}
+.row-edit-btn{border:1px solid var(--border);background:none;color:var(--text-dim);}
+.row-edit-btn:hover{color:var(--gold);border-color:var(--border-strong);}
+.row-del-btn{border:1px solid rgba(139,58,42,0.3);background:none;color:#8B3A2A;}
+.row-del-btn:hover{border-color:rgba(192,101,79,0.5);color:#C0654F;background:rgba(139,58,42,0.07);}
+
+/* EVENT DETAIL PANEL — slides in over the list */
+.detail-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.6);}
+.detail-overlay.open{display:block;}
+.detail-panel{position:fixed;right:0;top:0;bottom:0;width:min(600px,100vw);background:var(--surface);border-left:1px solid var(--border-strong);overflow-y:auto;z-index:301;transform:translateX(100%);transition:transform 0.25s ease;}
+.detail-overlay.open .detail-panel{transform:translateX(0);}
+.detail-panel-inner{padding:1.75rem 2rem;}
+.detail-close{position:absolute;top:1rem;right:1.25rem;background:none;border:none;color:var(--text-dim);font-size:1rem;cursor:pointer;font-family:'Cinzel',serif;letter-spacing:0.08em;font-size:0.62rem;text-transform:uppercase;padding:0.4rem 0.7rem;border:1px solid var(--border);border-radius:3px;transition:all 0.15s;}
+.detail-close:hover{color:var(--text);border-color:var(--border-med);}
+.ed-eyebrow{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.4rem;}
+.ed-title{font-family:'Cinzel',serif;font-size:1.3rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);margin-bottom:0.25rem;line-height:1.1;padding-right:6rem;}
+.ed-window{font-size:0.9rem;color:var(--text-muted);font-style:italic;margin-bottom:1.25rem;}
+.ed-window strong{color:var(--gold);font-style:normal;font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;}
+.urgency-bar{background:rgba(232,201,122,0.05);border:1px solid rgba(232,201,122,0.22);border-radius:3px;padding:0.55rem 0.85rem;margin-bottom:1.25rem;font-size:0.85rem;color:var(--warn);display:flex;align-items:center;gap:8px;}
+.urgency-dot{width:6px;height:6px;border-radius:50%;background:var(--warn);flex-shrink:0;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.25;}}
+.sec-label{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.7rem;}
+.options-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1.4rem;}
+.option-card{border:1px solid var(--border);border-radius:4px;padding:0.85rem 1rem;background:var(--ink);transition:all 0.15s;}
+.option-card:hover{border-color:var(--border-med);background:var(--surface2);}
+.option-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:0.3rem;}
+.option-name{font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);}
+.option-cost{font-size:0.82rem;color:var(--text-muted);white-space:nowrap;flex-shrink:0;}
+.option-tag{display:inline-block;font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:2px;margin-bottom:0.35rem;}
+.tag-low{background:rgba(90,196,122,0.09);color:var(--green);border:1px solid rgba(90,196,122,0.27);}
+.tag-med{background:rgba(201,168,76,0.09);color:var(--gold);border:1px solid rgba(201,168,76,0.27);}
+.tag-full{background:rgba(123,167,199,0.09);color:var(--blue);border:1px solid rgba(123,167,199,0.27);}
+.option-desc{font-size:0.88rem;color:var(--text-muted);line-height:1.45;}
+.bring-items{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.4rem;}
+.bring-item{font-size:0.82rem;color:var(--text-muted);padding:3px 10px;border:1px solid rgba(201,168,76,0.12);border-radius:2px;background:var(--ink);}
+.divider{border:none;border-top:1px solid var(--border);margin:1.1rem 0;}
+.action-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.btn-confirm{font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;padding:0.5rem 1.2rem;border:1px solid rgba(90,196,122,0.5);background:rgba(90,196,122,0.1);color:var(--green);border-radius:3px;cursor:pointer;transition:all 0.15s;}
+.btn-confirm:hover{background:rgba(90,196,122,0.18);}
+.btn-confirm.done-state{border-color:var(--border);background:none;color:var(--text-dim);}
+.btn-skip{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.5rem 1rem;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:3px;cursor:pointer;}
+.btn-skip:hover{color:var(--text-muted);}
+.btn-ideas{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.5rem 1rem;border:1px solid rgba(123,167,199,0.4);background:rgba(123,167,199,0.07);color:var(--blue);border-radius:3px;cursor:pointer;transition:all 0.15s;}
+.btn-ideas:hover{background:rgba(123,167,199,0.13);}
+.action-note{font-size:0.8rem;color:var(--text-dim);font-style:italic;margin-left:auto;}
+.ai-response{margin-top:1.25rem;border:1px solid rgba(123,167,199,0.25);border-radius:4px;background:rgba(123,167,199,0.04);padding:1rem 1.1rem;display:none;}
+.ai-response.visible{display:block;}
+.ai-response-label{font-family:'Cinzel',serif;font-size:0.56rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--blue);margin-bottom:0.6rem;opacity:0.8;}
+.ai-response-text{font-size:0.9rem;color:var(--text-muted);line-height:1.55;}
+.ai-loading{font-size:0.88rem;color:var(--text-dim);font-style:italic;}
+
+/* LISTS VIEW */
+.lists-body{padding:1.75rem;}
+.lists-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;}
+.list-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1.1rem 1.2rem;}
+.list-card-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:0.9rem;}
+.list-card-title{font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);}
+.list-card-count{font-size:0.8rem;color:var(--text-dim);}
+.list-items-ul{list-style:none;margin-bottom:0.85rem;}
+.list-item{display:flex;align-items:center;gap:10px;padding:0.42rem 0;border-bottom:1px solid rgba(201,168,76,0.07);cursor:pointer;}
+.list-item:last-child{border-bottom:none;}
+.list-item.checked .li-name{text-decoration:line-through;color:var(--text-dim);}
+.li-check{width:14px;height:14px;border:1px solid var(--border-med);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.12s;}
+.list-item.checked .li-check{background:rgba(90,196,122,0.2);border-color:rgba(90,196,122,0.5);}
+.li-check-mark{font-size:9px;color:var(--green);display:none;}
+.list-item.checked .li-check-mark{display:block;}
+.li-name{font-size:0.92rem;color:var(--text-muted);}
+.li-tag{font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;padding:1px 6px;border-radius:2px;margin-left:auto;flex-shrink:0;}
+.li-tag-show{color:var(--blue);border:1px solid rgba(123,167,199,0.28);}
+.li-tag-movie{color:var(--gold);border:1px solid rgba(201,168,76,0.28);}
+.li-tag-game{color:var(--green);border:1px solid rgba(90,196,122,0.28);}
+.li-tag-place{color:#BF89CC;border:1px solid rgba(191,137,204,0.28);}
+.list-add-row{display:flex;gap:6px;margin-top:0.25rem;}
+.list-add-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:0.4rem 0.7rem;color:var(--text);font-family:'Crimson Text',serif;font-size:0.9rem;outline:none;transition:border-color 0.15s;}
+.list-add-input::placeholder{color:var(--text-dim);}
+.list-add-input:focus{border-color:var(--border-med);}
+.list-add-btn{padding:0.4rem 0.75rem;background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-dim);font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.list-add-btn:hover{color:var(--gold);border-color:var(--border-strong);}
+.add-list-card{background:transparent;border:1px dashed var(--border);border-radius:4px;padding:1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.5rem;cursor:pointer;transition:all 0.15s;min-height:120px;}
+.add-list-card:hover{border-color:var(--border-strong);background:rgba(201,168,76,0.03);}
+.add-list-label{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim);}
+
+/* MODALS */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;align-items:center;justify-content:center;}
+.modal-backdrop.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border-strong);border-radius:5px;padding:1.75rem;width:90%;max-width:520px;position:relative;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:'Cinzel',serif;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:1.25rem;}
+.modal-field{margin-bottom:0.9rem;}
+.modal-label{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.35rem;display:block;}
+.modal-input,.modal-textarea,.modal-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:0.55rem 0.8rem;color:var(--text);font-family:'Crimson Text',serif;font-size:1rem;outline:none;transition:border-color 0.15s;}
+.modal-input:focus,.modal-textarea:focus,.modal-select:focus{border-color:var(--border-med);}
+.modal-textarea{min-height:75px;resize:vertical;}
+.modal-select option{background:var(--surface2);}
+.modal-hint{font-size:0.8rem;color:var(--text-dim);font-style:italic;margin-top:0.25rem;}
+.modal-row{display:flex;gap:8px;margin-top:1.1rem;flex-wrap:wrap;}
+.btn-modal-save{flex:1;font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;padding:0.55rem;border:1px solid var(--border-strong);background:rgba(201,168,76,0.1);color:var(--gold);border-radius:3px;cursor:pointer;transition:all 0.15s;min-width:100px;}
+.btn-modal-save:hover{background:rgba(201,168,76,0.18);}
+.btn-modal-cancel{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.5rem 0.9rem;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:3px;cursor:pointer;}
+.btn-modal-delete{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.5rem 0.9rem;border:1px solid rgba(139,58,42,0.5);background:rgba(139,58,42,0.08);color:#C0654F;border-radius:3px;cursor:pointer;transition:all 0.15s;}
+.btn-modal-delete:hover{background:rgba(139,58,42,0.15);}
+.modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--text-dim);font-size:1.1rem;cursor:pointer;line-height:1;}
+.modal-close:hover{color:var(--text);}
+
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface3);border:1px solid var(--border-strong);border-radius:3px;padding:0.6rem 1.1rem;font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);z-index:999;opacity:0;transition:opacity 0.25s;pointer-events:none;}
+.toast.show{opacity:1;}
+
+/* URL links in detail panel */
+.event-links{margin-bottom:1.1rem;}
+.event-link-item{display:flex;align-items:center;gap:8px;padding:0.45rem 0.7rem;border:1px solid var(--border);border-radius:3px;background:var(--ink);margin-bottom:6px;text-decoration:none;transition:border-color 0.15s;}
+.event-link-item:hover{border-color:var(--border-strong);}
+.event-link-label{font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);flex:1;}
+.event-link-url{font-size:0.8rem;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+.event-link-arrow{color:var(--text-dim);font-size:0.75rem;flex-shrink:0;}
+
+/* URL rows in event modal */
+.url-list{display:flex;flex-direction:column;gap:6px;margin-bottom:0.5rem;}
+.url-row{display:flex;gap:6px;align-items:center;}
+.url-row-label{width:110px;flex-shrink:0;}
+.url-row-url{flex:1;}
+.url-row-remove{background:none;border:1px solid rgba(139,58,42,0.3);color:#8B3A2A;border-radius:3px;padding:0.3rem 0.6rem;font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.url-row-remove:hover{border-color:rgba(192,101,79,0.5);color:#C0654F;}
+.btn-add-url{background:none;border:1px dashed var(--border);color:var(--text-dim);font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.35rem 0.8rem;border-radius:3px;cursor:pointer;transition:all 0.15s;}
+.btn-add-url:hover{color:var(--gold);border-color:var(--border-strong);}
+
+/* List bulk-edit modal */
+.list-edit-modal{max-width:600px;}
+.bulk-textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:0.7rem 0.8rem;color:var(--text);font-family:'Crimson Text',serif;font-size:1rem;outline:none;transition:border-color 0.15s;min-height:280px;resize:vertical;line-height:1.6;}
+.bulk-textarea:focus{border-color:var(--border-med);}
+.bulk-hint{font-size:0.82rem;color:var(--text-dim);font-style:italic;margin-top:0.35rem;line-height:1.5;}
+.list-edit-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:0.5rem;}
+.list-edit-title-input{background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:0.45rem 0.7rem;color:var(--text);font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;outline:none;width:100%;transition:border-color 0.15s;}
+.list-edit-title-input:focus{border-color:var(--border-med);}
+.list-card-edit-btn{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 9px;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:2px;cursor:pointer;transition:all 0.15s;margin-left:auto;}
+.list-card-edit-btn:hover{color:var(--gold);border-color:var(--border-strong);}
+/* ── RECIPES ── */
+.recipes-header{padding:1.1rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:#110E0B;}
+.rcat-btn{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.35rem 0.85rem;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:3px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.rcat-btn:hover{color:var(--text-muted);border-color:var(--border-med);}
+.rcat-btn.active{color:var(--gold);border-color:var(--border-strong);background:rgba(201,168,76,0.07);}
+.r-search{background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:0.38rem 0.75rem;color:var(--text);font-family:'Crimson Text',serif;font-size:0.9rem;outline:none;width:180px;transition:border-color 0.15s;}
+.r-search:focus{border-color:var(--border-med);}
+.r-search::placeholder{color:var(--text-dim);}
+.recipes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;padding:1.5rem 1.75rem;}
+.recipe-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;cursor:pointer;transition:all 0.15s;}
+.recipe-card:hover{border-color:var(--border-med);transform:translateY(-1px);}
+.recipe-card-img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--surface2);}
+.recipe-card-img-placeholder{width:100%;aspect-ratio:4/3;background:var(--surface2);display:flex;align-items:center;justify-content:center;}
+.recipe-card-img-placeholder-text{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);}
+.recipe-card-body{padding:0.8rem 0.9rem;}
+.recipe-card-cat{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:0.3rem;}
+.recipe-card-name{font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);margin-bottom:0.3rem;line-height:1.3;}
+.recipe-card-meta{font-size:0.78rem;color:var(--text-dim);}
+.recipe-empty{padding:3rem 2rem;color:var(--text-dim);font-style:italic;text-align:center;}
+
+/* Cook mode */
+.cook-header{margin-bottom:1.25rem;}
+.cook-title{font-family:'Cinzel',serif;font-size:1.1rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);margin-bottom:0.3rem;padding-right:4rem;}
+.cook-meta{font-size:0.85rem;color:var(--text-dim);}
+.cook-body{display:grid;grid-template-columns:1fr 1.4fr;gap:1.5rem;}
+@media(max-width:600px){.cook-body{grid-template-columns:1fr;}}
+.cook-section-label{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.7rem;padding-bottom:0.4rem;border-bottom:1px solid var(--border);}
+.cook-ingredient{display:flex;align-items:flex-start;gap:10px;padding:0.42rem 0;border-bottom:1px solid rgba(201,168,76,0.06);cursor:pointer;transition:opacity 0.15s;}
+.cook-ingredient.crossed{opacity:0.4;}
+.cook-ingredient.crossed .ci-text{text-decoration:line-through;}
+.ci-box{width:14px;height:14px;border:1px solid var(--border-med);border-radius:2px;flex-shrink:0;margin-top:3px;display:flex;align-items:center;justify-content:center;}
+.cook-ingredient.crossed .ci-box{background:rgba(90,196,122,0.2);border-color:rgba(90,196,122,0.5);}
+.ci-check{font-size:9px;color:var(--green);display:none;}
+.cook-ingredient.crossed .ci-check{display:block;}
+.ci-text{font-size:0.92rem;color:var(--text-muted);line-height:1.4;}
+.cook-step{padding:0.85rem 1rem;border:1px solid var(--border);border-radius:4px;background:var(--ink);margin-bottom:8px;cursor:pointer;transition:all 0.15s;}
+.cook-step.active-step{border-color:var(--border-strong);background:rgba(201,168,76,0.05);}
+.cook-step.done-step{opacity:0.45;}
+.cook-step-num{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.3rem;}
+.cook-step.active-step .cook-step-num{color:var(--gold);}
+.cook-step-text{font-size:0.92rem;color:var(--text-muted);line-height:1.5;}
+.cook-step.active-step .cook-step-text{color:var(--text);}
+.cook-actions{display:flex;gap:8px;margin-top:1.25rem;flex-wrap:wrap;}
+.cook-btn-grocery{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.5rem 1rem;border:1px solid rgba(90,196,122,0.45);background:rgba(90,196,122,0.08);color:var(--green);border-radius:3px;cursor:pointer;}
+.cook-btn-edit{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.5rem 1rem;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:3px;cursor:pointer;}
+.cook-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--text-dim);font-size:1.1rem;cursor:pointer;}
+
+/* Scaling */
+.cook-scale-row{display:flex;align-items:center;gap:10px;margin-bottom:0.9rem;}
+.scale-label{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);}
+.scale-btn{width:28px;height:28px;border:1px solid var(--border);background:none;color:var(--text-muted);border-radius:3px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.scale-btn:hover{border-color:var(--border-strong);color:var(--gold);}
+.scale-val{font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.08em;color:var(--text);min-width:28px;text-align:center;}
+
+/* ── GROCERY ── */
+.grocery-header{padding:1.1rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:#110E0B;}
+.grocery-body{display:grid;grid-template-columns:1fr 320px;min-height:calc(100vh - 120px);}
+@media(max-width:768px){.grocery-body{grid-template-columns:1fr;}}
+.grocery-col{padding:1.5rem 1.75rem;}
+.grocery-recipes-col{border-left:1px solid var(--border);background:#110E0B;}
+.grocery-section-label{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.85rem;padding-bottom:0.4rem;border-bottom:1px solid var(--border);}
+.grocery-item{display:flex;align-items:center;gap:10px;padding:0.5rem 0;border-bottom:1px solid rgba(201,168,76,0.07);cursor:pointer;}
+.grocery-item.g-checked .g-name{text-decoration:line-through;color:var(--text-dim);}
+.g-box{width:15px;height:15px;border:1px solid var(--border-med);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.12s;}
+.grocery-item.g-checked .g-box{background:rgba(90,196,122,0.2);border-color:rgba(90,196,122,0.5);}
+.g-check{font-size:9px;color:var(--green);display:none;}
+.grocery-item.g-checked .g-check{display:block;}
+.g-name{font-size:0.95rem;color:var(--text-muted);flex:1;}
+.g-remove{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.85rem;padding:0 4px;opacity:0.5;transition:opacity 0.15s;}
+.g-remove:hover{opacity:1;color:#C0654F;}
+.grocery-add-row{display:flex;gap:6px;margin-top:0.75rem;}
+.grocery-empty{color:var(--text-dim);font-style:italic;font-size:0.9rem;padding:0.5rem 0;}
+.g-recipe-pick{display:flex;align-items:center;justify-content:space-between;padding:0.55rem 0;border-bottom:1px solid rgba(201,168,76,0.07);}
+.g-recipe-name{font-size:0.9rem;color:var(--text-muted);}
+.g-recipe-add{font-family:'Cinzel',serif;font-size:0.54rem;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:2px;cursor:pointer;transition:all 0.15s;}
+.g-recipe-add:hover{color:var(--green);border-color:rgba(90,196,122,0.45);}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <div class="hdr-logo">Life Menu</div>
+    <div class="hdr-sub">with the boys</div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showView('home')">Home</button>
+    <button class="nav-btn" onclick="showView('seasonal')">Seasonal</button>
+    <button class="nav-btn" onclick="showView('lists')">Lists</button>
+    <button class="nav-btn" onclick="showView('recipes')">Recipes</button>
+    <button class="nav-btn" onclick="showView('grocery')">Grocery</button>
+  </nav>
+</div>
+
+<!-- HOME -->
+<div id="view-home" class="view active">
+  <div class="home-hero">
+    <div class="home-eyebrow">Ahnna &amp; The Boys</div>
+    <div class="home-title">The Menu</div>
+    <div class="home-sub">Things worth doing. Browse when you feel like it.</div>
+  </div>
+
+  <div class="strip-section">
+    <div class="strip-header">
+      <div class="strip-label">Coming Up</div>
+      <span class="strip-see-all" onclick="showView('seasonal')">See all seasonal &rarr;</span>
+    </div>
+    <div id="home-banner-wrap">
+      <div class="carousel-outer" id="carousel-outer">
+        <div class="carousel-track" id="carousel-track"></div>
+      </div>
+    </div>
+    <div class="strip-empty" id="strip-empty" style="display:none;">Nothing coming up in the next 30 days. Check the Seasonal view to plan ahead.</div>
+  </div>
+
+  <div class="ornament">— — —</div>
+
+  <div class="home-sections">
+    <div class="home-section">
+      <div class="home-section-header">
+        <div>
+          <div class="home-section-title">Watch &amp; Play</div>
+          <div class="home-section-sub">Shows, movies, games to get through together</div>
+        </div>
+        <span class="home-section-link" onclick="showView('lists')">See all lists &rarr;</span>
+      </div>
+      <div class="list-preview-grid" id="home-lists-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SEASONAL -->
+<div id="view-seasonal" class="view">
+  <div class="seasonal-header">
+    <div class="seasonal-header-title">Rolling Calendar &mdash; All Events</div>
+    <button class="btn-add-event" onclick="openAddModal()">+ Add Event</button>
+  </div>
+  <div id="seasonal-list"></div>
+</div>
+
+<!-- LISTS -->
+<div id="view-lists" class="view">
+  <div class="lists-body">
+    <div class="lists-grid" id="lists-grid"></div>
+  </div>
+</div>
+
+<!-- RECIPES -->
+<div id="view-recipes" class="view">
+  <div class="recipes-header">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="rcat-btn active" data-cat="all" onclick="filterRecipes('all',this)">All</button>
+      <button class="rcat-btn" data-cat="Weeknight" onclick="filterRecipes('Weeknight',this)">Weeknight</button>
+      <button class="rcat-btn" data-cat="Boys Love This" onclick="filterRecipes('Boys Love This',this)">Boys Love This</button>
+      <button class="rcat-btn" data-cat="Batch Cook" onclick="filterRecipes('Batch Cook',this)">Batch Cook</button>
+      <button class="rcat-btn" data-cat="Slow Cooker" onclick="filterRecipes('Slow Cooker',this)">Slow Cooker</button>
+      <button class="rcat-btn" data-cat="Snacks" onclick="filterRecipes('Snacks',this)">Snacks</button>
+      <button class="rcat-btn" data-cat="Breakfast" onclick="filterRecipes('Breakfast',this)">Breakfast</button>
+      <button class="rcat-btn" data-cat="Dessert" onclick="filterRecipes('Dessert',this)">Dessert</button>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input class="r-search" id="recipe-search" placeholder="Search recipes..." oninput="filterRecipes(null,null)">
+      <button class="btn-add-event" onclick="openRecipeModal()">+ Add Recipe</button>
+      <button class="btn-add-event" style="border-color:rgba(123,167,199,0.5);color:var(--blue);background:rgba(123,167,199,0.07);" onclick="openUrlImportModal()">+ From URL</button>
+    </div>
+  </div>
+  <div class="recipes-grid" id="recipes-grid"></div>
+</div>
+
+<!-- GROCERY -->
+<div id="view-grocery" class="view">
+  <div class="grocery-header">
+    <div>
+      <div style="font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-dim);">Grocery List</div>
+      <div style="font-size:0.85rem;color:var(--text-dim);font-style:italic;margin-top:0.2rem;">Add from recipes or type items manually</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-add-event" onclick="clearCheckedGrocery()">Clear checked</button>
+      <button class="btn-add-event" style="border-color:rgba(139,58,42,0.4);color:#C0654F;background:rgba(139,58,42,0.06);" onclick="clearAllGrocery()">Clear all</button>
+    </div>
+  </div>
+  <div class="grocery-body">
+    <div class="grocery-col">
+      <div class="grocery-section-label">Items</div>
+      <div id="grocery-list"></div>
+      <div class="grocery-add-row">
+        <input class="list-add-input" id="grocery-manual-input" placeholder="Add item manually..." onkeydown="if(event.key==='Enter')addGroceryManual()">
+        <button class="list-add-btn" onclick="addGroceryManual()">Add</button>
+      </div>
+    </div>
+    <div class="grocery-col grocery-recipes-col">
+      <div class="grocery-section-label">Add from a Recipe</div>
+      <div id="grocery-recipe-picker"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL OVERLAY (slides in from right) -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-panel-inner" id="detail-inner"></div>
+  </div>
+</div>
+
+<!-- ADD/EDIT EVENT MODAL -->
+<div class="modal-backdrop" id="modal-event">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-event')">&times;</button>
+    <div class="modal-title" id="modal-event-title">Add Event</div>
+    <input type="hidden" id="edit-event-id" value="">
+    <div class="modal-field">
+      <label class="modal-label">Event name *</label>
+      <input class="modal-input" id="ev-name" placeholder="e.g. Apple Picking, Lake Day…">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Month</label>
+      <select class="modal-select" id="ev-month">
+        <option value="1">January</option><option value="2">February</option>
+        <option value="3">March</option><option value="4">April</option>
+        <option value="5">May</option><option value="6">June</option>
+        <option value="7">July</option><option value="8">August</option>
+        <option value="9">September</option><option value="10">October</option>
+        <option value="11">November</option><option value="12">December</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Day of month (optional)</label>
+      <input class="modal-input" id="ev-day" placeholder="e.g. 31" type="number" min="1" max="31">
+      <div class="modal-hint">Shows in carousel 30 days before this date.</div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Window / closes label</label>
+      <input class="modal-input" id="ev-window" placeholder="e.g. Halloween, mid-December, all summer">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Notes for idea generation</label>
+      <textarea class="modal-textarea" id="ev-notes" placeholder="Budget, vibe, constraints… Claude uses this to suggest ideas."></textarea>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Card image URL (optional, 4:5)</label>
+      <input class="modal-input" id="ev-image" placeholder="https://… paste any image URL">
+      <div class="modal-hint">Shows as the card face in the carousel. Use a 4:5 portrait image for best results.</div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Links (optional)</label>
+      <div class="url-list" id="ev-url-list"></div>
+      <button class="btn-add-url" onclick="addUrlRow()">+ Add link</button>
+      <div class="modal-hint">Tickets, venue sites, trail maps, reservation pages — anything useful.</div>
+    </div>
+    <div class="modal-row">
+      <button class="btn-modal-save" onclick="saveEvent()">Save Event</button>
+      <button class="btn-modal-cancel" onclick="closeModal('modal-event')">Cancel</button>
+      <button class="btn-modal-delete" id="btn-delete-event" style="display:none;" onclick="deleteEvent()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD LIST MODAL -->
+<div class="modal-backdrop" id="modal-add-list">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-add-list')">&times;</button>
+    <div class="modal-title">New List</div>
+    <div class="modal-field">
+      <label class="modal-label">List name</label>
+      <input class="modal-input" id="new-list-name" placeholder="e.g. Places to Go, Books to Read…">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Tag type</label>
+      <select class="modal-select" id="new-list-tag">
+        <option value="">None</option>
+        <option value="show">Show</option>
+        <option value="movie">Movie</option>
+        <option value="game">Game</option>
+        <option value="place">Place</option>
+      </select>
+    </div>
+    <div class="modal-row">
+      <button class="btn-modal-save" onclick="saveNewList()">Create List</button>
+      <button class="btn-modal-cancel" onclick="closeModal('modal-add-list')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECIPE ADD/EDIT MODAL -->
+<div class="modal-backdrop" id="modal-recipe">
+  <div class="modal" style="max-width:600px;">
+    <button class="modal-close" onclick="closeModal('modal-recipe')">&times;</button>
+    <div class="modal-title" id="modal-recipe-title">Add Recipe</div>
+    <input type="hidden" id="edit-recipe-id">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+      <div class="modal-field" style="grid-column:1/-1;">
+        <label class="modal-label">Recipe name *</label>
+        <input class="modal-input" id="r-name" placeholder="e.g. Sheet Pan Chicken Thighs">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Category</label>
+        <select class="modal-select" id="r-cat">
+          <option>Weeknight</option><option>Boys Love This</option><option>Batch Cook</option>
+          <option>Slow Cooker</option><option>Snacks</option><option>Breakfast</option><option>Dessert</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Servings</label>
+        <input class="modal-input" id="r-servings" type="number" min="1" placeholder="4">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Prep time</label>
+        <input class="modal-input" id="r-prep" placeholder="e.g. 15 min">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Cook time</label>
+        <input class="modal-input" id="r-cook" placeholder="e.g. 30 min">
+      </div>
+      <div class="modal-field" style="grid-column:1/-1;">
+        <label class="modal-label">Image URL (optional)</label>
+        <input class="modal-input" id="r-image" placeholder="https://…">
+      </div>
+      <div class="modal-field" style="grid-column:1/-1;">
+        <label class="modal-label">Source URL (optional)</label>
+        <input class="modal-input" id="r-source" placeholder="https://… original recipe link">
+      </div>
+      <div class="modal-field" style="grid-column:1/-1;">
+        <label class="modal-label">Ingredients — one per line</label>
+        <textarea class="bulk-textarea" id="r-ingredients" style="min-height:130px;" placeholder="2 lbs chicken thighs&#10;1 tbsp olive oil&#10;Salt and pepper&#10;1 tsp garlic powder"></textarea>
+      </div>
+      <div class="modal-field" style="grid-column:1/-1;">
+        <label class="modal-label">Directions — one step per line</label>
+        <textarea class="bulk-textarea" id="r-directions" style="min-height:160px;" placeholder="Preheat oven to 425F.&#10;Pat chicken dry and season with salt, pepper, and garlic powder.&#10;Roast for 30-35 minutes until skin is crispy."></textarea>
+      </div>
+      <div class="modal-field" style="grid-column:1/-1;">
+        <label class="modal-label">Notes (optional)</label>
+        <textarea class="modal-textarea" id="r-notes" placeholder="Substitutions, tips, what the boys like about it…"></textarea>
+      </div>
+    </div>
+    <div class="modal-row">
+      <button class="btn-modal-save" onclick="saveRecipe()">Save Recipe</button>
+      <button class="btn-modal-cancel" onclick="closeModal('modal-recipe')">Cancel</button>
+      <button class="btn-modal-delete" id="btn-delete-recipe" style="display:none;" onclick="deleteRecipe()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- URL IMPORT MODAL -->
+<div class="modal-backdrop" id="modal-url-import">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-url-import')">&times;</button>
+    <div class="modal-title">Import from URL</div>
+    <div class="modal-field">
+      <label class="modal-label">Recipe URL</label>
+      <input class="modal-input" id="import-url" placeholder="https://www.allrecipes.com/recipe/…">
+      <div class="modal-hint">Paste any recipe URL. Claude will extract the name, ingredients, and steps.</div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Category</label>
+      <select class="modal-select" id="import-cat">
+        <option>Weeknight</option><option>Boys Love This</option><option>Batch Cook</option>
+        <option>Slow Cooker</option><option>Snacks</option><option>Breakfast</option><option>Dessert</option>
+      </select>
+    </div>
+    <div id="import-status" style="font-size:0.88rem;color:var(--text-dim);font-style:italic;margin-top:0.5rem;display:none;"></div>
+    <div class="modal-row">
+      <button class="btn-modal-save" id="btn-import-go" onclick="importFromUrl()">Import Recipe</button>
+      <button class="btn-modal-cancel" onclick="closeModal('modal-url-import')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- COOK MODE OVERLAY -->
+<div class="modal-backdrop" id="modal-cook">
+  <div class="modal" style="max-width:700px;max-height:92vh;overflow-y:auto;" id="cook-modal-inner">
+  </div>
+</div>
+
+<!-- LIST BULK EDIT MODAL -->
+<div class="modal-backdrop" id="modal-list-edit">
+  <div class="modal list-edit-modal">
+    <button class="modal-close" onclick="closeModal('modal-list-edit')">&times;</button>
+    <div class="modal-title">Edit List</div>
+    <input type="hidden" id="list-edit-id">
+    <div class="modal-field">
+      <label class="modal-label">List title</label>
+      <input class="list-edit-title-input" id="list-edit-title" placeholder="List name">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" style="margin-bottom:0.4rem;">Items &mdash; one per line</label>
+      <textarea class="bulk-textarea" id="list-edit-bulk" placeholder="One item per line&#10;&#10;Stranger Things&#10;Cobra Kai&#10;Avatar: The Last Airbender&#10;&#10;Paste a whole list at once or type one per line."></textarea>
+      <div class="bulk-hint">Each line becomes an item. Paste a whole list at once. Items you've already checked off are preserved and shown at the bottom.</div>
+    </div>
+    <div class="modal-row">
+      <button class="btn-modal-save" onclick="saveListEdit()">Save List</button>
+      <button class="btn-modal-cancel" onclick="closeModal('modal-list-edit')">Cancel</button>
+      <button class="btn-modal-delete" onclick="deleteList()">Delete List</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="loading-screen" style="position:fixed;inset:0;background:#0E0C0A;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;">
+  <div style="font-family:'Cinzel',serif;font-size:1rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#C9A84C;">Life Menu</div>
+  <div style="font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:#6A5E42;" id="loading-msg">Connecting...</div>
+</div>
+<div id="save-indicator" style="position:fixed;top:1rem;left:50%;transform:translateX(-50%);font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;padding:4px 14px;border-radius:3px;background:rgba(90,196,122,0.12);border:1px solid rgba(90,196,122,0.35);color:#5AC47A;z-index:400;opacity:0;transition:opacity 0.3s;pointer-events:none;">Saved</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAGXF8uxICN99-GkrzeB70kmuayvPEMFws",
+  authDomain: "ahnna-life-hub.firebaseapp.com",
+  projectId: "ahnna-life-hub",
+  storageBucket: "ahnna-life-hub.firebasestorage.app",
+  messagingSenderId: "54845473384",
+  appId: "1:54845473384:web:daacdb68c17024dc4bf1dd"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+
+// ── FIRESTORE HELPERS ──
+function flashSaved() {
+  const el = document.getElementById('save-indicator');
+  if (!el) return;
+  el.style.opacity = '1';
+  clearTimeout(window._saveTimer);
+  window._saveTimer = setTimeout(() => { el.style.opacity = '0'; }, 1400);
+}
+
+async function saveEvents() {
+  try {
+    await setDoc(doc(db, 'life-menu', 'events'), { data: events });
+    flashSaved();
+  } catch(e) { console.error('Save events failed:', e); showToast('Save failed — check connection'); }
+}
+
+async function saveLists() {
+  try {
+    await setDoc(doc(db, 'life-menu', 'lists'), { data: lists });
+    flashSaved();
+  } catch(e) { console.error('Save lists failed:', e); showToast('Save failed — check connection'); }
+}
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTH_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const NOW = new Date();
+const CUR_MONTH = NOW.getMonth() + 1;
+const CUR_DAY = NOW.getDate();
+
+const SEASON_MAP = {1:'Winter',2:'Winter',3:'Spring',4:'Spring',5:'Spring',6:'Summer',7:'Summer',8:'Summer',9:'Fall',10:'Fall',11:'Fall',12:'Winter'};
+
+// Days until a given month/day (this year or next)
+function daysUntil(month, day) {
+  const d = day || 15;
+  const target = new Date(NOW.getFullYear(), month - 1, d);
+  if (target < NOW) target.setFullYear(NOW.getFullYear() + 1);
+  return Math.ceil((target - NOW) / 86400000);
+}
+
+// Is this event within the next 30 days?
+function isComingUp(ev) {
+  if (ev.status === 'done') return false;
+  const du = daysUntil(ev.month, ev.day);
+  return du >= 0 && du <= 30;
+}
+
+let events = [
+  // JANUARY
+  {id:1,name:"New Year's Day Walk",month:1,day:1,windowLabel:"Jan 1",season:"Winter",status:"open",
+   bring:["Layers","Water","Camera"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Neighborhood Stroll",cost:"$0",desc:"Walk around the neighborhood, whatever direction feels right. Fresh air and a reset for the year. Low key on purpose."},
+    {tag:"med",label:"Easy out",name:"Local Trail — Flaming Geyser or Soos Creek",cost:"$0",desc:"Short well-maintained trail near Auburn. Drive there, walk an hour, drive back. Boys can lead the way."},
+    {tag:"full",label:"Full send",name:"Rattlesnake Ledge Hike",cost:"~$5 parking",desc:"One of the best payoff hikes near Auburn — a clear view at the top. About 4 miles round trip. Busy on weekends so go early."}
+  ]},
+  {id:2,name:"Valentine's Day with the Boys",month:2,day:14,windowLabel:"Feb 14",season:"Winter",status:"open",
+   bring:["Their favorite snacks","A movie or game they pick"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Special Dinner, Their Choice",cost:"~$15–25",desc:"Let each pick where they want to eat. Make it about them individually."},
+    {tag:"med",label:"Easy out",name:"Escape Room",cost:"~$50–80",desc:"Great for 10 & 12 year olds. Team activity, done in an hour. Federal Way and Auburn have options."},
+    {tag:"full",label:"Full send",name:"Seattle Day Trip",cost:"~$60–100",desc:"Pike Place, lunch somewhere fun, maybe the aquarium. A 'just us' day in the city."}
+  ]},
+  // MARCH
+  {id:3,name:"Spring Break Activity",month:3,day:null,windowLabel:"Late March",season:"Spring",status:"open",
+   bring:["Depends on activity","Snacks","Layers"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Home Project + Movie Days",cost:"~$10–20",desc:"Pick one thing to build or make together. Mix in movies. Intentional rest is not wasted time."},
+    {tag:"med",label:"Easy out",name:"Day Hike",cost:"~$0–15",desc:"Twin Falls or Lake Serene lower section. Boys carry their own packs. Pick a trail with a waterfall payoff."},
+    {tag:"full",label:"Full send",name:"Overnight Trip",cost:"~$150–250",desc:"Leavenworth, Westport coast, or Hood Canal. One night somewhere new. Drive, walk around, eat local, sleep, come home."}
+  ]},
+  // APRIL
+  {id:4,name:"Opening Day — Baseball Season",month:4,day:null,windowLabel:"Early April",season:"Spring",status:"open",
+   bring:["Layers (April is cold at the stadium)","Cash for food","Sunscreen"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Watch a Game at Home",cost:"$0",desc:"Mariners opening series on TV. Make it a whole thing — stadium food you make at home, scorecards, pick a player to follow."},
+    {tag:"med",label:"Easy out",name:"T-Mobile Park Game",cost:"~$50–90",desc:"Mariners at T-Mobile Park. Take the Sounder train from Auburn Station — no parking, direct ride. Buy tickets in advance for lower bowl."},
+    {tag:"full",label:"Full send",name:"Full Day in Seattle + Mariners Game",cost:"~$100–150",desc:"Train to Seattle, wander Pike Place or the waterfront before the game, then the game. A real day out."}
+  ]},
+  // MAY
+  {id:5,name:"Mother's Day",month:5,day:null,windowLabel:"Mid-May",season:"Spring",status:"open",
+   bring:["Whatever you actually want to do"],
+   notes:"This is YOUR day. The boys can help make it happen.",
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Sleep In + Breakfast They Make",cost:"$0–10",desc:"Tell them the night before: you want to sleep in and you want breakfast brought to you. Simple. Let them figure it out."},
+    {tag:"med",label:"Easy out",name:"Your Choice of Activity",cost:"Varies",desc:"Whatever YOU want to do that day — not what they want. A hike you've been meaning to take. A restaurant you've wanted to try. A movie. Your call."},
+    {tag:"full",label:"Full send",name:"Day Trip to Somewhere You Love",cost:"~$60–120",desc:"The coast, a garden, a town you haven't been to. Pick the destination. Boys come along and keep up. This is yours."}
+  ]},
+  {id:6,name:"Berry Picking",month:6,day:null,windowLabel:"June–August",season:"Summer",status:"planned",
+   bring:["Containers or buckets","Water + snacks","Sunscreen","Cash","Comfortable shoes"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Farm Stand Purchase",cost:"~$15–25",desc:"Buy pre-picked flats from a roadside farm stand. Still fresh, still local. Valid."},
+    {tag:"med",label:"Easy out",name:"U-Pick for an Hour",cost:"~$20–35",desc:"Farms around Auburn and Kent have u-pick blueberries, strawberries, raspberries June–August. Go in the morning. Set a timer."},
+    {tag:"full",label:"Full send",name:"U-Pick + Picnic + Preserve",cost:"~$30–50",desc:"Pick a big haul and make freezer jam together. Easy and they'll use it all year. A whole afternoon."}
+  ]},
+  {id:7,name:"End of School Year Celebration",month:6,day:null,windowLabel:"Late June",season:"Summer",status:"open",
+   bring:["Camera","Their restaurant pick"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Favorite Meal Out, Their Choice",cost:"~$30–50",desc:"Let each pick where they want to eat to mark the year. Make it feel intentional."},
+    {tag:"med",label:"Easy out",name:"Activity They've Been Asking For",cost:"~$40–70",desc:"Axe throwing, go-karts, mini golf, bowling, laser tag. Use this as the excuse."},
+    {tag:"full",label:"Full send",name:"Overnight Trip to Celebrate",cost:"~$100–200",desc:"One night somewhere they've said they want to go. Hotel with a pool. Their pick for dinner."}
+  ]},
+  // JULY
+  {id:8,name:"Fourth of July",month:7,day:4,windowLabel:"July 4",season:"Summer",status:"open",
+   bring:["Chairs or blanket","Snacks + drinks","Sparklers","Bug spray","Phone charger","$20 cash"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Driveway Night",cost:"~$20–35",desc:"Sparklers and snacks outside your own place. Boys handle setup. Scout your block for city fireworks sightlines the day before. Zero driving, zero parking, zero crowds."},
+    {tag:"med",label:"Easy out",name:"Watch from the Car",cost:"$0–15",desc:"Find a low-traffic overlook or edge-of-town spot beforehand. Drive there early, stay in the car if you want. Clean exit when it's over."},
+    {tag:"full",label:"Full send",name:"Auburn or Federal Way Event",cost:"$30–60",desc:"Actual festival or park show. Arrive before crowds, know your exit route before it gets dark. At 10 & 12, they carry bags and navigate with you."}
+  ]},
+  {id:9,name:"Lake Day",month:7,day:null,windowLabel:"July–August",season:"Summer",status:"open",
+   bring:["Towels","Sunscreen","Snacks + drinks","Chairs or blanket","Change of clothes","Bug spray"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Flaming Geyser Beach (Green River)",cost:"$0",desc:"Free swimming area on the Green River near Black Diamond. Close to Auburn. No entry fee, low traffic on weekdays. Boys are old enough to supervise each other in the shallows."},
+    {tag:"med",label:"Easy out",name:"Lake Meridian Park",cost:"$0",desc:"Covered shelter, swimming area, bathroom. Kent is 20 minutes. Go on a weekday morning before crowds arrive. Easy to leave whenever you want."},
+    {tag:"full",label:"Full send",name:"Lake Tapps or Lake Sawyer",cost:"$0–5",desc:"Bigger lake experience. Pack a full day — lunch, snacks, activities. Boys can explore independently. Plan your exit before it gets hot-crowd busy."}
+  ]},
+  {id:10,name:"Outdoor Movie Night",month:7,day:null,windowLabel:"Labor Day",season:"Summer",status:"open",
+   bring:["Projector or tablet + stand","Extension cord or battery pack","Blankets + pillows","Popcorn","Bug spray"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Tablet Movie in the Backyard",cost:"$0–5",desc:"Drag a TV or set up a tablet outside on a warm evening. Blanket on the grass. Popcorn. The setting makes it feel like an event."},
+    {tag:"med",label:"Easy out",name:"Backyard Projector Night",cost:"$0 if you have one",desc:"Sheet on the fence, projector from a friend. Boys set it up. Double feature."},
+    {tag:"full",label:"Full send",name:"Auburn 6 Drive-In",cost:"~$25–40",desc:"Still running. Double feature in the car. Pillows in the back seat. Cheaper than indoor theaters."}
+  ]},
+  // AUGUST
+  {id:11,name:"Summer Fair",month:8,day:null,windowLabel:"Late August",season:"Summer",status:"open",
+   bring:["Cash — rides are cash-heavy","Comfortable shoes","Small backpack","Phone charger"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Skip It This Year",cost:"$0",desc:"Fairs with crowds and overpriced everything aren't for everyone. If it sounds exhausting just reading this, skip it. No guilt."},
+    {tag:"med",label:"Easy out",name:"Small Local Carnival",cost:"~$30–50",desc:"Community carnivals are less overwhelming. Auburn has local events in August — check the city calendar. Arrive early, leave when it gets crowded."},
+    {tag:"full",label:"Full send",name:"Puyallup Fair",cost:"~$80–120",desc:"Huge. September in Puyallup. Buy tickets ahead. Arrive at open. Boys old enough to do rides while you drink coffee."}
+  ]},
+  {id:12,name:"Camping Trip",month:8,day:null,windowLabel:"Late September",season:"Summer",status:"open",
+   bring:["Tent + sleeping bags","Camp stove + fuel","Food for 2 nights","First aid kit","Headlamps","Rain layer"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Backyard Camp Night",cost:"~$0",desc:"Tent in the backyard. Firepit if you have one. Camp food, stargazing. Boys at 10 & 12 think this is genuinely cool."},
+    {tag:"med",label:"Easy out",name:"Campground 1–2 Hours Away",cost:"~$40–80",desc:"Lake Easton, Dash Point, or Iron Horse State Park are within 90 min of Auburn. Bathrooms on-site. One night is enough. Book in advance."},
+    {tag:"full",label:"Full send",name:"Olympic Peninsula or Rainier",cost:"~$80–150",desc:"Hurricane Ridge at Olympic or Ohanapecosh at Rainier. Reserve months ahead. A trip they'd remember."}
+  ]},
+  // SEPTEMBER
+  {id:13,name:"First Day of School Photos",month:9,day:null,windowLabel:"Early September",season:"Fall",status:"open",
+   bring:["Camera","Matching location from last year if you do that"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Front Door Shot + Breakfast Together",cost:"$0",desc:"Quick photo at the front door, then a special breakfast before they head out. Simple and done."},
+    {tag:"med",label:"Easy out",name:"Same Spot Tradition",cost:"$0",desc:"Pick a spot you can return to every year — a tree, a gate, a wall. Same angle, every year. By the time they're 18 you'll have a series."},
+    {tag:"full",label:"Full send",name:"Whole Morning Together Before School",cost:"~$15–25",desc:"Their choice of breakfast out, photos on the way. Make the first day of school an occasion, not a scramble."}
+  ]},
+  // OCTOBER
+  {id:14,name:"Haunted Houses",month:10,day:null,windowLabel:"Oct 31",season:"Fall",status:"open",
+   bring:["Comfy shoes","Cash or card","Layers — cold in line","Phone charger"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Halloween Movie Marathon",cost:"~$10–20",desc:"Blanket fort, horror movies for their age, themed snacks they help make. Zero logistics."},
+    {tag:"med",label:"Easy out",name:"Corn Maze + Scare Trail",cost:"~$30–50",desc:"Farms around Auburn/Federal Way do scare trail add-ons in October. Outdoor, easy to leave. Book online so you skip the ticket line."},
+    {tag:"full",label:"Full send",name:"Haunted House Venue",cost:"$50–90",desc:"Nightmare at Beaver Lake, Field of Screams. Buy in advance. Go weeknight to avoid worst crowds."}
+  ]},
+  {id:15,name:"Pumpkin Patch",month:10,day:null,windowLabel:"Late October",season:"Fall",status:"open",
+   bring:["Cash — many farms cash only","Layers","Bags for pumpkins","Camera"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Grocery Store + Carving Night",cost:"~$15–25",desc:"Buy pumpkins from the store, bring them home, carve together with a Halloween playlist."},
+    {tag:"med",label:"Easy out",name:"Local Farm Stand",cost:"~$20–40",desc:"Farms near Auburn and Kent sell pumpkins without a full experience setup. In and out in an hour."},
+    {tag:"full",label:"Full send",name:"Carpinito Brothers or Bob's Corn Farm",cost:"~$40–70",desc:"Corn maze, animals, the whole thing. Go weekday morning to beat the stroller crowd."}
+  ]},
+  {id:16,name:"Fall Hike — Peak Color",month:10,day:null,windowLabel:"Mid-October",season:"Fall",status:"open",
+   bring:["Layers + rain layer","Water + snacks","Good shoes","Camera"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Flaming Geyser or Soos Creek Trail",cost:"$0",desc:"Flat, easy, local. Color change on the trees by mid-October. Boys can lead. Done in 90 minutes."},
+    {tag:"med",label:"Easy out",name:"Twin Falls — Olallie State Park",cost:"$0–5 parking",desc:"Waterfall + fall foliage. About 45 minutes from Auburn. Well-maintained trail. Plan for 2 hours."},
+    {tag:"full",label:"Full send",name:"Tipsoo Lake at Rainier",cost:"$35 park pass or $20/vehicle",desc:"Alpine lake at peak color with Rainier in the background. About 2 hours away. Crowd can be heavy — go on a Tuesday."}
+  ]},
+  // NOVEMBER
+  {id:17,name:"Thanksgiving Cooking Together",month:11,day:null,windowLabel:"Late November",season:"Fall",status:"open",
+   bring:["Groceries","Aprons","Whatever music they want on"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"One Dish Each",cost:"~$20–40",desc:"Each person is responsible for one part of the meal. They choose what they make. Teach them what you know. Messy, fun, memorable."},
+    {tag:"med",label:"Easy out",name:"From-Scratch Dinner for Three",cost:"~$40–60",desc:"Full Thanksgiving just the three of you. They help with everything. Make it a kitchen day, not a chore."},
+    {tag:"full",label:"Full send",name:"Potluck or Friendsgiving",cost:"~$50–80",desc:"If there are people you want to see, make it a gathering. The boys can help host."}
+  ]},
+  // DECEMBER
+  {id:18,name:"Christmas Lights Drive",month:12,day:null,windowLabel:"Dec 26",season:"Winter",status:"open",
+   bring:["Hot drinks in thermoses","Blankets","Holiday playlist ready","Snacks for the car"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Neighborhood Drive + Hot Cocoa",cost:"~$5–10",desc:"Drive decorated neighborhoods with hot cocoa. Let the boys navigate. Competition: best lights, weirdest inflatable."},
+    {tag:"med",label:"Easy out",name:"City Park Lights Show",cost:"~$10–20",desc:"Auburn, Federal Way, Renton all do drive-through or walk-through light shows in December. Check city parks in November for dates."},
+    {tag:"full",label:"Full send",name:"Warm Beach Festival of Lights",cost:"~$60–80",desc:"90 min to Stanwood. Massive walk-through lights, mulled cider. Go weeknight. Worth the drive once."}
+  ]},
+  {id:19,name:"Skiing or Snow Day",month:12,day:null,windowLabel:"Feb (peak season)",season:"Winter",status:"open",
+   bring:["Layers + gloves + hats","Snacks (resort food is expensive)","Sunscreen","Cash for rentals","Hand warmers"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Sledding Hill",cost:"~$5–15",desc:"Snoqualmie Pass area has free sledding spots. Grab sleds or use cardboard. Pack hot cocoa. Boys run this themselves."},
+    {tag:"med",label:"Easy out",name:"Snowshoe Trail",cost:"~$30–50",desc:"Crystal Mountain or Snoqualmie area has beginner snowshoe trails. Rent snowshoes, walk through trees. Good half-day."},
+    {tag:"full",label:"Full send",name:"Ski Day at Crystal or Stevens Pass",cost:"$150–250",desc:"Buy lift tickets online in advance. Go weekday if possible. Pack food to keep resort costs down."}
+  ]},
+  {id:20,name:"New Year's Eve",month:12,day:31,windowLabel:"Dec 31",season:"Winter",status:"open",
+   bring:["Sparkling cider","Noisemakers or poppers","Snacks for staying up","Phone charger"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Home Countdown",cost:"~$10–20",desc:"Sparkling cider, countdown, poppers at midnight. Movie marathon through the evening. At 10 & 12 they might make it."},
+    {tag:"med",label:"Easy out",name:"Board Games + Countdown",cost:"~$5–15",desc:"Game night with a midnight countdown built in. Low cost, high togetherness."},
+    {tag:"full",label:"Full send",name:"Seattle Waterfront Fireworks",cost:"~$30–60",desc:"Space Needle fireworks at midnight. Park-and-ride from a distant lot, take transit in. Only do this if you genuinely have energy."}
+  ]},
+  // Additional scattered events
+  {id:21,name:"Arcade or Bowling Night",month:1,day:null,windowLabel:"Any rainy weekend",season:"Winter",status:"open",
+   bring:["Cash or card","Comfortable shoes"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Garage Bowling Pins + Hallway",cost:"$0",desc:"Set up a bowling lane down your hall with water bottles or cups. Silly, free, probably hilarious."},
+    {tag:"med",label:"Easy out",name:"Local Bowling Alley",cost:"~$25–40",desc:"GameWorks in Renton or local bowling alleys nearby. Weekday evenings are quieter and cheaper."},
+    {tag:"full",label:"Full send",name:"Round1 Entertainment — Southcenter",cost:"~$40–70",desc:"Full arcade, bowling, karaoke, darts. At 10 & 12 they can roam the arcade while you relax. Load a game card and let them go."}
+  ]},
+  {id:22,name:"Science Center or Museum Day",month:2,day:null,windowLabel:"Any rainy weekend",season:"Winter",status:"open",
+   bring:["Snacks (museum food is expensive)","Comfortable shoes","Card or cash"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Virtual Museum Online",cost:"$0",desc:"Smithsonian, NASA, and dozens of museums offer free virtual tours. Put it on the big screen. Pick a theme they're into."},
+    {tag:"med",label:"Easy out",name:"Pacific Science Center",cost:"~$50–70",desc:"Seattle Center. Hands-on exhibits, IMAX if anything good is showing. Take the Sounder from Auburn. Built for exactly these ages."},
+    {tag:"full",label:"Full send",name:"Museum of Flight",cost:"~$30–50",desc:"Tukwila — 25 minutes from Auburn. Real planes, space exhibits, an SR-71. Boys will lose their minds if they're into anything aviation or space."}
+  ]},
+  {id:23,name:"Birthday Month Planning",month:3,day:null,windowLabel:"Varies by birthdays",season:"Spring",status:"open",
+   bring:["Their wish lists"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Their Choice Dinner + Cake at Home",cost:"~$20–40",desc:"Dinner wherever they pick, homemade or store cake, one focused day that's just about them."},
+    {tag:"med",label:"Easy out",name:"Activity of Their Choosing",cost:"~$30–60",desc:"Whatever they've been asking to do. Axe throwing, escape room, go-karts, a specific restaurant. It's their call."},
+    {tag:"full",label:"Full send",name:"Friend Party or Bigger Outing",cost:"~$80–150",desc:"If they want friends involved, a bowling party or go-kart outing for a small group. Let them invite who they actually want."}
+  ]},
+  {id:24,name:"Gardening or She-Shed Day",month:4,day:null,windowLabel:"Spring",season:"Spring",status:"open",
+   bring:["Gloves","Seeds or starter plants","Music"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Plant Something Together",cost:"~$5–15",desc:"One pot, one plant, something they pick or something useful. Herbs on the windowsill. Tomato in a bucket. Simple."},
+    {tag:"med",label:"Easy out",name:"Raised Bed or Container Garden",cost:"~$30–60",desc:"A small veggie or herb garden they help tend. Assign each boy one plant to keep alive. Accountability + bragging rights."},
+    {tag:"full",label:"Full send",name:"Yard or She-Shed Project Day",cost:"Varies",desc:"Pick a project they help with — building something, painting something, clearing something. A full day working together outside."}
+  ]},
+  {id:25,name:"Fireworks at a Lake",month:7,day:null,windowLabel:"Summer evenings",season:"Summer",status:"open",
+   bring:["Blanket","Snacks","Layers for after dark","Phone charger"],
+   options:[
+    {tag:"low",label:"Lowest effort",name:"Watch Neighbors' Fireworks from Yard",cost:"$0",desc:"Find a comfortable spot in the yard or on the roof if accessible. The neighborhood will do the show for you."},
+    {tag:"med",label:"Easy out",name:"Lake Meridian or Lake Tapps — Find a Spot",cost:"$0",desc:"Scout a public park spot near the water before July. Show up at dusk with snacks and blanket. Clean exit after."},
+    {tag:"full",label:"Full send",name:"Renton or Kent Fireworks Show",cost:"$0–10 parking",desc:"Larger city shows. Know where you're parking before you leave the house. Arrive early. Have the exit route memorized."}
+  ]}
+];
+
+let lists = [
+  {id:1,title:"Shows to Watch Together",tag:"show",items:[
+    {id:101,name:"Stranger Things",done:false},
+    {id:102,name:"Gravity Falls",done:true},
+    {id:103,name:"Cobra Kai",done:false},
+    {id:104,name:"The Dragon Prince",done:false},
+    {id:105,name:"Avatar: The Last Airbender",done:false},
+    {id:106,name:"Umbrella Academy",done:false},
+    {id:107,name:"Outer Banks",done:false},
+    {id:108,name:"Dark Crystal: Age of Resistance",done:false},
+    {id:109,name:"Hilda",done:false},
+    {id:110,name:"The Last Kingdom",done:false},
+  ]},
+  {id:2,title:"Movies to Watch Together",tag:"movie",items:[
+    {id:201,name:"Interstellar",done:false},
+    {id:202,name:"The Princess Bride",done:false},
+    {id:203,name:"Knives Out",done:false},
+    {id:204,name:"Hot Fuzz",done:false},
+    {id:205,name:"The Grand Budapest Hotel",done:false},
+    {id:206,name:"Everything Everywhere All at Once",done:false},
+    {id:207,name:"Holes",done:false},
+    {id:208,name:"Clue (1985)",done:false},
+    {id:209,name:"The Nice Guys",done:false},
+    {id:210,name:"Hunt for the Wilderpeople",done:false},
+  ]},
+  {id:3,title:"Games to Play Together",tag:"game",items:[
+    {id:301,name:"Minecraft survival together",done:false},
+    {id:302,name:"Stardew Valley co-op",done:false},
+    {id:303,name:"Portal 2 co-op",done:false},
+    {id:304,name:"Jackbox Party Pack",done:false},
+    {id:305,name:"Settlers of Catan",done:false},
+    {id:306,name:"It Takes Two",done:false},
+    {id:307,name:"Overcooked 2",done:false},
+  ]},
+  {id:4,title:"Places to Go Someday",tag:"place",items:[
+    {id:401,name:"Mount Rainier summit viewpoint",done:false},
+    {id:402,name:"Olympic Peninsula coast",done:false},
+    {id:403,name:"San Juan Islands ferry trip",done:false},
+    {id:404,name:"Leavenworth in winter",done:false},
+    {id:405,name:"Portland for a weekend",done:false},
+    {id:406,name:"Columbia River Gorge hike",done:false},
+  ]}
+];
+
+let nextEventId = 200;
+let nextListId = 50;
+let nextItemId = 10000;
+let currentDetailId = null;
+let editingEventId = null;
+
+// ── NAV ──
+function showView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    if(b.textContent.toLowerCase().trim() === v) b.classList.add('active');
+  });
+  closeDetail();
+  if(v==='home') renderHome();
+  if(v==='seasonal') renderSeasonal();
+  if(v==='lists') renderLists();
+  if(v==='recipes') renderRecipes();
+  if(v==='grocery') renderGrocery();
+}
+
+// ── HOME ──
+function renderHome() {
+  renderCarousel();
+  renderHomeListsGrid();
+}
+
+function renderCarousel() {
+  const track = document.getElementById('carousel-track');
+  const empty = document.getElementById('strip-empty');
+  const outer = document.getElementById('carousel-outer');
+
+  const upcoming = events.filter(ev => isComingUp(ev));
+
+  if (!upcoming.length) {
+    outer.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  outer.style.display = 'block';
+  empty.style.display = 'none';
+
+  // Duplicate cards so marquee loops seamlessly
+  const makeCard = (ev) => {
+    const du = daysUntil(ev.month, ev.day);
+    const isUrgent = du <= 7;
+    const isPlanned = ev.status === 'planned';
+    const faceClass = 'face-' + ev.season.toLowerCase();
+    const cardClass = (isUrgent ? 'urgency' : isPlanned ? 'is-planned' : '');
+    const badge = isUrgent
+      ? `<div class="face-badge-soon">${du}d</div>`
+      : isPlanned
+      ? `<div class="face-badge-planned">planned</div>`
+      : '';
+
+    const faceContent = ev.imageUrl
+      ? `<img src="${ev.imageUrl}" alt="${ev.name}" loading="lazy">
+         <div class="face-img-overlay"></div>
+         ${badge}
+         <div class="face-season-label">${ev.season}</div>
+         <div class="face-title">${ev.name}</div>`
+      : `${badge}
+         <div class="face-season-label">${ev.season}</div>
+         <div class="face-title">${ev.name}</div>
+         <div class="face-ornament">— — —</div>`;
+
+    return `<div class="banner-card" onclick="openDetail(${ev.id})">
+      <div class="banner-card-face ${faceClass} ${cardClass}${ev.imageUrl ? ' has-image' : ''}">
+        ${faceContent}
+      </div>
+      <div class="banner-card-name">${ev.name}</div>
+      <div class="banner-card-date">${MONTHS[ev.month-1]}${ev.day ? ' ' + ev.day : ''}${ev.windowLabel && ev.windowLabel !== MONTHS[ev.month-1] ? ' &middot; ' + ev.windowLabel : ''}</div>
+    </div>`;
+  };
+
+  const allCards = upcoming.map(makeCard).join('');
+  // Duplicate for seamless loop
+  track.innerHTML = allCards + allCards;
+
+  // Adjust animation speed based on count
+  const speed = Math.max(20, upcoming.length * 8);
+  track.style.animationDuration = speed + 's';
+}
+
+function renderHomeListsGrid() {
+  const grid = document.getElementById('home-lists-grid');
+  grid.innerHTML = lists.map(l => {
+    const remaining = l.items.filter(i => !i.done);
+    const preview = remaining.slice(0,4).map(i => i.name).join(', ');
+    return `<div class="list-preview-card" onclick="showView('lists')">
+      <div class="lpc-title">${l.title}</div>
+      <div class="lpc-items">${preview}${remaining.length > 4 ? '…' : ''}</div>
+      <div class="lpc-count">${remaining.length} remaining</div>
+    </div>`;
+  }).join('');
+}
+
+// ── SEASONAL LIST (rolling calendar view) ──
+function renderSeasonal() {
+  const container = document.getElementById('seasonal-list');
+  // Group by month, sorted Jan–Dec
+  const grouped = {};
+  events.forEach(ev => {
+    if (!grouped[ev.month]) grouped[ev.month] = [];
+    grouped[ev.month].push(ev);
+  });
+
+  let html = '';
+  for (let m = 1; m <= 12; m++) {
+    if (!grouped[m]) continue;
+    html += `<div class="month-group">
+      <div class="month-group-header"><div class="month-group-label">${MONTH_FULL[m-1]}</div></div>
+      ${grouped[m].map(ev => {
+        const du = daysUntil(ev.month, ev.day);
+        const coming = du >= 0 && du <= 30;
+        let badgeHtml = '';
+        if(ev.status==='planned') badgeHtml = `<span class="row-badge rb-planned">planned</span>`;
+        else if(ev.status==='done') badgeHtml = `<span class="row-badge rb-done">skipped</span>`;
+        else if(coming && du <= 7) badgeHtml = `<span class="row-badge rb-soon">${du}d</span>`;
+        else if(coming) badgeHtml = `<span class="row-badge rb-soon">coming up</span>`;
+        else badgeHtml = `<span class="row-badge rb-open">open</span>`;
+        return `<div class="event-row" onclick="openDetail(${ev.id})">
+          <div class="event-row-name">${ev.name}</div>
+          <div class="event-row-window">${ev.windowLabel || ''}</div>
+          <div class="event-row-badges">${badgeHtml}</div>
+          <div class="event-row-actions" onclick="event.stopPropagation()">
+            <button class="row-edit-btn" onclick="openEditModal(${ev.id})">Edit</button>
+            <button class="row-del-btn" onclick="confirmDelete(${ev.id})">Delete</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+  container.innerHTML = html || '<div style="padding:2rem;color:var(--text-dim);font-style:italic;">No events yet. Add one above.</div>';
+}
+
+// ── DETAIL PANEL ──
+function openDetail(id) {
+  currentDetailId = id;
+  const ev = events.find(e => e.id === id);
+  if (!ev) return;
+  renderDetailPanel(ev);
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+function closeDetail(e) {
+  if (e && e.target !== document.getElementById('detail-overlay')) return;
+  document.getElementById('detail-overlay').classList.remove('open');
+  currentDetailId = null;
+}
+
+function closeDetailDirect() {
+  document.getElementById('detail-overlay').classList.remove('open');
+  currentDetailId = null;
+}
+
+function renderDetailPanel(ev) {
+  const inner = document.getElementById('detail-inner');
+  const du = daysUntil(ev.month, ev.day);
+  const isUrgent = du >= 0 && du <= 14;
+  const isPlanned = ev.status === 'planned';
+  const isDone = ev.status === 'done';
+
+  const urgencyHtml = isUrgent ? `
+    <div class="urgency-bar">
+      <div class="urgency-dot"></div>
+      ${du <= 3 ? 'This is basically now. Decide today.' : `${du} days away. Decide before it sneaks up.`}
+    </div>` : '';
+
+  const optionsHtml = ev.options && ev.options.length
+    ? ev.options.map(o => `<div class="option-card">
+        <span class="option-tag tag-${o.tag}">${o.label}</span>
+        <div class="option-top"><div class="option-name">${o.name}</div><div class="option-cost">${o.cost}</div></div>
+        <div class="option-desc">${o.desc}</div>
+      </div>`).join('')
+    : '<div style="color:var(--text-dim);font-size:0.9rem;font-style:italic;padding:0.5rem 0;">No options yet. Use "Give me ideas" below to generate some.</div>';
+
+  const bringHtml = ev.bring && ev.bring.length
+    ? `<div class="sec-label" style="margin-top:0.25rem;">What to grab</div>
+       <div class="bring-items">${ev.bring.map(b=>`<span class="bring-item">${b}</span>`).join('')}</div>`
+    : '';
+
+  const linksHtml = ev.links && ev.links.length
+    ? `<div class="sec-label" style="margin-top:0.25rem;">Links</div>
+       <div class="event-links">${ev.links.map(l=>`
+         <a class="event-link-item" href="${l.url}" target="_blank" rel="noopener">
+           <span class="event-link-label">${l.label}</span>
+           <span class="event-link-url">${l.url}</span>
+           <span class="event-link-arrow">&#8599;</span>
+         </a>`).join('')}</div>`
+    : '';
+
+  const confirmLabel = isPlanned ? 'Unmark planned' : isDone ? 'Done — skipped' : "We're doing this";
+  const confirmExtra = isDone ? 'done-state' : '';
+
+  const ideasLabel = !ev.options || !ev.options.length ? 'Build my options' : 'Give me more ideas';
+
+  inner.innerHTML = `
+    <button class="detail-close" onclick="closeDetailDirect()">Close &times;</button>
+    <div class="ed-eyebrow">${ev.season} &middot; ${MONTHS[ev.month-1]}${ev.day ? ' ' + ev.day : ''}</div>
+    <div class="ed-title">${ev.name}</div>
+    <div class="ed-window">Window: <strong>${ev.windowLabel || MONTHS[ev.month-1]}</strong></div>
+    ${urgencyHtml}
+    <div class="sec-label">Your options</div>
+    <div class="options-list">${optionsHtml}</div>
+    ${bringHtml}
+    ${linksHtml}
+    <hr class="divider">
+    <div class="action-row">
+      <button class="btn-confirm ${confirmExtra}" onclick="markPlanned(${ev.id})">${confirmLabel}</button>
+      <button class="btn-skip" onclick="markSkip(${ev.id})">Skip this year</button>
+      <button class="btn-ideas" onclick="getIdeas(${ev.id})">${ideasLabel}</button>
+      <div class="action-note">${isUrgent ? 'Decide now' : 'No rush yet'}</div>
+    </div>
+    <div class="ai-response" id="ai-response-${ev.id}">
+      <div class="ai-response-label">Ideas from Claude</div>
+      <div class="ai-response-text" id="ai-response-text-${ev.id}"></div>
+    </div>`;
+}
+
+function markPlanned(id) {
+  const ev = events.find(e => e.id === id);
+  if (!ev || ev.status === 'done') return;
+  ev.status = ev.status === 'planned' ? 'open' : 'planned';
+  renderDetailPanel(ev);
+  if(document.getElementById('view-seasonal').classList.contains('active')) renderSeasonal();
+  if(document.getElementById('view-home').classList.contains('active')) renderCarousel();
+  saveEvents();
+  showToast(ev.status === 'planned' ? 'Marked as planned' : 'Unmarked');
+}
+
+function markSkip(id) {
+  const ev = events.find(e => e.id === id);
+  if (!ev) return;
+  ev.status = 'done';
+  renderDetailPanel(ev);
+  if(document.getElementById('view-seasonal').classList.contains('active')) renderSeasonal();
+  if(document.getElementById('view-home').classList.contains('active')) renderCarousel();
+  saveEvents();
+  showToast('Skipped for this year');
+}
+
+// ── AI IDEAS ──
+async function getIdeas(id) {
+  const ev = events.find(e => e.id === id);
+  if (!ev) return;
+
+  const hasOptions = ev.options && ev.options.length > 0;
+  const box = document.getElementById('ai-response-' + id);
+  const txt = document.getElementById('ai-response-text-' + id);
+  if (!box || !txt) return;
+
+  box.classList.add('visible');
+  txt.innerHTML = '<span class="ai-loading">' + (hasOptions ? 'Generating fresh ideas...' : 'Building your options...') + '</span>';
+
+  const baseContext = `You are helping a single mom in Auburn, Washington plan seasonal activities with her two boys, ages 10 and 12. She values low-stress, affordable options and prefers to know the exit plan before she commits. Crowds and complex logistics cause her stress. Her boys are old enough to carry things, navigate, and help problem-solve.
+
+Event: "${ev.name}"
+Season: ${ev.season}, ${MONTHS[ev.month-1]}
+Window: ${ev.windowLabel || MONTHS[ev.month-1]}
+${ev.notes ? 'Her notes: ' + ev.notes : ''}`;
+
+  let prompt, mode;
+
+  if (!hasOptions) {
+    // No options yet — generate the full structured set and save it
+    mode = 'generate';
+    prompt = `${baseContext}
+
+Generate exactly 3 options for this event: a lowest-effort option, a medium-effort option, and a full-send option. Each option should be specific, local (near Auburn/Federal Way/Kent/Renton/Puyallup WA), and practical.
+
+Respond ONLY with valid JSON — no preamble, no explanation, no markdown code fences. The format must be exactly:
+[
+  {"tag":"low","label":"Lowest effort","name":"Short option name","cost":"~$X–Y","desc":"2-3 sentences. Specific and practical. What makes it low-stress. What to expect."},
+  {"tag":"med","label":"Easy out","name":"Short option name","cost":"~$X–Y","desc":"2-3 sentences. Specific local spot or activity. How to make the exit easy."},
+  {"tag":"full","label":"Full send","name":"Short option name","cost":"~$X–Y","desc":"2-3 sentences. The bigger version. What makes it worth it for boys this age. What to plan for."}
+]`;
+  } else {
+    // Has options — append additional ideas below
+    mode = 'append';
+    prompt = `${baseContext}
+
+She already has these options:
+${ev.options.map(o => `- ${o.label}: ${o.name} (${o.cost})`).join('\n')}
+
+Give 2-3 ADDITIONAL specific ideas she may not have thought of, or a fresh angle based on her notes. Focus on:
+- Specific local spots near Auburn/Federal Way/Kent/Renton/Puyallup WA
+- Realistic cost estimates
+- What makes it manageable solo
+- How to make the exit easy
+- What's special for boys aged 10 and 12
+
+Keep it practical and warm. 3-4 sentences per idea. Label each with a short name in bold using **Name**.`;
+  }
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({model:'claude-sonnet-4-6', max_tokens:1200, messages:[{role:'user',content:prompt}]})
+    });
+    const data = await res.json();
+    const raw = data.content && data.content[0] && data.content[0].text;
+    if (!raw) { txt.innerHTML = "Couldn't get ideas right now. Try again."; return; }
+
+    if (mode === 'generate') {
+      try {
+        const parsed = JSON.parse(raw.trim());
+        ev.options = parsed;
+        // Re-render the detail panel so option cards appear
+        renderDetailPanel(ev);
+        saveEvents();
+        // The ai-response box is gone now (panel re-rendered), so just show toast
+        showToast('Options generated — scroll up to see them');
+      } catch(e) {
+        // JSON parse failed — show as text fallback
+        const freshBox = document.getElementById('ai-response-' + id);
+        const freshTxt = document.getElementById('ai-response-text-' + id);
+        if (freshBox && freshTxt) {
+          freshBox.classList.add('visible');
+          freshTxt.innerHTML = raw.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+        }
+      }
+    } else {
+      // Append mode — show ideas below
+      txt.innerHTML = raw.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+    }
+  } catch(e) {
+    txt.innerHTML = 'Something went wrong. Check your connection and try again.';
+  }
+}
+
+// ── ADD / EDIT / DELETE ──
+let urlRowCount = 0;
+
+function addUrlRow(label='', url='') {
+  const list = document.getElementById('ev-url-list');
+  const i = ++urlRowCount;
+  const div = document.createElement('div');
+  div.className = 'url-row';
+  div.id = 'url-row-' + i;
+  div.innerHTML = `<input class="modal-input url-row-label" id="url-label-${i}" placeholder="Label" value="${label}">
+    <input class="modal-input url-row-url" id="url-url-${i}" placeholder="https://…" value="${url}">
+    <button class="url-row-remove" onclick="removeUrlRow(${i})">Remove</button>`;
+  list.appendChild(div);
+}
+
+function removeUrlRow(i) {
+  const el = document.getElementById('url-row-' + i);
+  if (el) el.remove();
+}
+
+function collectUrls() {
+  const rows = document.querySelectorAll('#ev-url-list .url-row');
+  const result = [];
+  rows.forEach(row => {
+    const id = row.id.replace('url-row-', '');
+    const label = document.getElementById('url-label-' + id)?.value.trim();
+    const url = document.getElementById('url-url-' + id)?.value.trim();
+    if (url) result.push({label: label || url, url});
+  });
+  return result;
+}
+
+function populateUrlRows(links) {
+  document.getElementById('ev-url-list').innerHTML = '';
+  urlRowCount = 0;
+  (links || []).forEach(l => addUrlRow(l.label, l.url));
+}
+
+function openAddModal() {
+  editingEventId = null;
+  document.getElementById('modal-event-title').textContent = 'Add Event';
+  document.getElementById('ev-name').value = '';
+  document.getElementById('ev-month').value = CUR_MONTH;
+  document.getElementById('ev-day').value = '';
+  document.getElementById('ev-window').value = '';
+  document.getElementById('ev-notes').value = '';
+  document.getElementById('ev-image').value = '';
+  populateUrlRows([]);
+  document.getElementById('btn-delete-event').style.display = 'none';
+  openModal('modal-event');
+}
+
+function openEditModal(id) {
+  const ev = events.find(e => e.id === id);
+  if (!ev) return;
+  editingEventId = id;
+  document.getElementById('modal-event-title').textContent = 'Edit Event';
+  document.getElementById('ev-name').value = ev.name;
+  document.getElementById('ev-month').value = ev.month;
+  document.getElementById('ev-day').value = ev.day || '';
+  document.getElementById('ev-window').value = ev.windowLabel || '';
+  document.getElementById('ev-notes').value = ev.notes || '';
+  document.getElementById('ev-image').value = ev.imageUrl || '';
+  populateUrlRows(ev.links || []);
+  document.getElementById('btn-delete-event').style.display = 'block';
+  openModal('modal-event');
+}
+
+function saveEvent() {
+  const name = document.getElementById('ev-name').value.trim();
+  if (!name) { document.getElementById('ev-name').focus(); return; }
+  const month = parseInt(document.getElementById('ev-month').value);
+  const day = parseInt(document.getElementById('ev-day').value) || null;
+  const windowLabel = document.getElementById('ev-window').value.trim() || MONTHS[month-1];
+  const notes = document.getElementById('ev-notes').value.trim();
+  const imageUrl = document.getElementById('ev-image').value.trim();
+  const links = collectUrls();
+
+  if (editingEventId) {
+    const ev = events.find(e => e.id === editingEventId);
+    if (ev) { ev.name = name; ev.month = month; ev.day = day; ev.windowLabel = windowLabel; ev.notes = notes; ev.season = SEASON_MAP[month]; ev.links = links; ev.imageUrl = imageUrl; }
+    showToast('Event updated');
+  } else {
+    events.push({id:++nextEventId, name, month, day, windowLabel, notes, imageUrl, links, season:SEASON_MAP[month], status:'open', bring:[], options:[]});
+    showToast('Event added — open it and hit "Build my options"');
+  }
+  closeModal('modal-event');
+  if(document.getElementById('view-seasonal').classList.contains('active')) renderSeasonal();
+  if(document.getElementById('view-home').classList.contains('active')) renderCarousel();
+  saveEvents();
+}
+
+function confirmDelete(id) {
+  const ev = events.find(e => e.id === id);
+  if (!ev) return;
+  if (confirm(`Delete "${ev.name}"? This cannot be undone.`)) {
+    events = events.filter(e => e.id !== id);
+    closeModal('modal-event');
+    if(document.getElementById('view-seasonal').classList.contains('active')) renderSeasonal();
+    if(document.getElementById('view-home').classList.contains('active')) renderCarousel();
+    saveEvents();
+    showToast('Event deleted');
+  }
+}
+
+function deleteEvent() {
+  if (editingEventId) confirmDelete(editingEventId);
+}
+
+// ── LISTS ──
+function renderLists() {
+  const grid = document.getElementById('lists-grid');
+  const tagClass = {show:'li-tag-show',movie:'li-tag-movie',game:'li-tag-game',place:'li-tag-place'};
+  grid.innerHTML = lists.map(l => `
+    <div class="list-card">
+      <div class="list-card-header">
+        <div class="list-card-title">${l.title}</div>
+        <button class="list-card-edit-btn" onclick="openListEdit(${l.id})">Edit</button>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.75rem;">${l.items.filter(i=>!i.done).length} remaining</div>
+      <ul class="list-items-ul">
+        ${l.items.map(item => `
+          <li class="list-item ${item.done?'checked':''}" onclick="toggleListItem(${l.id},${item.id})">
+            <div class="li-check"><span class="li-check-mark">v</span></div>
+            <span class="li-name">${item.name}</span>
+            ${l.tag?`<span class="li-tag ${tagClass[l.tag]||''}">${l.tag}</span>`:''}
+          </li>`).join('')}
+      </ul>
+      <div class="list-add-row">
+        <input class="list-add-input" id="list-input-${l.id}" placeholder="Add something..." onkeydown="if(event.key==='Enter')addListItem(${l.id})">
+        <button class="list-add-btn" onclick="addListItem(${l.id})">Add</button>
+      </div>
+    </div>`).join('') +
+    `<div class="add-list-card" onclick="openModal('modal-add-list')">
+      <div style="font-size:1.5rem;color:var(--text-dim);">+</div>
+      <div class="add-list-label">New List</div>
+    </div>`;
+}
+
+function toggleListItem(listId, itemId) {
+  const l = lists.find(l => l.id === listId);
+  if (!l) return;
+  const item = l.items.find(i => i.id === itemId);
+  if (item) item.done = !item.done;
+  renderLists();
+  saveLists();
+}
+
+function addListItem(listId) {
+  const input = document.getElementById('list-input-' + listId);
+  const val = input.value.trim();
+  if (!val) return;
+  const l = lists.find(l => l.id === listId);
+  if (l) l.items.push({id:++nextItemId, name:val, done:false});
+  input.value = '';
+  renderLists();
+  saveLists();
+}
+
+function saveNewList() {
+  const name = document.getElementById('new-list-name').value.trim();
+  if (!name) return;
+  const tag = document.getElementById('new-list-tag').value;
+  lists.push({id:++nextListId, title:name, tag, items:[]});
+  closeModal('modal-add-list');
+  renderLists();
+  saveLists();
+}
+
+// ── LIST BULK EDIT ──
+let editingListId = null;
+
+function openListEdit(id) {
+  const l = lists.find(l => l.id === id);
+  if (!l) return;
+  editingListId = id;
+  document.getElementById('list-edit-id').value = id;
+  document.getElementById('list-edit-title').value = l.title;
+  // Show unchecked items in the textarea, one per line
+  const unchecked = l.items.filter(i => !i.done).map(i => i.name).join('\n');
+  document.getElementById('list-edit-bulk').value = unchecked;
+  openModal('modal-list-edit');
+}
+
+function saveListEdit() {
+  const l = lists.find(l => l.id === editingListId);
+  if (!l) return;
+  const newTitle = document.getElementById('list-edit-title').value.trim();
+  if (newTitle) l.title = newTitle;
+  const raw = document.getElementById('list-edit-bulk').value;
+  const newNames = raw.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+  // Keep already-done items, replace unchecked with new list
+  const done = l.items.filter(i => i.done);
+  const newItems = newNames.map(name => {
+    // Preserve existing item IDs if the name matches (keeps done state consistent)
+    const existing = l.items.find(i => i.name === name);
+    return existing || {id: ++nextItemId, name, done: false};
+  });
+  l.items = [...newItems, ...done];
+  closeModal('modal-list-edit');
+  renderLists();
+  saveLists();
+  showToast('List updated');
+}
+
+function deleteList() {
+  const l = lists.find(l => l.id === editingListId);
+  if (!l) return;
+  if (confirm(`Delete "${l.title}"? This cannot be undone.`)) {
+    lists = lists.filter(l => l.id !== editingListId);
+    closeModal('modal-list-edit');
+    renderLists();
+    saveLists();
+    showToast('List deleted');
+  }
+}
+
+// ══════════════════════════════════════════════
+// RECIPES
+// ══════════════════════════════════════════════
+let recipes = [];
+let groceryItems = [];
+let nextRecipeId = 500;
+let nextGroceryId = 20000;
+let activeRecipeCat = 'all';
+let cookScale = 1;
+let cookRecipeId = null;
+
+async function saveRecipes() {
+  try { await setDoc(doc(db, 'life-menu', 'recipes'), { data: recipes }); flashSaved(); }
+  catch(e) { console.error('Save recipes failed:', e); }
+}
+async function saveGrocery() {
+  try { await setDoc(doc(db, 'life-menu', 'grocery'), { data: groceryItems }); flashSaved(); }
+  catch(e) { console.error('Save grocery failed:', e); }
+}
+
+// ── RECIPE LIBRARY ──
+function renderRecipes() {
+  const grid = document.getElementById('recipes-grid');
+  const search = (document.getElementById('recipe-search')?.value || '').toLowerCase();
+  let filtered = recipes;
+  if (activeRecipeCat !== 'all') filtered = filtered.filter(r => r.category === activeRecipeCat);
+  if (search) filtered = filtered.filter(r => r.name.toLowerCase().includes(search) || (r.ingredients||[]).some(i => i.toLowerCase().includes(search)));
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="recipe-empty" style="grid-column:1/-1;">${recipes.length ? 'No recipes match.' : 'No recipes yet. Add one above.'}</div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map(r => `
+    <div class="recipe-card" onclick="openCookMode(${r.id})">
+      ${r.image ? `<img class="recipe-card-img" src="${r.image}" alt="${r.name}" loading="lazy">` :
+        `<div class="recipe-card-img-placeholder"><span class="recipe-card-img-placeholder-text">${r.category||'Recipe'}</span></div>`}
+      <div class="recipe-card-body">
+        <div class="recipe-card-cat">${r.category||''}</div>
+        <div class="recipe-card-name">${r.name}</div>
+        <div class="recipe-card-meta">${[r.servings?r.servings+' servings':null,r.prep,r.cook].filter(Boolean).join(' · ')}</div>
+      </div>
+    </div>`).join('');
+}
+
+function filterRecipes(cat, btn) {
+  if (cat) {
+    activeRecipeCat = cat;
+    document.querySelectorAll('.rcat-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
+  renderRecipes();
+}
+
+// ── ADD / EDIT RECIPE ──
+let editingRecipeId = null;
+
+function openRecipeModal(id) {
+  editingRecipeId = id || null;
+  const r = id ? recipes.find(r => r.id === id) : null;
+  document.getElementById('modal-recipe-title').textContent = r ? 'Edit Recipe' : 'Add Recipe';
+  document.getElementById('edit-recipe-id').value = id || '';
+  document.getElementById('r-name').value = r?.name || '';
+  document.getElementById('r-cat').value = r?.category || 'Weeknight';
+  document.getElementById('r-servings').value = r?.servings || '';
+  document.getElementById('r-prep').value = r?.prep || '';
+  document.getElementById('r-cook').value = r?.cook || '';
+  document.getElementById('r-image').value = r?.image || '';
+  document.getElementById('r-source').value = r?.source || '';
+  document.getElementById('r-ingredients').value = (r?.ingredients || []).join('\n');
+  document.getElementById('r-directions').value = (r?.directions || []).join('\n');
+  document.getElementById('r-notes').value = r?.notes || '';
+  document.getElementById('btn-delete-recipe').style.display = r ? 'block' : 'none';
+  openModal('modal-recipe');
+}
+
+function saveRecipe() {
+  const name = document.getElementById('r-name').value.trim();
+  if (!name) { document.getElementById('r-name').focus(); return; }
+  const r = {
+    id: editingRecipeId || ++nextRecipeId,
+    name,
+    category: document.getElementById('r-cat').value,
+    servings: parseInt(document.getElementById('r-servings').value) || null,
+    prep: document.getElementById('r-prep').value.trim(),
+    cook: document.getElementById('r-cook').value.trim(),
+    image: document.getElementById('r-image').value.trim(),
+    source: document.getElementById('r-source').value.trim(),
+    ingredients: document.getElementById('r-ingredients').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    directions: document.getElementById('r-directions').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    notes: document.getElementById('r-notes').value.trim(),
+  };
+  if (editingRecipeId) {
+    const idx = recipes.findIndex(x => x.id === editingRecipeId);
+    if (idx >= 0) recipes[idx] = r;
+  } else {
+    recipes.push(r);
+  }
+  closeModal('modal-recipe');
+  saveRecipes();
+  renderRecipes();
+  showToast(editingRecipeId ? 'Recipe updated' : 'Recipe saved');
+}
+
+function deleteRecipe() {
+  if (!editingRecipeId) return;
+  const r = recipes.find(x => x.id === editingRecipeId);
+  if (!r) return;
+  if (confirm(`Delete "${r.name}"?`)) {
+    recipes = recipes.filter(x => x.id !== editingRecipeId);
+    closeModal('modal-recipe');
+    saveRecipes();
+    renderRecipes();
+    showToast('Recipe deleted');
+  }
+}
+
+// ── URL IMPORT ──
+function openUrlImportModal() {
+  document.getElementById('import-url').value = '';
+  document.getElementById('import-status').style.display = 'none';
+  document.getElementById('btn-import-go').disabled = false;
+  openModal('modal-url-import');
+}
+
+async function importFromUrl() {
+  const url = document.getElementById('import-url').value.trim();
+  if (!url) { document.getElementById('import-url').focus(); return; }
+  const cat = document.getElementById('import-cat').value;
+  const status = document.getElementById('import-status');
+  const btn = document.getElementById('btn-import-go');
+  status.style.display = 'block';
+  status.textContent = 'Fetching recipe...';
+  btn.disabled = true;
+
+  const prompt = `Parse this recipe page URL and extract the recipe data. Return ONLY valid JSON with no markdown, no explanation, no code fences. Format:
+{
+  "name": "Recipe Name",
+  "servings": 4,
+  "prep": "15 min",
+  "cook": "30 min",
+  "image": "https://... image url if found",
+  "ingredients": ["2 cups flour", "1 tsp salt"],
+  "directions": ["Preheat oven to 350F.", "Mix dry ingredients."],
+  "notes": "any useful tips or notes from the page"
+}
+URL: ${url}
+If you cannot access the page or parse it, return: {"error": "Could not parse this URL"}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6', max_tokens: 2000,
+        tools: [{"type":"web_search_20250305","name":"web_search"}],
+        messages: [{role:'user', content: prompt}]
+      })
+    });
+    const data = await res.json();
+    const textBlock = (data.content||[]).find(b => b.type === 'text');
+    if (!textBlock) throw new Error('No response');
+    const raw = textBlock.text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(raw);
+    if (parsed.error) { status.textContent = parsed.error; btn.disabled = false; return; }
+    const r = { id: ++nextRecipeId, category: cat, source: url, ...parsed };
+    recipes.push(r);
+    saveRecipes();
+    closeModal('modal-url-import');
+    renderRecipes();
+    showToast(`"${r.name}" imported`);
+  } catch(e) {
+    status.textContent = 'Could not import — try adding manually instead.';
+    btn.disabled = false;
+  }
+}
+
+// ── COOK MODE ──
+function openCookMode(id) {
+  cookRecipeId = id;
+  cookScale = 1;
+  renderCookMode();
+  openModal('modal-cook');
+}
+
+function scaleIngredient(text, scale) {
+  if (scale === 1) return text;
+  return text.replace(/(\d+\.?\d*)/g, (m, n) => {
+    const val = parseFloat(n) * scale;
+    return val % 1 === 0 ? val : parseFloat(val.toFixed(2));
+  });
+}
+
+function renderCookMode() {
+  const r = recipes.find(x => x.id === cookRecipeId);
+  if (!r) return;
+  const el = document.getElementById('cook-modal-inner');
+  const servings = r.servings ? Math.round(r.servings * cookScale) : null;
+
+  el.innerHTML = `
+    <button class="cook-close" onclick="closeModal('modal-cook')">&times;</button>
+    <div class="cook-header">
+      ${r.image ? `<img src="${r.image}" style="width:100%;height:160px;object-fit:cover;border-radius:3px;margin-bottom:0.9rem;">` : ''}
+      <div class="cook-title">${r.name}</div>
+      <div class="cook-meta">${[r.category, r.prep?'Prep: '+r.prep:null, r.cook?'Cook: '+r.cook:null].filter(Boolean).join(' · ')}</div>
+    </div>
+    ${r.servings ? `<div class="cook-scale-row">
+      <span class="scale-label">Servings</span>
+      <button class="scale-btn" onclick="adjustScale(-1)">−</button>
+      <span class="scale-val" id="scale-display">${servings}</span>
+      <button class="scale-btn" onclick="adjustScale(1)">+</button>
+      <span style="font-size:0.78rem;color:var(--text-dim);margin-left:4px;">(base: ${r.servings})</span>
+    </div>` : ''}
+    <div class="cook-body">
+      <div>
+        <div class="cook-section-label">Ingredients</div>
+        <div id="cook-ingredients">
+          ${(r.ingredients||[]).map((ing,i) => `
+            <div class="cook-ingredient" id="ci-${i}" onclick="toggleIngredient(${i})">
+              <div class="ci-box"><span class="ci-check">v</span></div>
+              <span class="ci-text">${scaleIngredient(ing, cookScale)}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="cook-section-label">Directions</div>
+        <div id="cook-steps">
+          ${(r.directions||[]).map((step,i) => `
+            <div class="cook-step${i===0?' active-step':''}" id="cs-${i}" onclick="activateStep(${i})">
+              <div class="cook-step-num">Step ${i+1}</div>
+              <div class="cook-step-text">${step}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    ${r.notes ? `<div style="margin-top:1.25rem;padding:0.75rem 1rem;background:var(--surface2);border-radius:3px;border:1px solid var(--border);font-size:0.88rem;color:var(--text-muted);font-style:italic;">${r.notes}</div>` : ''}
+    <div class="cook-actions">
+      <button class="cook-btn-grocery" onclick="addRecipeToGrocery(${r.id})">+ Add ingredients to grocery list</button>
+      <button class="cook-btn-edit" onclick="closeModal('modal-cook');openRecipeModal(${r.id})">Edit recipe</button>
+      ${r.source ? `<a href="${r.source}" target="_blank" style="font-family:Cinzel,serif;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);border:1px solid var(--border);padding:0.5rem 0.9rem;border-radius:3px;text-decoration:none;">Original source &#8599;</a>` : ''}
+    </div>`;
+}
+
+function adjustScale(delta) {
+  const r = recipes.find(x => x.id === cookRecipeId);
+  if (!r || !r.servings) return;
+  cookScale = Math.max(0.5, cookScale + delta * (1/r.servings));
+  renderCookMode();
+}
+
+function toggleIngredient(i) {
+  const el = document.getElementById('ci-' + i);
+  if (el) el.classList.toggle('crossed');
+}
+
+function activateStep(i) {
+  document.querySelectorAll('.cook-step').forEach((el,j) => {
+    el.classList.toggle('active-step', j === i);
+    el.classList.toggle('done-step', j < i);
+  });
+}
+
+// ── GROCERY ──
+function renderGrocery() {
+  const list = document.getElementById('grocery-list');
+  const picker = document.getElementById('grocery-recipe-picker');
+  if (!groceryItems.length) {
+    list.innerHTML = '<div class="grocery-empty">Nothing here yet. Add items below or pull from a recipe.</div>';
+  } else {
+    list.innerHTML = groceryItems.map(item => `
+      <div class="grocery-item ${item.checked?'g-checked':''}" onclick="toggleGrocery(${item.id})">
+        <div class="g-box"><span class="g-check">v</span></div>
+        <span class="g-name">${item.name}</span>
+        <button class="g-remove" onclick="event.stopPropagation();removeGrocery(${item.id})">✕</button>
+      </div>`).join('');
+  }
+  picker.innerHTML = recipes.length
+    ? recipes.map(r => `<div class="g-recipe-pick">
+        <span class="g-recipe-name">${r.name}</span>
+        <button class="g-recipe-add" onclick="addRecipeToGrocery(${r.id})">+ Add</button>
+      </div>`).join('')
+    : '<div class="grocery-empty">No recipes saved yet.</div>';
+}
+
+function toggleGrocery(id) {
+  const item = groceryItems.find(i => i.id === id);
+  if (item) { item.checked = !item.checked; renderGrocery(); saveGrocery(); }
+}
+
+function removeGrocery(id) {
+  groceryItems = groceryItems.filter(i => i.id !== id);
+  renderGrocery(); saveGrocery();
+}
+
+function addGroceryManual() {
+  const input = document.getElementById('grocery-manual-input');
+  const val = input.value.trim();
+  if (!val) return;
+  groceryItems.push({id: ++nextGroceryId, name: val, checked: false});
+  input.value = '';
+  renderGrocery(); saveGrocery();
+}
+
+function addRecipeToGrocery(recipeId) {
+  const r = recipes.find(x => x.id === recipeId);
+  if (!r) return;
+  let added = 0;
+  (r.ingredients || []).forEach(ing => {
+    if (!groceryItems.find(i => i.name.toLowerCase() === ing.toLowerCase())) {
+      groceryItems.push({id: ++nextGroceryId, name: ing, checked: false});
+      added++;
+    }
+  });
+  closeModal('modal-cook');
+  showView('grocery');
+  showToast(`${added} ingredient${added !== 1 ? 's' : ''} added from "${r.name}"`);
+}
+
+function clearCheckedGrocery() {
+  groceryItems = groceryItems.filter(i => !i.checked);
+  renderGrocery(); saveGrocery();
+}
+
+function clearAllGrocery() {
+  if (!groceryItems.length) return;
+  if (confirm('Clear the entire grocery list?')) {
+    groceryItems = [];
+    renderGrocery(); saveGrocery();
+  }
+}
+
+// ── UTILS ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+document.querySelectorAll('.modal-backdrop').forEach(m => {
+  m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
+});
+
+// Expose functions to global scope (required for onclick= in module scripts)
+Object.assign(window, {
+  showView, openDetail, closeDetail, closeDetailDirect,
+  markPlanned, markSkip, getIdeas,
+  openAddModal, openEditModal, saveEvent, deleteEvent, confirmDelete,
+  addUrlRow, removeUrlRow,
+  openListEdit, saveListEdit, deleteList, saveNewList, addListItem, toggleListItem,
+  openRecipeModal, saveRecipe, deleteRecipe, openUrlImportModal, importFromUrl,
+  openCookMode, adjustScale, toggleIngredient, activateStep, addRecipeToGrocery,
+  toggleGrocery, removeGrocery, addGroceryManual, clearCheckedGrocery, clearAllGrocery,
+  filterRecipes,
+  openModal, closeModal
+});
+
+// ── INIT — load from Firestore, seed defaults if empty ──
+async function init() {
+  const loadMsg = document.getElementById('loading-msg');
+  try {
+    if (loadMsg) loadMsg.textContent = 'Loading your data...';
+
+    const evSnap = await getDoc(doc(db, 'life-menu', 'events'));
+    if (evSnap.exists() && evSnap.data().data && evSnap.data().data.length) {
+      events = evSnap.data().data;
+      nextEventId = Math.max(...events.map(e => e.id), 200) + 1;
+    } else {
+      if (loadMsg) loadMsg.textContent = 'First run — saving defaults...';
+      await saveEvents();
+    }
+
+    const listSnap = await getDoc(doc(db, 'life-menu', 'lists'));
+    if (listSnap.exists() && listSnap.data().data && listSnap.data().data.length) {
+      lists = listSnap.data().data;
+      nextListId = Math.max(...lists.map(l => l.id), 50) + 1;
+      const allItems = lists.flatMap(l => l.items.map(i => i.id));
+      if (allItems.length) nextItemId = Math.max(...allItems, 10000) + 1;
+    } else {
+      await saveLists();
+    }
+
+    const recipeSnap = await getDoc(doc(db, 'life-menu', 'recipes'));
+    if (recipeSnap.exists() && recipeSnap.data().data) {
+      recipes = recipeSnap.data().data;
+      if (recipes.length) nextRecipeId = Math.max(...recipes.map(r => r.id), 500) + 1;
+    }
+
+    const grocerySnap = await getDoc(doc(db, 'life-menu', 'grocery'));
+    if (grocerySnap.exists() && grocerySnap.data().data) {
+      groceryItems = grocerySnap.data().data;
+      if (groceryItems.length) nextGroceryId = Math.max(...groceryItems.map(i => i.id), 20000) + 1;
+    }
+
+  } catch(e) {
+    console.error('Load failed:', e);
+    if (loadMsg) loadMsg.textContent = 'Connection failed — running offline';
+    setTimeout(() => {
+      const ls = document.getElementById('loading-screen');
+      if (ls) ls.style.display = 'none';
+      renderHome();
+    }, 1500);
+    return;
+  }
+
+  const ls = document.getElementById('loading-screen');
+  if (ls) ls.style.display = 'none';
+  renderHome();
+}
+
+init();
+</script>
+</body>
+</html>
