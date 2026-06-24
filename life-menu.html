@@ -398,6 +398,7 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
 .quest-total{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);}
 .quest-edit-btn{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:2px;cursor:pointer;transition:all 0.15s;}
 .quest-edit-btn:hover{color:var(--gold);border-color:var(--border-strong);}
+.active-carousel-btn{color:var(--green) !important;border-color:rgba(90,196,122,0.4) !important;}
 </style>
 </head>
 <body>
@@ -678,11 +679,15 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
     </div>
     <div class="modal-field">
       <label class="modal-label">Image URL (optional)</label>
-      <input class="modal-input" id="adv-image" placeholder="https://…">
+      <input class="modal-input" id="adv-image" placeholder="https://… 4:5 portrait image for carousel">
     </div>
     <div class="modal-field">
       <label class="modal-label">Notes</label>
       <textarea class="modal-textarea" id="adv-notes" placeholder="Where to go, what to bring, what makes it special…"></textarea>
+    </div>
+    <div class="modal-field" style="display:flex;align-items:center;gap:10px;">
+      <input type="checkbox" id="adv-carousel" style="width:15px;height:15px;accent-color:var(--gold);cursor:pointer;">
+      <label for="adv-carousel" style="font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;">Show in home carousel</label>
     </div>
     <div class="modal-row">
       <button class="btn-modal-save" onclick="saveAdventure()">Save</button>
@@ -709,6 +714,14 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
     <div class="modal-field">
       <label class="modal-label">Rating categories (comma separated)</label>
       <input class="modal-input" id="quest-cats" placeholder="e.g. Broth, Meat, Noodles, Atmosphere">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Image URL (optional)</label>
+      <input class="modal-input" id="quest-image" placeholder="https://… 4:5 portrait image for carousel">
+    </div>
+    <div class="modal-field" style="display:flex;align-items:center;gap:10px;">
+      <input type="checkbox" id="quest-carousel" style="width:15px;height:15px;accent-color:var(--gold);cursor:pointer;">
+      <label for="quest-carousel" style="font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;">Show in home carousel</label>
     </div>
     <div class="modal-row">
       <button class="btn-modal-save" onclick="saveQuest()">Save Quest</button>
@@ -1240,9 +1253,23 @@ function renderCarousel() {
   const empty = document.getElementById('strip-empty');
   const outer = document.getElementById('carousel-outer');
 
-  const upcoming = events.filter(ev => isComingUp(ev));
+  // Seasonal events within 30 days
+  const upcomingEvents = events.filter(ev => isComingUp(ev));
 
-  if (!upcoming.length) {
+  // Adventures flagged for carousel
+  const advCards = adventures.filter(a => a.inCarousel);
+
+  // Quests flagged for carousel
+  const questCards = quests.filter(q => q.inCarousel);
+
+  // All combined
+  const allItems = [
+    ...upcomingEvents.map(ev => ({type:'event', item:ev})),
+    ...advCards.map(a => ({type:'adventure', item:a})),
+    ...questCards.map(q => ({type:'quest', item:q})),
+  ];
+
+  if (!allItems.length) {
     outer.style.display = 'none';
     empty.style.display = 'block';
     return;
@@ -1250,45 +1277,58 @@ function renderCarousel() {
   outer.style.display = 'block';
   empty.style.display = 'none';
 
-  // Duplicate cards so marquee loops seamlessly
-  const makeCard = (ev) => {
-    const du = daysUntil(ev.month, ev.day);
-    const isUrgent = du <= 7;
-    const isPlanned = ev.status === 'planned';
-    const faceClass = 'face-' + ev.season.toLowerCase();
-    const cardClass = (isUrgent ? 'urgency' : isPlanned ? 'is-planned' : '');
-    const badge = isUrgent
-      ? `<div class="face-badge-soon">${du}d</div>`
-      : isPlanned
-      ? `<div class="face-badge-planned">planned</div>`
-      : '';
+  const makeCard = ({type, item}) => {
+    let imageUrl, name, sublabel, onclick, faceClass, badge = '';
 
-    const faceContent = ev.imageUrl
-      ? `<img src="${ev.imageUrl}" alt="${ev.name}" loading="lazy">
+    if (type === 'event') {
+      const du = daysUntil(item.month, item.day);
+      const isUrgent = du <= 7;
+      const isPlanned = item.status === 'planned';
+      imageUrl = item.imageUrl;
+      name = item.name;
+      sublabel = MONTHS[item.month-1] + (item.day ? ' ' + item.day : '') + (item.windowLabel && item.windowLabel !== MONTHS[item.month-1] ? ' &middot; ' + item.windowLabel : '');
+      onclick = `openDetail(${item.id})`;
+      faceClass = 'face-' + (item.season||'summer').toLowerCase();
+      badge = isUrgent ? `<div class="face-badge-soon">${du}d</div>` : isPlanned ? `<div class="face-badge-planned">planned</div>` : '';
+    } else if (type === 'adventure') {
+      imageUrl = item.image;
+      name = item.name;
+      sublabel = item.season;
+      onclick = `showView('adventures')`;
+      faceClass = 'face-' + (item.season||'summer').toLowerCase();
+      badge = item.status === 'done' ? `<div class="face-badge-planned">done</div>` : '';
+    } else {
+      imageUrl = item.image;
+      name = item.name;
+      sublabel = 'Food Quest &middot; ' + ((item.entries||[]).length) + ' visits';
+      onclick = `showView('quests')`;
+      faceClass = 'face-summer';
+      badge = '';
+    }
+
+    const faceContent = imageUrl
+      ? `<img src="${imageUrl}" alt="${name}" loading="lazy">
          <div class="face-img-overlay"></div>
          ${badge}
-         <div class="face-season-label">${ev.season}</div>
-         <div class="face-title">${ev.name}</div>`
+         <div class="face-season-label">${type === 'event' ? (item.season||'') : type === 'adventure' ? item.season : 'Quest'}</div>
+         <div class="face-title">${name}</div>`
       : `${badge}
-         <div class="face-season-label">${ev.season}</div>
-         <div class="face-title">${ev.name}</div>
+         <div class="face-season-label">${type === 'event' ? (item.season||'') : type === 'adventure' ? item.season : 'Quest'}</div>
+         <div class="face-title">${name}</div>
          <div class="face-ornament">— — —</div>`;
 
-    return `<div class="banner-card" onclick="openDetail(${ev.id})">
-      <div class="banner-card-face ${faceClass} ${cardClass}${ev.imageUrl ? ' has-image' : ''}">
+    return `<div class="banner-card" onclick="${onclick}">
+      <div class="banner-card-face ${faceClass}${imageUrl ? ' has-image' : ''}">
         ${faceContent}
       </div>
-      <div class="banner-card-name">${ev.name}</div>
-      <div class="banner-card-date">${MONTHS[ev.month-1]}${ev.day ? ' ' + ev.day : ''}${ev.windowLabel && ev.windowLabel !== MONTHS[ev.month-1] ? ' &middot; ' + ev.windowLabel : ''}</div>
+      <div class="banner-card-name">${name}</div>
+      <div class="banner-card-date">${sublabel}</div>
     </div>`;
   };
 
-  const allCards = upcoming.map(makeCard).join('');
-  // Duplicate for seamless loop
+  const allCards = allItems.map(makeCard).join('');
   track.innerHTML = allCards + allCards;
-
-  // Adjust animation speed based on count
-  const speed = Math.max(20, upcoming.length * 8);
+  const speed = Math.max(20, allItems.length * 8);
   track.style.animationDuration = speed + 's';
 }
 
@@ -1803,6 +1843,7 @@ function renderAdventures() {
         <div class="adv-card-footer">
           <button class="adv-btn adv-btn-done" onclick="setAdvStatus(${a.id},'done')">Done it</button>
           <button class="adv-btn adv-btn-want" onclick="setAdvStatus(${a.id},'want')">On my list</button>
+          <button class="adv-btn ${a.inCarousel?'adv-btn-done':''}" onclick="toggleAdvCarousel(${a.id})" title="Toggle carousel">${a.inCarousel ? 'In carousel' : '+ Carousel'}</button>
           <button class="adv-btn" onclick="openAdvModal(${a.id})">Edit</button>
         </div>
       </div>
@@ -1834,6 +1875,7 @@ function openAdvModal(id) {
   document.getElementById('adv-vibe').value = a?.vibe || '';
   document.getElementById('adv-image').value = a?.image || '';
   document.getElementById('adv-notes').value = a?.notes || '';
+  document.getElementById('adv-carousel').checked = a?.inCarousel || false;
   document.getElementById('btn-delete-adv').style.display = a ? 'block' : 'none';
   openModal('modal-adv');
 }
@@ -1848,11 +1890,13 @@ function saveAdventure() {
     vibe: document.getElementById('adv-vibe').value.trim(),
     image: document.getElementById('adv-image').value.trim(),
     notes: document.getElementById('adv-notes').value.trim(),
+    inCarousel: document.getElementById('adv-carousel').checked,
     status: editingAdvId ? (adventures.find(x=>x.id===editingAdvId)?.status||'open') : 'open'
   };
   if (editingAdvId) { const i = adventures.findIndex(x=>x.id===editingAdvId); if(i>=0) adventures[i]=obj; }
   else adventures.push(obj);
   closeModal('modal-adv'); saveAdventures(); renderAdventures();
+  if(document.getElementById('view-home').classList.contains('active')) renderCarousel();
   showToast(editingAdvId ? 'Adventure updated' : 'Adventure added');
 }
 
@@ -1862,6 +1906,24 @@ function deleteAdventure() {
   if (!a || !confirm(`Delete "${a.name}"?`)) return;
   adventures = adventures.filter(x=>x.id!==editingAdvId);
   closeModal('modal-adv'); saveAdventures(); renderAdventures();
+}
+
+function toggleAdvCarousel(id) {
+  const a = adventures.find(x=>x.id===id);
+  if (!a) return;
+  a.inCarousel = !a.inCarousel;
+  saveAdventures(); renderAdventures();
+  if(document.getElementById('view-home').classList.contains('active')) renderCarousel();
+  showToast(a.inCarousel ? 'Added to carousel' : 'Removed from carousel');
+}
+
+function toggleQuestCarousel(id) {
+  const q = quests.find(x=>x.id===id);
+  if (!q) return;
+  q.inCarousel = !q.inCarousel;
+  saveQuests(); renderQuests();
+  if(document.getElementById('view-home').classList.contains('active')) renderCarousel();
+  showToast(q.inCarousel ? 'Added to carousel' : 'Removed from carousel');
 }
 
 // ══════════════════════════════════════════════
@@ -1923,7 +1985,10 @@ function renderQuests() {
       <div class="quest-entries">${entriesHtml}</div>
       <div class="quest-card-footer">
         <span class="quest-total">${entries.length} visit${entries.length!==1?'s':''} logged</span>
-        <button class="quest-edit-btn" onclick="openQuestModal(${q.id})">Edit quest</button>
+        <div style="display:flex;gap:6px;">
+          <button class="quest-edit-btn ${q.inCarousel?'active-carousel-btn':''}" onclick="toggleQuestCarousel(${q.id})">${q.inCarousel ? 'In carousel' : '+ Carousel'}</button>
+          <button class="quest-edit-btn" onclick="openQuestModal(${q.id})">Edit quest</button>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -1937,6 +2002,8 @@ function openQuestModal(id) {
   document.getElementById('quest-name').value = q?.name || '';
   document.getElementById('quest-desc').value = q?.desc || '';
   document.getElementById('quest-cats').value = (q?.ratingCats||[]).join(', ');
+  document.getElementById('quest-image').value = q?.image || '';
+  document.getElementById('quest-carousel').checked = q?.inCarousel || false;
   document.getElementById('btn-delete-quest').style.display = q ? 'block' : 'none';
   openModal('modal-quest');
 }
@@ -1947,11 +2014,26 @@ function saveQuest() {
   const cats = document.getElementById('quest-cats').value.split(',').map(s=>s.trim()).filter(Boolean);
   if (editingQuestId) {
     const q = quests.find(x=>x.id===editingQuestId);
-    if (q) { q.name=name; q.desc=document.getElementById('quest-desc').value.trim(); q.ratingCats=cats; }
+    if (q) {
+      q.name=name;
+      q.desc=document.getElementById('quest-desc').value.trim();
+      q.ratingCats=cats;
+      q.image=document.getElementById('quest-image').value.trim();
+      q.inCarousel=document.getElementById('quest-carousel').checked;
+    }
   } else {
-    quests.push({id:++nextQuestId,name,desc:document.getElementById('quest-desc').value.trim(),ratingCats:cats,entries:[]});
+    quests.push({
+      id:++nextQuestId, name,
+      desc:document.getElementById('quest-desc').value.trim(),
+      ratingCats:cats,
+      image:document.getElementById('quest-image').value.trim(),
+      inCarousel:document.getElementById('quest-carousel').checked,
+      entries:[]
+    });
   }
   closeModal('modal-quest'); saveQuests(); renderQuests();
+  if(document.getElementById('view-home').classList.contains('active')) renderCarousel();
+  showToast(editingQuestId ? 'Quest updated' : 'Quest added');
 }
 
 function deleteQuest() {
@@ -2392,8 +2474,8 @@ Object.assign(window, {
   openAddModal, openEditModal, saveEvent, deleteEvent, confirmDelete,
   addUrlRow, removeUrlRow,
   openListEdit, saveListEdit, deleteList, saveNewList, addListItem, toggleListItem,
-  filterAdventures, openAdvModal, saveAdventure, deleteAdventure, setAdvStatus,
-  openQuestModal, saveQuest, deleteQuest,
+  filterAdventures, openAdvModal, saveAdventure, deleteAdventure, setAdvStatus, toggleAdvCarousel,
+  openQuestModal, saveQuest, deleteQuest, toggleQuestCarousel,
   openQuestEntryModal, saveQuestEntry, deleteQuestEntry, setQeStar,
   openRecipeModal, saveRecipe, deleteRecipe, openUrlImportModal, importFromUrl,
   openCookMode, adjustScale, toggleIngredient, activateStep, addRecipeToGrocery,
