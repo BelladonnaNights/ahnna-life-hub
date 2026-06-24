@@ -344,6 +344,60 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
 .g-recipe-name{font-size:0.9rem;color:var(--text-muted);}
 .g-recipe-add{font-family:'Cinzel',serif;font-size:0.54rem;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:2px;cursor:pointer;transition:all 0.15s;}
 .g-recipe-add:hover{color:var(--green);border-color:rgba(90,196,122,0.45);}
+/* ── KITCHEN TABS ── */
+.kitchen-tabs{display:flex;border-bottom:1px solid var(--border);background:#110E0B;}
+.ktab{flex:1;padding:0.75rem;font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);cursor:pointer;transition:all 0.15s;}
+.ktab:hover{color:var(--text-muted);}
+.ktab.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+/* ── ADVENTURES ── */
+.adv-header{padding:1.1rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:#110E0B;}
+.adv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;padding:1.5rem 1.75rem;}
+.adv-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;cursor:pointer;transition:all 0.15s;position:relative;}
+.adv-card:hover{border-color:var(--border-med);transform:translateY(-1px);}
+.adv-card-img{width:100%;height:140px;object-fit:cover;display:block;}
+.adv-card-img-placeholder{width:100%;height:140px;background:linear-gradient(135deg,var(--surface2),var(--surface3));display:flex;align-items:center;justify-content:center;}
+.adv-season-tag{position:absolute;top:8px;left:8px;font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;padding:2px 8px;border-radius:2px;background:rgba(14,12,10,0.8);color:var(--gold);border:1px solid var(--border);}
+.adv-status-tag{position:absolute;top:8px;right:8px;font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;border-radius:2px;}
+.adv-status-done{background:rgba(90,196,122,0.15);color:var(--green);border:1px solid rgba(90,196,122,0.35);}
+.adv-status-want{background:rgba(123,167,199,0.12);color:var(--blue);border:1px solid rgba(123,167,199,0.3);}
+.adv-card-body{padding:0.85rem 1rem;}
+.adv-card-name{font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:0.07em;text-transform:uppercase;color:var(--text);margin-bottom:0.3rem;line-height:1.2;}
+.adv-card-vibe{font-size:0.85rem;color:var(--text-muted);font-style:italic;margin-bottom:0.5rem;}
+.adv-card-footer{display:flex;gap:6px;flex-wrap:wrap;}
+.adv-btn{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:2px;cursor:pointer;transition:all 0.15s;border:1px solid var(--border);background:none;color:var(--text-dim);}
+.adv-btn:hover{color:var(--text);border-color:var(--border-med);}
+.adv-btn-done{border-color:rgba(90,196,122,0.4);color:var(--green);}
+.adv-btn-done:hover{background:rgba(90,196,122,0.08);}
+.adv-btn-want{border-color:rgba(123,167,199,0.35);color:var(--blue);}
+.adv-btn-want:hover{background:rgba(123,167,199,0.07);}
+.adv-empty{padding:3rem 2rem;color:var(--text-dim);font-style:italic;text-align:center;grid-column:1/-1;}
+
+/* ── FOOD QUESTS ── */
+.quests-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;padding:1.5rem 1.75rem;}
+.quest-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.quest-card-header{padding:1rem 1.1rem 0.75rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.quest-card-name{font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);}
+.quest-card-desc{font-size:0.82rem;color:var(--text-dim);font-style:italic;margin-top:0.2rem;}
+.quest-add-btn{font-family:'Cinzel',serif;font-size:0.54rem;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border:1px solid var(--border-strong);background:rgba(201,168,76,0.07);color:var(--gold);border-radius:2px;cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0;}
+.quest-add-btn:hover{background:rgba(201,168,76,0.14);}
+.quest-entries{padding:0.5rem 0;}
+.quest-entry{padding:0.65rem 1.1rem;border-bottom:1px solid rgba(201,168,76,0.07);cursor:pointer;transition:background 0.12s;}
+.quest-entry:hover{background:var(--surface2);}
+.quest-entry:last-child{border-bottom:none;}
+.qe-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:0.25rem;}
+.qe-place{font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);}
+.qe-date{font-size:0.75rem;color:var(--text-dim);}
+.qe-ratings{display:flex;gap:10px;flex-wrap:wrap;}
+.qe-rating{font-size:0.78rem;color:var(--text-muted);}
+.qe-rating-label{color:var(--text-dim);margin-right:3px;}
+.qe-stars{color:var(--gold);letter-spacing:1px;}
+.qe-note{font-size:0.82rem;color:var(--text-dim);font-style:italic;margin-top:0.25rem;}
+.quest-empty-entries{padding:0.75rem 1.1rem;font-size:0.85rem;color:var(--text-dim);font-style:italic;}
+.quest-card-footer{padding:0.6rem 1.1rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.quest-total{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);}
+.quest-edit-btn{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:2px;cursor:pointer;transition:all 0.15s;}
+.quest-edit-btn:hover{color:var(--gold);border-color:var(--border-strong);}
 </style>
 </head>
 <body>
@@ -356,9 +410,10 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
   <nav class="nav">
     <button class="nav-btn active" onclick="showView('home')">Home</button>
     <button class="nav-btn" onclick="showView('seasonal')">Seasonal</button>
+    <button class="nav-btn" onclick="showView('adventures')">Adventures</button>
+    <button class="nav-btn" onclick="showView('quests')">Food Quests</button>
+    <button class="nav-btn" onclick="showView('kitchen')">Kitchen</button>
     <button class="nav-btn" onclick="showView('lists')">Lists</button>
-    <button class="nav-btn" onclick="showView('recipes')">Recipes</button>
-    <button class="nav-btn" onclick="showView('grocery')">Grocery</button>
   </nav>
 </div>
 
@@ -389,6 +444,26 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
     <div class="home-section">
       <div class="home-section-header">
         <div>
+          <div class="home-section-title">Adventures</div>
+          <div class="home-section-sub">Season-based outings with the boys</div>
+        </div>
+        <span class="home-section-link" onclick="showView('adventures')">See all &rarr;</span>
+      </div>
+      <div class="list-preview-grid" id="home-adventures-grid"></div>
+    </div>
+    <div class="home-section">
+      <div class="home-section-header">
+        <div>
+          <div class="home-section-title">Food Quests</div>
+          <div class="home-section-sub">Ongoing taste explorations</div>
+        </div>
+        <span class="home-section-link" onclick="showView('quests')">See all &rarr;</span>
+      </div>
+      <div class="list-preview-grid" id="home-quests-grid"></div>
+    </div>
+    <div class="home-section">
+      <div class="home-section-header">
+        <div>
           <div class="home-section-title">Watch &amp; Play</div>
           <div class="home-section-sub">Shows, movies, games to get through together</div>
         </div>
@@ -415,52 +490,82 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
   </div>
 </div>
 
-<!-- RECIPES -->
-<div id="view-recipes" class="view">
-  <div class="recipes-header">
+<!-- ADVENTURES -->
+<div id="view-adventures" class="view">
+  <div class="adv-header">
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="rcat-btn active" data-cat="all" onclick="filterRecipes('all',this)">All</button>
-      <button class="rcat-btn" data-cat="Weeknight" onclick="filterRecipes('Weeknight',this)">Weeknight</button>
-      <button class="rcat-btn" data-cat="Boys Love This" onclick="filterRecipes('Boys Love This',this)">Boys Love This</button>
-      <button class="rcat-btn" data-cat="Batch Cook" onclick="filterRecipes('Batch Cook',this)">Batch Cook</button>
-      <button class="rcat-btn" data-cat="Slow Cooker" onclick="filterRecipes('Slow Cooker',this)">Slow Cooker</button>
-      <button class="rcat-btn" data-cat="Snacks" onclick="filterRecipes('Snacks',this)">Snacks</button>
-      <button class="rcat-btn" data-cat="Breakfast" onclick="filterRecipes('Breakfast',this)">Breakfast</button>
-      <button class="rcat-btn" data-cat="Dessert" onclick="filterRecipes('Dessert',this)">Dessert</button>
+      <button class="rcat-btn active" onclick="filterAdventures('all',this)">All</button>
+      <button class="rcat-btn" onclick="filterAdventures('Winter',this)">Winter</button>
+      <button class="rcat-btn" onclick="filterAdventures('Spring',this)">Spring</button>
+      <button class="rcat-btn" onclick="filterAdventures('Summer',this)">Summer</button>
+      <button class="rcat-btn" onclick="filterAdventures('Fall',this)">Fall</button>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <input class="r-search" id="recipe-search" placeholder="Search recipes..." oninput="filterRecipes(null,null)">
-      <button class="btn-add-event" onclick="openRecipeModal()">+ Add Recipe</button>
-      <button class="btn-add-event" style="border-color:rgba(123,167,199,0.5);color:var(--blue);background:rgba(123,167,199,0.07);" onclick="openUrlImportModal()">+ From URL</button>
-    </div>
+    <button class="btn-add-event" onclick="openAdvModal()">+ Add Adventure</button>
   </div>
-  <div class="recipes-grid" id="recipes-grid"></div>
+  <div class="adv-grid" id="adv-grid"></div>
 </div>
 
-<!-- GROCERY -->
-<div id="view-grocery" class="view">
-  <div class="grocery-header">
-    <div>
-      <div style="font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-dim);">Grocery List</div>
-      <div style="font-size:0.85rem;color:var(--text-dim);font-style:italic;margin-top:0.2rem;">Add from recipes or type items manually</div>
-    </div>
-    <div style="display:flex;gap:8px;">
-      <button class="btn-add-event" onclick="clearCheckedGrocery()">Clear checked</button>
-      <button class="btn-add-event" style="border-color:rgba(139,58,42,0.4);color:#C0654F;background:rgba(139,58,42,0.06);" onclick="clearAllGrocery()">Clear all</button>
-    </div>
+<!-- FOOD QUESTS -->
+<div id="view-quests" class="view">
+  <div class="adv-header">
+    <div style="font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-dim);">Food Quests &mdash; Ongoing</div>
+    <button class="btn-add-event" onclick="openQuestModal()">+ Add Quest</button>
   </div>
-  <div class="grocery-body">
-    <div class="grocery-col">
-      <div class="grocery-section-label">Items</div>
-      <div id="grocery-list"></div>
-      <div class="grocery-add-row">
-        <input class="list-add-input" id="grocery-manual-input" placeholder="Add item manually..." onkeydown="if(event.key==='Enter')addGroceryManual()">
-        <button class="list-add-btn" onclick="addGroceryManual()">Add</button>
+  <div class="quests-grid" id="quests-grid"></div>
+</div>
+
+<!-- KITCHEN (recipes + grocery) -->
+<div id="view-kitchen" class="view">
+  <div class="kitchen-tabs">
+    <button class="ktab active" id="ktab-recipes" onclick="switchKitchenTab('recipes')">Recipes</button>
+    <button class="ktab" id="ktab-grocery" onclick="switchKitchenTab('grocery')">Grocery List</button>
+  </div>
+
+  <div id="kitchen-recipes">
+    <div class="recipes-header">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="rcat-btn active" data-cat="all" onclick="filterRecipes('all',this)">All</button>
+        <button class="rcat-btn" data-cat="Weeknight" onclick="filterRecipes('Weeknight',this)">Weeknight</button>
+        <button class="rcat-btn" data-cat="Boys Love This" onclick="filterRecipes('Boys Love This',this)">Boys Love This</button>
+        <button class="rcat-btn" data-cat="Batch Cook" onclick="filterRecipes('Batch Cook',this)">Batch Cook</button>
+        <button class="rcat-btn" data-cat="Slow Cooker" onclick="filterRecipes('Slow Cooker',this)">Slow Cooker</button>
+        <button class="rcat-btn" data-cat="Snacks" onclick="filterRecipes('Snacks',this)">Snacks</button>
+        <button class="rcat-btn" data-cat="Breakfast" onclick="filterRecipes('Breakfast',this)">Breakfast</button>
+        <button class="rcat-btn" data-cat="Dessert" onclick="filterRecipes('Dessert',this)">Dessert</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input class="r-search" id="recipe-search" placeholder="Search recipes..." oninput="filterRecipes(null,null)">
+        <button class="btn-add-event" onclick="openRecipeModal()">+ Add Recipe</button>
+        <button class="btn-add-event" style="border-color:rgba(123,167,199,0.5);color:var(--blue);background:rgba(123,167,199,0.07);" onclick="openUrlImportModal()">+ From URL</button>
       </div>
     </div>
-    <div class="grocery-col grocery-recipes-col">
-      <div class="grocery-section-label">Add from a Recipe</div>
-      <div id="grocery-recipe-picker"></div>
+    <div class="recipes-grid" id="recipes-grid"></div>
+  </div>
+
+  <div id="kitchen-grocery" style="display:none;">
+    <div class="grocery-header">
+      <div>
+        <div style="font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-dim);">Grocery List</div>
+        <div style="font-size:0.85rem;color:var(--text-dim);font-style:italic;margin-top:0.2rem;">Add from recipes or type items manually</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-add-event" onclick="clearCheckedGrocery()">Clear checked</button>
+        <button class="btn-add-event" style="border-color:rgba(139,58,42,0.4);color:#C0654F;background:rgba(139,58,42,0.06);" onclick="clearAllGrocery()">Clear all</button>
+      </div>
+    </div>
+    <div class="grocery-body">
+      <div class="grocery-col">
+        <div class="grocery-section-label">Items</div>
+        <div id="grocery-list"></div>
+        <div class="grocery-add-row">
+          <input class="list-add-input" id="grocery-manual-input" placeholder="Add item manually..." onkeydown="if(event.key==='Enter')addGroceryManual()">
+          <button class="list-add-btn" onclick="addGroceryManual()">Add</button>
+        </div>
+      </div>
+      <div class="grocery-col grocery-recipes-col">
+        <div class="grocery-section-label">Add from a Recipe</div>
+        <div id="grocery-recipe-picker"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -547,6 +652,96 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
     <div class="modal-row">
       <button class="btn-modal-save" onclick="saveNewList()">Create List</button>
       <button class="btn-modal-cancel" onclick="closeModal('modal-add-list')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADVENTURE MODAL -->
+<div class="modal-backdrop" id="modal-adv">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-adv')">&times;</button>
+    <div class="modal-title" id="modal-adv-title">Add Adventure</div>
+    <input type="hidden" id="edit-adv-id">
+    <div class="modal-field">
+      <label class="modal-label">Adventure name *</label>
+      <input class="modal-input" id="adv-name" placeholder="e.g. Japanese Garden Day">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Season</label>
+      <select class="modal-select" id="adv-season">
+        <option>Winter</option><option>Spring</option><option>Summer</option><option>Fall</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Vibe / description</label>
+      <input class="modal-input" id="adv-vibe" placeholder="e.g. Spring blossoms, slow morning, no agenda">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Image URL (optional)</label>
+      <input class="modal-input" id="adv-image" placeholder="https://…">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Notes</label>
+      <textarea class="modal-textarea" id="adv-notes" placeholder="Where to go, what to bring, what makes it special…"></textarea>
+    </div>
+    <div class="modal-row">
+      <button class="btn-modal-save" onclick="saveAdventure()">Save</button>
+      <button class="btn-modal-cancel" onclick="closeModal('modal-adv')">Cancel</button>
+      <button class="btn-modal-delete" id="btn-delete-adv" style="display:none;" onclick="deleteAdventure()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUEST MODAL (add/edit quest itself) -->
+<div class="modal-backdrop" id="modal-quest">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-quest')">&times;</button>
+    <div class="modal-title" id="modal-quest-title">Add Food Quest</div>
+    <input type="hidden" id="edit-quest-id">
+    <div class="modal-field">
+      <label class="modal-label">Quest name *</label>
+      <input class="modal-input" id="quest-name" placeholder="e.g. Pho Passport">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Description</label>
+      <input class="modal-input" id="quest-desc" placeholder="e.g. Find the best pho in the area">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Rating categories (comma separated)</label>
+      <input class="modal-input" id="quest-cats" placeholder="e.g. Broth, Meat, Noodles, Atmosphere">
+    </div>
+    <div class="modal-row">
+      <button class="btn-modal-save" onclick="saveQuest()">Save Quest</button>
+      <button class="btn-modal-cancel" onclick="closeModal('modal-quest')">Cancel</button>
+      <button class="btn-modal-delete" id="btn-delete-quest" style="display:none;" onclick="deleteQuest()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUEST ENTRY MODAL (log a visit) -->
+<div class="modal-backdrop" id="modal-quest-entry">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-quest-entry')">&times;</button>
+    <div class="modal-title" id="modal-qe-title">Log a Visit</div>
+    <input type="hidden" id="edit-qe-quest-id">
+    <input type="hidden" id="edit-qe-entry-id">
+    <div class="modal-field">
+      <label class="modal-label">Place name *</label>
+      <input class="modal-input" id="qe-place" placeholder="e.g. Pho Bac Sup Shop">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Date visited</label>
+      <input class="modal-input" id="qe-date" type="date">
+    </div>
+    <div id="qe-ratings-fields"></div>
+    <div class="modal-field">
+      <label class="modal-label">Notes</label>
+      <textarea class="modal-textarea" id="qe-notes" placeholder="What stood out, would you go back, what did the boys think…"></textarea>
+    </div>
+    <div class="modal-row">
+      <button class="btn-modal-save" onclick="saveQuestEntry()">Save Entry</button>
+      <button class="btn-modal-cancel" onclick="closeModal('modal-quest-entry')">Cancel</button>
+      <button class="btn-modal-delete" id="btn-delete-qe" style="display:none;" onclick="deleteQuestEntry()">Delete</button>
     </div>
   </div>
 </div>
@@ -985,14 +1180,59 @@ function showView(v) {
   if(v==='home') renderHome();
   if(v==='seasonal') renderSeasonal();
   if(v==='lists') renderLists();
-  if(v==='recipes') renderRecipes();
-  if(v==='grocery') renderGrocery();
+  if(v==='adventures') renderAdventures();
+  if(v==='quests') renderQuests();
+  if(v==='kitchen') renderRecipes();
+}
+
+function switchKitchenTab(tab) {
+  document.getElementById('kitchen-recipes').style.display = tab==='recipes' ? 'block' : 'none';
+  document.getElementById('kitchen-grocery').style.display = tab==='grocery' ? 'block' : 'none';
+  document.getElementById('ktab-recipes').classList.toggle('active', tab==='recipes');
+  document.getElementById('ktab-grocery').classList.toggle('active', tab==='grocery');
+  if (tab==='grocery') renderGrocery();
+  if (tab==='recipes') renderRecipes();
 }
 
 // ── HOME ──
 function renderHome() {
   renderCarousel();
   renderHomeListsGrid();
+  renderHomeAdventuresGrid();
+  renderHomeQuestsGrid();
+}
+
+function renderHomeAdventuresGrid() {
+  const grid = document.getElementById('home-adventures-grid');
+  if (!grid) return;
+  const bySeason = {Winter:[],Spring:[],Summer:[],Fall:[]};
+  adventures.forEach(a => { if(bySeason[a.season]) bySeason[a.season].push(a); });
+  const NOW_SEASON = ['Winter','Winter','Spring','Spring','Spring','Summer','Summer','Summer','Fall','Fall','Fall','Winter'][new Date().getMonth()];
+  const ordered = [NOW_SEASON, ...Object.keys(bySeason).filter(s=>s!==NOW_SEASON)];
+  grid.innerHTML = ordered.map(season => {
+    const items = bySeason[season];
+    if (!items.length) return '';
+    const preview = items.filter(a=>a.status!=='done').slice(0,3).map(a=>a.name).join(', ');
+    return `<div class="list-preview-card" onclick="showView('adventures');filterAdventures('${season}',null)">
+      <div class="lpc-title">${season}</div>
+      <div class="lpc-items">${preview||'All done!'}</div>
+      <div class="lpc-count">${items.filter(a=>a.status!=='done').length} remaining</div>
+    </div>`;
+  }).join('');
+}
+
+function renderHomeQuestsGrid() {
+  const grid = document.getElementById('home-quests-grid');
+  if (!grid) return;
+  grid.innerHTML = quests.slice(0,4).map(q => {
+    const count = (q.entries||[]).length;
+    const last = count ? q.entries[q.entries.length-1].place : null;
+    return `<div class="list-preview-card" onclick="showView('quests')">
+      <div class="lpc-title">${q.name}</div>
+      <div class="lpc-items">${last ? 'Last: ' + last : q.desc}</div>
+      <div class="lpc-count">${count} visit${count!==1?'s':''} logged</div>
+    </div>`;
+  }).join('');
 }
 
 function renderCarousel() {
@@ -1518,6 +1758,289 @@ function deleteList() {
 }
 
 // ══════════════════════════════════════════════
+// ADVENTURES
+// ══════════════════════════════════════════════
+let adventures = [
+  {id:1,name:"International Food Adventure",season:"Winter",vibe:"Cold weather = cozy food. Pick a cuisine you've never cooked together.",image:"",notes:"Hit H Mart or Uwajimaya. Everyone gets $10 to pick mystery ingredients. Go home and cook something.",status:"open"},
+  {id:2,name:"Vintage Arcade Day",season:"Winter",vibe:"Quarters, old machines, no agenda.",image:"",notes:"GameWorks in Renton or Round1 at Southcenter. Set a budget per person and let them go.",status:"open"},
+  {id:3,name:"Japanese Garden Day",season:"Spring",vibe:"Spring blossoms. Slow morning. No agenda.",image:"",notes:"Seattle Japanese Garden in the Arboretum. Go when cherry blossoms are out — usually late March to mid April.",status:"open"},
+  {id:4,name:"Taco Trail",season:"Spring",vibe:"Authentic only. Rate every one.",image:"",notes:"One taco spot per outing. Build the list over time. No chains.",status:"open"},
+  {id:5,name:"Sunset Picnic",season:"Spring",vibe:"Find the best view. Bring real food.",image:"",notes:"Scouting spots: Coulon Beach in Renton, Dash Point, Gene Coulon Memorial Park. Go at golden hour.",status:"open"},
+  {id:6,name:"Berry Picking",season:"Summer",vibe:"Early morning before it gets hot.",image:"",notes:"Farms around Auburn and Kent. U-pick blueberries and strawberries June–August. Go on a weekday.",status:"open"},
+  {id:7,name:"Firepit and S'mores Night",season:"Summer",vibe:"Slow evening. No screens.",image:"",notes:"Backyard or a campfire spot. Boys handle the fire setup. Make it a whole thing.",status:"open"},
+  {id:8,name:"Weird Roadside Attractions",season:"Summer",vibe:"Perfect road trip energy. The weirder the better.",image:"",notes:"Roadsideamerica.com for PNW oddities. Hat n Boots in Georgetown, the Fremont Troll, Ye Olde Curiosity Shop.",status:"open"},
+  {id:9,name:"Medieval Festival",season:"Fall",vibe:"Feels very fall. Costumes encouraged.",image:"",notes:"Camlann Medieval Village in Carnation does Bravern's Faire. Book ahead — it fills up.",status:"open"},
+  {id:10,name:"Burger Quest Finale",season:"Fall",vibe:"End of the season. Best burger wins.",image:"",notes:"Wherever the quest has taken you — do a final vote for the year's champion burger.",status:"open"},
+  {id:11,name:"Cabin Weekend",season:"Fall",vibe:"Everything about November screams cabins.",image:"",notes:"Hipcamp or VRBO — look for a cabin within 2 hours. Leavenworth area, Skykomish, or Lake Chelan off-season.",status:"open"},
+  {id:12,name:"Food Crawl + Christmas Lights",season:"Winter",vibe:"Find the coziest cafes while looking at Christmas lights.",image:"",notes:"Plan a route through lit-up neighborhoods with 2-3 cafe or bakery stops. Belltown, Leavenworth, or downtown Auburn.",status:"open"},
+];
+let nextAdvId = 50;
+let activeAdvSeason = 'all';
+let editingAdvId = null;
+
+async function saveAdventures() {
+  try { await setDoc(doc(db,'life-menu','adventures'),{data:adventures}); flashSaved(); }
+  catch(e) { console.error('Save adventures failed:',e); }
+}
+
+function renderAdventures() {
+  const grid = document.getElementById('adv-grid');
+  let filtered = adventures;
+  if (activeAdvSeason !== 'all') filtered = filtered.filter(a => a.season === activeAdvSeason);
+  if (!filtered.length) { grid.innerHTML = '<div class="adv-empty">No adventures yet.</div>'; return; }
+  grid.innerHTML = filtered.map(a => {
+    const statusTag = a.status === 'done'
+      ? '<span class="adv-status-tag adv-status-done">Done</span>'
+      : a.status === 'want'
+      ? '<span class="adv-status-tag adv-status-want">On the list</span>' : '';
+    return `<div class="adv-card">
+      ${a.image ? `<img class="adv-card-img" src="${a.image}" alt="${a.name}">` : `<div class="adv-card-img-placeholder"><span style="font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);">${a.season}</span></div>`}
+      <span class="adv-season-tag">${a.season}</span>
+      ${statusTag}
+      <div class="adv-card-body">
+        <div class="adv-card-name">${a.name}</div>
+        ${a.vibe ? `<div class="adv-card-vibe">${a.vibe}</div>` : ''}
+        <div class="adv-card-footer">
+          <button class="adv-btn adv-btn-done" onclick="setAdvStatus(${a.id},'done')">Done it</button>
+          <button class="adv-btn adv-btn-want" onclick="setAdvStatus(${a.id},'want')">On my list</button>
+          <button class="adv-btn" onclick="openAdvModal(${a.id})">Edit</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterAdventures(season, btn) {
+  activeAdvSeason = season;
+  document.querySelectorAll('#view-adventures .rcat-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderAdventures();
+}
+
+function setAdvStatus(id, status) {
+  const a = adventures.find(x => x.id === id);
+  if (!a) return;
+  a.status = a.status === status ? 'open' : status;
+  saveAdventures(); renderAdventures();
+}
+
+function openAdvModal(id) {
+  editingAdvId = id || null;
+  const a = id ? adventures.find(x => x.id === id) : null;
+  document.getElementById('modal-adv-title').textContent = a ? 'Edit Adventure' : 'Add Adventure';
+  document.getElementById('edit-adv-id').value = id || '';
+  document.getElementById('adv-name').value = a?.name || '';
+  document.getElementById('adv-season').value = a?.season || 'Summer';
+  document.getElementById('adv-vibe').value = a?.vibe || '';
+  document.getElementById('adv-image').value = a?.image || '';
+  document.getElementById('adv-notes').value = a?.notes || '';
+  document.getElementById('btn-delete-adv').style.display = a ? 'block' : 'none';
+  openModal('modal-adv');
+}
+
+function saveAdventure() {
+  const name = document.getElementById('adv-name').value.trim();
+  if (!name) return;
+  const obj = {
+    id: editingAdvId || ++nextAdvId,
+    name,
+    season: document.getElementById('adv-season').value,
+    vibe: document.getElementById('adv-vibe').value.trim(),
+    image: document.getElementById('adv-image').value.trim(),
+    notes: document.getElementById('adv-notes').value.trim(),
+    status: editingAdvId ? (adventures.find(x=>x.id===editingAdvId)?.status||'open') : 'open'
+  };
+  if (editingAdvId) { const i = adventures.findIndex(x=>x.id===editingAdvId); if(i>=0) adventures[i]=obj; }
+  else adventures.push(obj);
+  closeModal('modal-adv'); saveAdventures(); renderAdventures();
+  showToast(editingAdvId ? 'Adventure updated' : 'Adventure added');
+}
+
+function deleteAdventure() {
+  if (!editingAdvId) return;
+  const a = adventures.find(x=>x.id===editingAdvId);
+  if (!a || !confirm(`Delete "${a.name}"?`)) return;
+  adventures = adventures.filter(x=>x.id!==editingAdvId);
+  closeModal('modal-adv'); saveAdventures(); renderAdventures();
+}
+
+// ══════════════════════════════════════════════
+// FOOD QUESTS
+// ══════════════════════════════════════════════
+let quests = [
+  {id:1,name:"Pho Passport",desc:"Find the best pho. Rate everything.",ratingCats:["Broth","Meat","Noodles","Atmosphere"],entries:[]},
+  {id:2,name:"Taco Trail",desc:"Authentic only. No chains.",ratingCats:["Tortilla","Filling","Salsa","Value"],entries:[]},
+  {id:3,name:"Dumpling Diaries",desc:"Soup dumplings, pot stickers, gyoza, pierogi, mandu.",ratingCats:["Wrapper","Filling","Sauce","Overall"],entries:[]},
+  {id:4,name:"Boba Battle",desc:"Brown sugar, taro, Thai tea, fruit teas.",ratingCats:["Tea","Sweetness","Boba","Vibe"],entries:[]},
+  {id:5,name:"Burger Quest",desc:"No chains. Independent only.",ratingCats:["Patty","Bun","Toppings","Value"],entries:[]},
+  {id:6,name:"Ramen Run",desc:"Different style every time.",ratingCats:["Broth","Noodles","Toppings","Atmosphere"],entries:[]},
+  {id:7,name:"Cozy Cafe Hunt",desc:"Rate the vibe as much as the coffee.",ratingCats:["Vibe","Seating","Drinks","Food"],entries:[]},
+  {id:8,name:"Ice Cream Index",desc:"Local shops only.",ratingCats:["Flavor","Texture","Value","Creativity"],entries:[]},
+  {id:9,name:"Bakery Bucket List",desc:"Croissants, cruffins, morning buns.",ratingCats:["Texture","Flavor","Freshness","Overall"],entries:[]},
+  {id:10,name:"Curry Crawl",desc:"Thai, Indian, Japanese — compare them all.",ratingCats:["Depth","Heat","Sauce","Rice"],entries:[]},
+  {id:11,name:"Pizza Passport",desc:"One slice. Rate it.",ratingCats:["Crust","Sauce","Cheese","Overall"],entries:[]},
+  {id:12,name:"Breakfast Quest",desc:"Diners only.",ratingCats:["Eggs","Potatoes","Service","Vibe"],entries:[]},
+  {id:13,name:"Korean BBQ Day",desc:"Track every spot.",ratingCats:["Meat Quality","Banchan","Grill","Value"],entries:[]},
+  {id:14,name:"Donut Detectives",desc:"Local bakeries only.",ratingCats:["Glaze","Dough","Creativity","Freshness"],entries:[]},
+  {id:15,name:"Asian Bakery Tour",desc:"H Mart or Asian market — $15 each, buy weird snacks, go home and rank them.",ratingCats:["Flavor","Texture","Weirdness","Would Buy Again"],entries:[]},
+];
+let nextQuestId = 100;
+let nextQuestEntryId = 5000;
+let editingQuestId = null;
+let editingQuestEntryId = null;
+
+async function saveQuests() {
+  try { await setDoc(doc(db,'life-menu','quests'),{data:quests}); flashSaved(); }
+  catch(e) { console.error('Save quests failed:',e); }
+}
+
+function renderQuests() {
+  const grid = document.getElementById('quests-grid');
+  if (!quests.length) { grid.innerHTML = '<div style="padding:2rem;color:var(--text-dim);font-style:italic;">No quests yet.</div>'; return; }
+  grid.innerHTML = quests.map(q => {
+    const entries = q.entries || [];
+    const entriesHtml = entries.length
+      ? entries.slice(-3).reverse().map(e => {
+          const ratingsHtml = (q.ratingCats||[]).map(cat => {
+            const val = e.ratings?.[cat];
+            return val ? `<span class="qe-rating"><span class="qe-rating-label">${cat}</span><span class="qe-stars">${'*'.repeat(val)}${'·'.repeat(5-val)}</span></span>` : '';
+          }).filter(Boolean).join('');
+          return `<div class="quest-entry" onclick="openQuestEntryModal(${q.id},${e.id})">
+            <div class="qe-top"><span class="qe-place">${e.place}</span><span class="qe-date">${e.date||''}</span></div>
+            <div class="qe-ratings">${ratingsHtml}</div>
+            ${e.notes ? `<div class="qe-note">${e.notes}</div>` : ''}
+          </div>`;
+        }).join('')
+      : '<div class="quest-empty-entries">No visits logged yet.</div>';
+    return `<div class="quest-card">
+      <div class="quest-card-header">
+        <div>
+          <div class="quest-card-name">${q.name}</div>
+          <div class="quest-card-desc">${q.desc||''}</div>
+        </div>
+        <button class="quest-add-btn" onclick="openQuestEntryModal(${q.id},null)">+ Log visit</button>
+      </div>
+      <div class="quest-entries">${entriesHtml}</div>
+      <div class="quest-card-footer">
+        <span class="quest-total">${entries.length} visit${entries.length!==1?'s':''} logged</span>
+        <button class="quest-edit-btn" onclick="openQuestModal(${q.id})">Edit quest</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openQuestModal(id) {
+  editingQuestId = id || null;
+  const q = id ? quests.find(x=>x.id===id) : null;
+  document.getElementById('modal-quest-title').textContent = q ? 'Edit Quest' : 'Add Food Quest';
+  document.getElementById('edit-quest-id').value = id || '';
+  document.getElementById('quest-name').value = q?.name || '';
+  document.getElementById('quest-desc').value = q?.desc || '';
+  document.getElementById('quest-cats').value = (q?.ratingCats||[]).join(', ');
+  document.getElementById('btn-delete-quest').style.display = q ? 'block' : 'none';
+  openModal('modal-quest');
+}
+
+function saveQuest() {
+  const name = document.getElementById('quest-name').value.trim();
+  if (!name) return;
+  const cats = document.getElementById('quest-cats').value.split(',').map(s=>s.trim()).filter(Boolean);
+  if (editingQuestId) {
+    const q = quests.find(x=>x.id===editingQuestId);
+    if (q) { q.name=name; q.desc=document.getElementById('quest-desc').value.trim(); q.ratingCats=cats; }
+  } else {
+    quests.push({id:++nextQuestId,name,desc:document.getElementById('quest-desc').value.trim(),ratingCats:cats,entries:[]});
+  }
+  closeModal('modal-quest'); saveQuests(); renderQuests();
+}
+
+function deleteQuest() {
+  const q = quests.find(x=>x.id===editingQuestId);
+  if (!q || !confirm(`Delete "${q.name}" and all its entries?`)) return;
+  quests = quests.filter(x=>x.id!==editingQuestId);
+  closeModal('modal-quest'); saveQuests(); renderQuests();
+}
+
+function openQuestEntryModal(questId, entryId) {
+  editingQuestId = questId;
+  editingQuestEntryId = entryId;
+  const q = quests.find(x=>x.id===questId);
+  const e = entryId ? q?.entries?.find(x=>x.id===entryId) : null;
+  document.getElementById('modal-qe-title').textContent = q?.name + (e ? ' — Edit Visit' : ' — Log Visit');
+  document.getElementById('edit-qe-quest-id').value = questId;
+  document.getElementById('edit-qe-entry-id').value = entryId || '';
+  document.getElementById('qe-place').value = e?.place || '';
+  document.getElementById('qe-date').value = e?.date || new Date().toISOString().split('T')[0];
+  document.getElementById('qe-notes').value = e?.notes || '';
+  // Build rating fields
+  const fields = document.getElementById('qe-ratings-fields');
+  fields.innerHTML = (q?.ratingCats||[]).map(cat => {
+    const val = e?.ratings?.[cat] || 0;
+    return `<div class="modal-field">
+      <label class="modal-label">${cat} (1–5)</label>
+      <div style="display:flex;gap:6px;align-items:center;">
+        ${[1,2,3,4,5].map(n=>`<button type="button" class="scale-btn qe-star-btn ${val>=n?'active-star':''}" id="star-${cat}-${n}" onclick="setQeStar('${cat}',${n})" style="${val>=n?'border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.1);':''}">${n}</button>`).join('')}
+        <span style="font-size:0.8rem;color:var(--text-dim);margin-left:4px;" id="star-label-${cat}">${val?val+'/5':''}</span>
+      </div>
+      <input type="hidden" id="qe-rating-${cat}" value="${val}">
+    </div>`;
+  }).join('');
+  document.getElementById('btn-delete-qe').style.display = e ? 'block' : 'none';
+  openModal('modal-quest-entry');
+}
+
+function setQeStar(cat, val) {
+  document.getElementById('qe-rating-' + cat).value = val;
+  document.getElementById('star-label-' + cat).textContent = val + '/5';
+  [1,2,3,4,5].forEach(n => {
+    const btn = document.getElementById(`star-${cat}-${n}`);
+    if (btn) {
+      const active = n <= val;
+      btn.style.borderColor = active ? 'var(--gold)' : '';
+      btn.style.color = active ? 'var(--gold)' : '';
+      btn.style.background = active ? 'rgba(201,168,76,0.1)' : '';
+    }
+  });
+}
+
+function saveQuestEntry() {
+  const place = document.getElementById('qe-place').value.trim();
+  if (!place) return;
+  const q = quests.find(x=>x.id===editingQuestId);
+  if (!q) return;
+  const ratings = {};
+  (q.ratingCats||[]).forEach(cat => {
+    const v = parseInt(document.getElementById('qe-rating-'+cat)?.value);
+    if (v) ratings[cat] = v;
+  });
+  const entry = {
+    id: editingQuestEntryId || ++nextQuestEntryId,
+    place,
+    date: document.getElementById('qe-date').value,
+    ratings,
+    notes: document.getElementById('qe-notes').value.trim()
+  };
+  if (!q.entries) q.entries = [];
+  if (editingQuestEntryId) {
+    const i = q.entries.findIndex(x=>x.id===editingQuestEntryId);
+    if (i>=0) q.entries[i] = entry;
+  } else {
+    q.entries.push(entry);
+  }
+  closeModal('modal-quest-entry'); saveQuests(); renderQuests();
+  showToast(`"${place}" logged`);
+}
+
+function deleteQuestEntry() {
+  const q = quests.find(x=>x.id===editingQuestId);
+  if (!q || !editingQuestEntryId) return;
+  const e = q.entries?.find(x=>x.id===editingQuestEntryId);
+  if (!e || !confirm(`Delete entry for "${e.place}"?`)) return;
+  q.entries = q.entries.filter(x=>x.id!==editingQuestEntryId);
+  closeModal('modal-quest-entry'); saveQuests(); renderQuests();
+}
+
+// ══════════════════════════════════════════════
 // RECIPES
 // ══════════════════════════════════════════════
 let recipes = [];
@@ -1863,11 +2386,15 @@ document.querySelectorAll('.modal-backdrop').forEach(m => {
 
 // Expose functions to global scope (required for onclick= in module scripts)
 Object.assign(window, {
-  showView, openDetail, closeDetail, closeDetailDirect,
+  showView, switchKitchenTab,
+  openDetail, closeDetail, closeDetailDirect,
   markPlanned, markSkip, getIdeas,
   openAddModal, openEditModal, saveEvent, deleteEvent, confirmDelete,
   addUrlRow, removeUrlRow,
   openListEdit, saveListEdit, deleteList, saveNewList, addListItem, toggleListItem,
+  filterAdventures, openAdvModal, saveAdventure, deleteAdventure, setAdvStatus,
+  openQuestModal, saveQuest, deleteQuest,
+  openQuestEntryModal, saveQuestEntry, deleteQuestEntry, setQeStar,
   openRecipeModal, saveRecipe, deleteRecipe, openUrlImportModal, importFromUrl,
   openCookMode, adjustScale, toggleIngredient, activateStep, addRecipeToGrocery,
   toggleGrocery, removeGrocery, addGroceryManual, clearCheckedGrocery, clearAllGrocery,
@@ -1910,6 +2437,24 @@ async function init() {
     if (grocerySnap.exists() && grocerySnap.data().data) {
       groceryItems = grocerySnap.data().data;
       if (groceryItems.length) nextGroceryId = Math.max(...groceryItems.map(i => i.id), 20000) + 1;
+    }
+
+    const advSnap = await getDoc(doc(db, 'life-menu', 'adventures'));
+    if (advSnap.exists() && advSnap.data().data && advSnap.data().data.length) {
+      adventures = advSnap.data().data;
+      nextAdvId = Math.max(...adventures.map(a => a.id), 50) + 1;
+    } else {
+      await saveAdventures();
+    }
+
+    const questSnap = await getDoc(doc(db, 'life-menu', 'quests'));
+    if (questSnap.exists() && questSnap.data().data && questSnap.data().data.length) {
+      quests = questSnap.data().data;
+      nextQuestId = Math.max(...quests.map(q => q.id), 100) + 1;
+      const allEntries = quests.flatMap(q => (q.entries||[]).map(e=>e.id));
+      if (allEntries.length) nextQuestEntryId = Math.max(...allEntries, 5000) + 1;
+    } else {
+      await saveQuests();
     }
 
   } catch(e) {
