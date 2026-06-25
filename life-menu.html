@@ -398,6 +398,27 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
 .quest-edit-btn{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:2px;cursor:pointer;transition:all 0.15s;}
 .quest-edit-btn:hover{color:var(--gold);border-color:var(--border-strong);}
 .active-carousel-btn{color:var(--green) !important;border-color:rgba(90,196,122,0.4) !important;}
+
+/* Sort control */
+.sort-select{background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:0.35rem 0.7rem;color:var(--text-muted);font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;outline:none;cursor:pointer;transition:border-color 0.15s;}
+.sort-select:focus{border-color:var(--border-med);}
+
+/* Quest image */
+.quest-card-img{width:100%;height:140px;object-fit:cover;display:block;}
+.quest-card-img-placeholder{width:100%;height:60px;background:var(--surface2);}
+
+/* Quest wishlist */
+.quest-wishlist{padding:0.5rem 1.1rem;border-bottom:1px solid var(--border);background:rgba(201,168,76,0.03);}
+.quest-wishlist-label{font-family:'Cinzel',serif;font-size:0.55rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.4rem;}
+.quest-wishlist-items{display:flex;flex-wrap:wrap;gap:5px;}
+.quest-wishlist-chip{font-size:0.82rem;color:var(--text-muted);padding:2px 9px;border:1px solid var(--border);border-radius:2px;background:var(--ink);cursor:pointer;transition:all 0.15s;}
+.quest-wishlist-chip:hover{border-color:rgba(90,196,122,0.4);color:var(--green);}
+.quest-wishlist-chip.visited{text-decoration:line-through;opacity:0.45;}
+.quest-wishlist-add{display:flex;gap:5px;margin-top:5px;}
+.quest-wishlist-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:2px;padding:3px 8px;color:var(--text);font-family:'Crimson Text',serif;font-size:0.88rem;outline:none;}
+.quest-wishlist-input::placeholder{color:var(--text-dim);}
+.quest-wishlist-btn{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;padding:3px 9px;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:2px;cursor:pointer;white-space:nowrap;}
+.quest-wishlist-btn:hover{color:var(--gold);border-color:var(--border-strong);}
 /* ── EXPLORE (Tiers) ── */
 .explore-header{padding:1.1rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:#110E0B;}
 .explore-tabs{display:flex;gap:6px;flex-wrap:wrap;}
@@ -411,8 +432,8 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
 .tier-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:all 0.15s;cursor:pointer;}
 .tier-card:hover{border-color:var(--border-med);transform:translateY(-1px);}
 .tier-card.status-done{opacity:0.55;}
-.tier-card-img{width:100%;height:110px;object-fit:cover;display:block;}
-.tier-card-img-placeholder{width:100%;height:80px;background:var(--surface2);display:flex;align-items:center;justify-content:center;}
+.tier-card-img{width:100%;height:160px;object-fit:cover;display:block;}
+.tier-card-img-placeholder{width:100%;height:120px;background:linear-gradient(135deg,var(--surface2),var(--surface3));display:flex;align-items:center;justify-content:center;}
 .tier-card-body{padding:0.75rem 0.9rem;}
 .tier-card-name{font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.07em;text-transform:uppercase;color:var(--text);margin-bottom:0.25rem;line-height:1.25;}
 .tier-card-cost{font-size:0.8rem;color:var(--text-dim);margin-bottom:0.5rem;}
@@ -479,7 +500,7 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
   <nav class="nav">
     <button class="nav-btn active" onclick="showView('home')">Home</button>
     <button class="nav-btn" onclick="showView('seasonal')">Seasonal</button>
-    <button class="nav-btn" onclick="showView('explore')">Explore</button>
+    <button class="nav-btn" onclick="showView('explore')">Adventure</button>
     <button class="nav-btn" onclick="showView('quests')">Food Quests</button>
     <button class="nav-btn" onclick="showView('kitchen')">Kitchen</button>
     <button class="nav-btn" onclick="showView('lists')">Lists</button>
@@ -572,12 +593,19 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
   <div class="explore-header">
     <div class="explore-tabs">
       <button class="exp-tab active" onclick="switchExpTab('all',this)">All</button>
-      <button class="exp-tab" onclick="switchExpTab('tier1',this)">Big Dreams</button>
-      <button class="exp-tab" onclick="switchExpTab('tier2',this)">Adventure Weekends</button>
       <button class="exp-tab" onclick="switchExpTab('tier3',this)">Discovery Days</button>
+      <button class="exp-tab" onclick="switchExpTab('tier2',this)">Adventure Weekends</button>
+      <button class="exp-tab" onclick="switchExpTab('tier1',this)">Big Dreams</button>
       <button class="exp-tab" onclick="switchExpTab('badges',this)">Badges</button>
     </div>
-    <button class="btn-add-event" onclick="openTierItemModal()">+ Add Item</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select class="sort-select" id="tier-sort" onchange="renderExplore()">
+        <option value="default">Default order</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+      </select>
+      <button class="btn-add-event" onclick="openTierItemModal()">+ Add Item</button>
+    </div>
   </div>
   <div id="explore-body"></div>
 </div>
@@ -1356,7 +1384,8 @@ function showView(v) {
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('view-' + v).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => {
-    if(b.textContent.toLowerCase().trim() === v) b.classList.add('active');
+    const t = b.textContent.toLowerCase().trim();
+    if(t === v || (v === 'explore' && t === 'adventure')) b.classList.add('active');
   });
   closeDetail();
   if(v==='home') renderHome();
@@ -2117,46 +2146,54 @@ function checkAutoEarnBadges() {
 }
 
 // ── RENDER EXPLORE ──
+function parseCostNum(cost) {
+  if (!cost) return Infinity;
+  const nums = cost.replace(/[^0-9]/g,' ').trim().split(/\s+/).map(Number).filter(Boolean);
+  return nums.length ? nums[0] : Infinity;
+}
+
 function renderExplore() {
   const body = document.getElementById('explore-body');
   if (activeTierTab === 'badges') { renderBadgesFull(body); return; }
 
-  const tiers = activeTierTab === 'all'
-    ? ['tier1','tier2','tier3']
-    : [activeTierTab];
+  const sortVal = document.getElementById('tier-sort')?.value || 'default';
+  const tiers = activeTierTab === 'all' ? ['tier3','tier2','tier1'] : [activeTierTab];
 
   const tierMeta = {
-    tier1:{label:'Big Dreams',sub:'These require months or years of saving. One every year or two.'},
-    tier2:{label:'Adventure Weekends',sub:'Sweet spot. Usually $100–500. Overnight or full-day.'},
+    tier1:{label:'Big Dreams',sub:'Bucket list. Months or years of saving. One every year or two.'},
+    tier2:{label:'Adventure Weekends',sub:'Sweet spot. Usually $100–500. Overnight or full day.'},
     tier3:{label:'Discovery Days',sub:'Bread and butter. Usually under $75.'},
   };
 
   let html = '';
   tiers.forEach(tier => {
-    const items = tierItems.filter(t=>t.tier===tier);
+    let items = tierItems.filter(t => t.tier === tier);
+    if (sortVal === 'price-asc') items = [...items].sort((a,b) => parseCostNum(a.cost) - parseCostNum(b.cost));
+    if (sortVal === 'price-desc') items = [...items].sort((a,b) => parseCostNum(b.cost) - parseCostNum(a.cost));
     const meta = tierMeta[tier];
-    const statusColors = {dream:'var(--blue)',saving:'var(--gold)',planned:'#BF89CC',done:'var(--green)'};
-    const statusLabels = {dream:'Dreaming',saving:'Saving',planned:'Planned',done:'Done'};
+
     html += `<div class="tier-section">
       <div class="tier-label">${meta.label}</div>
       <div class="tier-sub">${meta.sub}</div>
       <div class="tier-grid">
-        ${items.map(item => `
-          <div class="tier-card${item.status==='done'?' status-done':''}">
-            ${item.image ? `<img class="tier-card-img" src="${item.image}" alt="${item.name}">` : `<div class="tier-card-img-placeholder"><span style="font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);">${meta.label}</span></div>`}
-            <span class="tier-status-pill" style="color:${statusColors[item.status]||'var(--text-dim)'};border:1px solid ${statusColors[item.status]||'var(--border)'};background:rgba(0,0,0,0.5);">${statusLabels[item.status]||item.status}</span>
+        ${items.map(item => {
+          const isDone = item.status === 'done';
+          const hasMission = missions.some(m => m.name.includes(item.name));
+          return `<div class="tier-card${isDone ? ' status-done' : ''}">
+            ${item.image
+              ? `<img class="tier-card-img" src="${item.image}" alt="${item.name}" loading="lazy">`
+              : `<div class="tier-card-img-placeholder"><span style="font-family:Cinzel,serif;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);">${meta.label}</span></div>`}
             <div class="tier-card-body">
               <div class="tier-card-name">${item.name}</div>
-              ${item.cost?`<div class="tier-card-cost">${item.cost}</div>`:''}
+              ${item.cost ? `<div class="tier-card-cost">${item.cost}</div>` : ''}
               <div class="tier-card-actions">
-                <button class="tier-btn tier-btn-dream" onclick="setTierStatus(${item.id},'dream')">Dream</button>
-                <button class="tier-btn tier-btn-saving" onclick="openMissionForItem(${item.id})">Saving</button>
-                <button class="tier-btn tier-btn-planned" onclick="setTierStatus(${item.id},'planned')">Planned</button>
-                <button class="tier-btn tier-btn-done" onclick="setTierStatus(${item.id},'done')">Done</button>
+                <button class="tier-btn ${isDone ? 'tier-btn-done' : ''}" onclick="setTierStatus(${item.id},'done')">${isDone ? 'Done' : 'Mark done'}</button>
+                <button class="tier-btn ${hasMission ? 'tier-btn-saving' : ''}" onclick="openMissionForItem(${item.id})">${hasMission ? 'Mission active' : '+ Mission'}</button>
                 <button class="tier-btn" onclick="openTierItemModal(${item.id})">Edit</button>
               </div>
             </div>
-          </div>`).join('')}
+          </div>`;
+        }).join('')}
         <div class="tier-card" style="border:1px dashed var(--border);background:transparent;display:flex;align-items:center;justify-content:center;min-height:120px;cursor:pointer;" onclick="openTierItemModal(null,'${tier}')">
           <span style="font-family:Cinzel,serif;font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim);">+ Add</span>
         </div>
@@ -2164,7 +2201,6 @@ function renderExplore() {
     </div>`;
   });
 
-  // Games section in Tier 3
   if (activeTierTab === 'all' || activeTierTab === 'tier3') {
     html += `<div class="tier-section">
       <div class="tier-label">Games</div>
@@ -2553,6 +2589,8 @@ function renderQuests() {
   if (!quests.length) { grid.innerHTML = '<div style="padding:2rem;color:var(--text-dim);font-style:italic;">No quests yet.</div>'; return; }
   grid.innerHTML = quests.map(q => {
     const entries = q.entries || [];
+    const wishlist = q.wishlist || [];
+
     const entriesHtml = entries.length
       ? entries.slice(-3).reverse().map(e => {
           const ratingsHtml = (q.ratingCats||[]).map(cat => {
@@ -2566,7 +2604,27 @@ function renderQuests() {
           </div>`;
         }).join('')
       : '<div class="quest-empty-entries">No visits logged yet.</div>';
+
+    // Wishlist — restaurants / places to try
+    const visitedPlaces = new Set(entries.map(e => e.place?.toLowerCase()));
+    const wishlistHtml = `<div class="quest-wishlist">
+      <div class="quest-wishlist-label">Want to try</div>
+      <div class="quest-wishlist-items">
+        ${wishlist.map((w,i) => {
+          const alreadyDone = visitedPlaces.has(w.toLowerCase());
+          return `<span class="quest-wishlist-chip${alreadyDone?' visited':''}" title="${alreadyDone?'Already visited':''}" onclick="removeWishlistItem(${q.id},${i})">${w}${alreadyDone?' (done)':' &times;'}</span>`;
+        }).join('')}
+      </div>
+      <div class="quest-wishlist-add">
+        <input class="quest-wishlist-input" id="wl-input-${q.id}" placeholder="Add a place to try…" onkeydown="if(event.key==='Enter')addWishlistItem(${q.id})">
+        <button class="quest-wishlist-btn" onclick="addWishlistItem(${q.id})">Add</button>
+      </div>
+    </div>`;
+
     return `<div class="quest-card">
+      ${q.image
+        ? `<img class="quest-card-img" src="${q.image}" alt="${q.name}" loading="lazy">`
+        : `<div class="quest-card-img-placeholder"></div>`}
       <div class="quest-card-header">
         <div>
           <div class="quest-card-name">${q.name}</div>
@@ -2574,6 +2632,7 @@ function renderQuests() {
         </div>
         <button class="quest-add-btn" onclick="openQuestEntryModal(${q.id},null)">+ Log visit</button>
       </div>
+      ${wishlistHtml}
       <div class="quest-entries">${entriesHtml}</div>
       <div class="quest-card-footer">
         <span class="quest-total">${entries.length} visit${entries.length!==1?'s':''} logged</span>
@@ -2584,6 +2643,25 @@ function renderQuests() {
       </div>
     </div>`;
   }).join('');
+}
+
+function addWishlistItem(questId) {
+  const input = document.getElementById('wl-input-' + questId);
+  const val = input?.value.trim();
+  if (!val) return;
+  const q = quests.find(x => x.id === questId);
+  if (!q) return;
+  if (!q.wishlist) q.wishlist = [];
+  if (!q.wishlist.includes(val)) q.wishlist.push(val);
+  input.value = '';
+  saveQuests(); renderQuests();
+}
+
+function removeWishlistItem(questId, idx) {
+  const q = quests.find(x => x.id === questId);
+  if (!q || !q.wishlist) return;
+  q.wishlist.splice(idx, 1);
+  saveQuests(); renderQuests();
 }
 
 function openQuestModal(id) {
@@ -3070,7 +3148,8 @@ Object.assign(window, {
   openMissionModal, openMissionForItem, saveMission, deleteMission, openAddFundsModal, addFunds,
   promptManualBadge,
   filterAdventures, openAdvModal, saveAdventure, deleteAdventure, setAdvStatus, toggleAdvCarousel,
-  openQuestModal, saveQuest, deleteQuest, toggleQuestCarousel,
+  addWishlistItem, removeWishlistItem,
+  parseCostNum,
   openQuestEntryModal, saveQuestEntry, deleteQuestEntry, setQeStar,
   openRecipeModal, saveRecipe, deleteRecipe, openUrlImportModal, importFromUrl,
   openCookMode, adjustScale, toggleIngredient, activateStep, addRecipeToGrocery,
