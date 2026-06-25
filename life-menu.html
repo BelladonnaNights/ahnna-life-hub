@@ -1755,7 +1755,7 @@ Keep it practical and warm. 3-4 sentences per idea. Label each with a short name
   }
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://life-menu.belladonnaaudioalchemies.workers.dev', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({model:'claude-sonnet-4-6', max_tokens:1200, messages:[{role:'user',content:prompt}]})
@@ -2940,7 +2940,7 @@ URL: ${url}
 If you cannot access the page or parse it, return: {"error": "Could not parse this URL"}`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://life-menu.belladonnaaudioalchemies.workers.dev', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
