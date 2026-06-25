@@ -58,9 +58,8 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
 .carousel-outer::before,.carousel-outer::after{content:'';position:absolute;top:0;bottom:1.5rem;width:80px;z-index:10;pointer-events:none;}
 .carousel-outer::before{left:0;background:linear-gradient(to right,var(--ink),transparent);}
 .carousel-outer::after{right:0;background:linear-gradient(to left,var(--ink),transparent);}
-.carousel-track{display:flex;gap:14px;padding:0 2rem;width:max-content;animation:marquee 40s linear infinite;}
-.carousel-track:hover{animation-play-state:paused;}
-@keyframes marquee{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.carousel-track{display:flex;gap:14px;padding:0 2rem;width:max-content;}
+.carousel-track:hover{animation-play-state:paused !important;}
 
 /* Banner cards — text fallback or image face */
 .banner-card{flex-shrink:0;width:170px;cursor:pointer;transition:transform 0.15s;}
@@ -399,6 +398,75 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
 .quest-edit-btn{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:2px;cursor:pointer;transition:all 0.15s;}
 .quest-edit-btn:hover{color:var(--gold);border-color:var(--border-strong);}
 .active-carousel-btn{color:var(--green) !important;border-color:rgba(90,196,122,0.4) !important;}
+/* ── EXPLORE (Tiers) ── */
+.explore-header{padding:1.1rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:#110E0B;}
+.explore-tabs{display:flex;gap:6px;flex-wrap:wrap;}
+.exp-tab{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.38rem 0.9rem;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:3px;cursor:pointer;transition:all 0.15s;}
+.exp-tab:hover{color:var(--text-muted);border-color:var(--border-med);}
+.exp-tab.active{color:var(--gold);border-color:var(--border-strong);background:rgba(201,168,76,0.07);}
+.tier-section{padding:1.5rem 1.75rem;}
+.tier-label{font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:0.3rem;display:flex;align-items:center;gap:8px;}
+.tier-sub{font-size:0.85rem;color:var(--text-dim);font-style:italic;margin-bottom:1.1rem;}
+.tier-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:0.75rem;margin-bottom:2rem;}
+.tier-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:all 0.15s;cursor:pointer;}
+.tier-card:hover{border-color:var(--border-med);transform:translateY(-1px);}
+.tier-card.status-done{opacity:0.55;}
+.tier-card-img{width:100%;height:110px;object-fit:cover;display:block;}
+.tier-card-img-placeholder{width:100%;height:80px;background:var(--surface2);display:flex;align-items:center;justify-content:center;}
+.tier-card-body{padding:0.75rem 0.9rem;}
+.tier-card-name{font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.07em;text-transform:uppercase;color:var(--text);margin-bottom:0.25rem;line-height:1.25;}
+.tier-card-cost{font-size:0.8rem;color:var(--text-dim);margin-bottom:0.5rem;}
+.tier-card-actions{display:flex;gap:5px;flex-wrap:wrap;}
+.tier-btn{font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;border-radius:2px;cursor:pointer;transition:all 0.15s;border:1px solid var(--border);background:none;color:var(--text-dim);}
+.tier-btn:hover{color:var(--text-muted);}
+.tier-btn-dream{color:var(--blue);border-color:rgba(123,167,199,0.35);}
+.tier-btn-saving{color:var(--gold);border-color:rgba(201,168,76,0.35);}
+.tier-btn-planned{color:#BF89CC;border-color:rgba(191,137,204,0.35);}
+.tier-btn-done{color:var(--green);border-color:rgba(90,196,122,0.35);}
+.tier-status-pill{font-family:'Cinzel',serif;font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:2px;position:absolute;top:7px;right:7px;}
+.tier-card{position:relative;}
+
+/* Games inside Tier 3 */
+.games-section{margin-top:1rem;padding:1rem 1.1rem;background:var(--surface);border:1px solid var(--border);border-radius:4px;}
+.games-label{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.75rem;}
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.6rem;}
+.game-card{background:var(--ink);border:1px solid var(--border);border-radius:3px;padding:0.75rem 0.9rem;cursor:pointer;transition:all 0.15s;}
+.game-card:hover{border-color:var(--border-strong);background:var(--surface2);}
+.game-card-name{font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);margin-bottom:0.25rem;}
+.game-card-desc{font-size:0.8rem;color:var(--text-dim);line-height:1.4;}
+
+/* ── MISSIONS ── */
+.missions-widget{padding:1.5rem 1.75rem;border-bottom:1px solid var(--border);}
+.missions-widget-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;}
+.missions-widget-title{font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:8px;}
+.missions-widget-title::before{content:'—';font-size:0.6rem;opacity:0.6;}
+.mission-cards{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
+.mission-cards::-webkit-scrollbar{display:none;}
+.mission-card{flex-shrink:0;width:220px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1rem 1.1rem;}
+.mission-card-name{font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);margin-bottom:0.25rem;}
+.mission-card-tier{font-size:0.75rem;color:var(--text-dim);margin-bottom:0.75rem;}
+.mission-progress-track{background:var(--surface2);border-radius:2px;height:8px;overflow:hidden;margin-bottom:0.4rem;}
+.mission-progress-fill{height:100%;background:linear-gradient(to right,var(--gold-dim),var(--gold));border-radius:2px;transition:width 0.4s ease;}
+.mission-progress-label{display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-muted);margin-bottom:0.6rem;}
+.mission-progress-pct{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.1em;color:var(--gold);}
+.mission-add-btn{font-family:'Cinzel',serif;font-size:0.54rem;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border:1px solid var(--border-strong);background:rgba(201,168,76,0.07);color:var(--gold);border-radius:2px;cursor:pointer;width:100%;transition:all 0.15s;}
+.mission-add-btn:hover{background:rgba(201,168,76,0.14);}
+.mission-card-new{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;cursor:pointer;border:1px dashed var(--border);background:transparent;}
+.mission-card-new:hover{border-color:var(--border-strong);}
+
+/* ── BADGES ── */
+.badges-section{padding:1.5rem 1.75rem;border-bottom:1px solid var(--border);}
+.badges-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;}
+.badges-title{font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;gap:8px;}
+.badges-title::before{content:'—';font-size:0.6rem;opacity:0.6;}
+.badges-grid{display:flex;gap:10px;flex-wrap:wrap;}
+.badge-chip{display:flex;align-items:center;gap:7px;padding:0.4rem 0.85rem;border-radius:3px;border:1px solid var(--border);background:var(--surface);transition:all 0.15s;}
+.badge-chip.earned{border-color:rgba(201,168,76,0.4);background:rgba(201,168,76,0.06);}
+.badge-chip.locked{opacity:0.4;filter:grayscale(0.6);}
+.badge-name{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--text-muted);}
+.badge-chip.earned .badge-name{color:var(--gold);}
+.badge-see-all{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;border-bottom:1px solid var(--border);padding-bottom:1px;transition:all 0.15s;}
+.badge-see-all:hover{color:var(--gold);}
 </style>
 </head>
 <body>
@@ -411,7 +479,7 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
   <nav class="nav">
     <button class="nav-btn active" onclick="showView('home')">Home</button>
     <button class="nav-btn" onclick="showView('seasonal')">Seasonal</button>
-    <button class="nav-btn" onclick="showView('adventures')">Adventures</button>
+    <button class="nav-btn" onclick="showView('explore')">Explore</button>
     <button class="nav-btn" onclick="showView('quests')">Food Quests</button>
     <button class="nav-btn" onclick="showView('kitchen')">Kitchen</button>
     <button class="nav-btn" onclick="showView('lists')">Lists</button>
@@ -441,17 +509,25 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
 
   <div class="ornament">— — —</div>
 
-  <div class="home-sections">
-    <div class="home-section">
-      <div class="home-section-header">
-        <div>
-          <div class="home-section-title">Adventures</div>
-          <div class="home-section-sub">Season-based outings with the boys</div>
-        </div>
-        <span class="home-section-link" onclick="showView('adventures')">See all &rarr;</span>
-      </div>
-      <div class="list-preview-grid" id="home-adventures-grid"></div>
+  <!-- MISSIONS WIDGET -->
+  <div class="missions-widget" id="home-missions-widget">
+    <div class="missions-widget-header">
+      <div class="missions-widget-title">Active Missions</div>
+      <span class="home-section-link" onclick="showView('explore')">All adventures &rarr;</span>
     </div>
+    <div class="mission-cards" id="home-mission-cards"></div>
+  </div>
+
+  <!-- BADGES WIDGET -->
+  <div class="badges-section" id="home-badges-section">
+    <div class="badges-header">
+      <div class="badges-title">Adventure Badges</div>
+      <span class="badge-see-all" onclick="showView('explore')">See all &rarr;</span>
+    </div>
+    <div class="badges-grid" id="home-badges-grid"></div>
+  </div>
+
+  <div class="home-sections">
     <div class="home-section">
       <div class="home-section-header">
         <div>
@@ -491,19 +567,19 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
   </div>
 </div>
 
-<!-- ADVENTURES -->
-<div id="view-adventures" class="view">
-  <div class="adv-header">
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="rcat-btn active" onclick="filterAdventures('all',this)">All</button>
-      <button class="rcat-btn" onclick="filterAdventures('Winter',this)">Winter</button>
-      <button class="rcat-btn" onclick="filterAdventures('Spring',this)">Spring</button>
-      <button class="rcat-btn" onclick="filterAdventures('Summer',this)">Summer</button>
-      <button class="rcat-btn" onclick="filterAdventures('Fall',this)">Fall</button>
+<!-- EXPLORE — Three Tiers + Games -->
+<div id="view-explore" class="view">
+  <div class="explore-header">
+    <div class="explore-tabs">
+      <button class="exp-tab active" onclick="switchExpTab('all',this)">All</button>
+      <button class="exp-tab" onclick="switchExpTab('tier1',this)">Big Dreams</button>
+      <button class="exp-tab" onclick="switchExpTab('tier2',this)">Adventure Weekends</button>
+      <button class="exp-tab" onclick="switchExpTab('tier3',this)">Discovery Days</button>
+      <button class="exp-tab" onclick="switchExpTab('badges',this)">Badges</button>
     </div>
-    <button class="btn-add-event" onclick="openAdvModal()">+ Add Adventure</button>
+    <button class="btn-add-event" onclick="openTierItemModal()">+ Add Item</button>
   </div>
-  <div class="adv-grid" id="adv-grid"></div>
+  <div id="explore-body"></div>
 </div>
 
 <!-- FOOD QUESTS -->
@@ -653,6 +729,99 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
     <div class="modal-row">
       <button class="btn-modal-save" onclick="saveNewList()">Create List</button>
       <button class="btn-modal-cancel" onclick="closeModal('modal-add-list')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TIER ITEM MODAL -->
+<div class="modal-backdrop" id="modal-tier-item">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-tier-item')">&times;</button>
+    <div class="modal-title" id="modal-tier-title">Add Adventure</div>
+    <input type="hidden" id="edit-tier-id">
+    <div class="modal-field">
+      <label class="modal-label">Name *</label>
+      <input class="modal-input" id="ti-name" placeholder="e.g. Disneyland, Oregon Coast Road Trip">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Tier</label>
+      <select class="modal-select" id="ti-tier">
+        <option value="tier1">Big Dream (months/years of saving)</option>
+        <option value="tier2">Adventure Weekend ($100–500)</option>
+        <option value="tier3">Discovery Day (under $75)</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Estimated cost</label>
+      <input class="modal-input" id="ti-cost" placeholder="e.g. ~$800, under $50">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Image URL (optional)</label>
+      <input class="modal-input" id="ti-image" placeholder="https://…">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Notes</label>
+      <textarea class="modal-textarea" id="ti-notes" placeholder="What you're imagining, when, any details…"></textarea>
+    </div>
+    <div class="modal-field" style="display:flex;align-items:center;gap:10px;">
+      <input type="checkbox" id="ti-carousel" style="width:15px;height:15px;accent-color:var(--gold);cursor:pointer;">
+      <label for="ti-carousel" style="font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;">Show in home carousel</label>
+    </div>
+    <div class="modal-row">
+      <button class="btn-modal-save" onclick="saveTierItem()">Save</button>
+      <button class="btn-modal-cancel" onclick="closeModal('modal-tier-item')">Cancel</button>
+      <button class="btn-modal-delete" id="btn-delete-tier" style="display:none;" onclick="deleteTierItem()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- MISSION MODAL -->
+<div class="modal-backdrop" id="modal-mission">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-mission')">&times;</button>
+    <div class="modal-title" id="modal-mission-title">New Mission</div>
+    <input type="hidden" id="edit-mission-id">
+    <div class="modal-field">
+      <label class="modal-label">Mission name *</label>
+      <input class="modal-input" id="ms-name" placeholder="e.g. Mission: Silverwood">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Goal amount ($) *</label>
+      <input class="modal-input" id="ms-goal" type="number" min="1" placeholder="400">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Amount saved so far ($)</label>
+      <input class="modal-input" id="ms-saved" type="number" min="0" placeholder="0">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Tier</label>
+      <select class="modal-select" id="ms-tier">
+        <option value="tier1">Big Dream</option>
+        <option value="tier2">Adventure Weekend</option>
+        <option value="tier3">Discovery Day</option>
+      </select>
+    </div>
+    <div class="modal-row">
+      <button class="btn-modal-save" onclick="saveMission()">Save Mission</button>
+      <button class="btn-modal-cancel" onclick="closeModal('modal-mission')">Cancel</button>
+      <button class="btn-modal-delete" id="btn-delete-mission" style="display:none;" onclick="deleteMission()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD FUNDS MODAL -->
+<div class="modal-backdrop" id="modal-add-funds">
+  <div class="modal" style="max-width:380px;">
+    <button class="modal-close" onclick="closeModal('modal-add-funds')">&times;</button>
+    <div class="modal-title" id="modal-funds-title">Add to Mission</div>
+    <input type="hidden" id="funds-mission-id">
+    <div class="modal-field">
+      <label class="modal-label">Amount to add ($)</label>
+      <input class="modal-input" id="funds-amount" type="number" min="1" placeholder="20">
+    </div>
+    <div class="modal-row">
+      <button class="btn-modal-save" onclick="addFunds()">Add Funds</button>
+      <button class="btn-modal-cancel" onclick="closeModal('modal-add-funds')">Cancel</button>
     </div>
   </div>
 </div>
@@ -1193,7 +1362,7 @@ function showView(v) {
   if(v==='home') renderHome();
   if(v==='seasonal') renderSeasonal();
   if(v==='lists') renderLists();
-  if(v==='adventures') renderAdventures();
+  if(v==='explore') renderExplore();
   if(v==='quests') renderQuests();
   if(v==='kitchen') renderRecipes();
 }
@@ -1211,8 +1380,9 @@ function switchKitchenTab(tab) {
 function renderHome() {
   renderCarousel();
   renderHomeListsGrid();
-  renderHomeAdventuresGrid();
   renderHomeQuestsGrid();
+  renderHomeMissions();
+  renderHomeBadges();
 }
 
 function renderHomeAdventuresGrid() {
@@ -1326,10 +1496,22 @@ function renderCarousel() {
     </div>`;
   };
 
-  const allCards = allItems.map(makeCard).join('');
-  track.innerHTML = allCards + allCards;
-  const speed = Math.max(20, allItems.length * 8);
-  track.style.animationDuration = speed + 's';
+  const singleSet = allItems.map(makeCard).join('');
+  // Repeat enough times so there's no gap — minimum 4 full sets or enough to fill ~3000px
+  const cardWidth = 170 + 14; // card width + gap
+  const singleWidth = allItems.length * cardWidth;
+  const repeats = Math.max(4, Math.ceil(3000 / singleWidth) + 2);
+  track.innerHTML = singleSet.repeat(repeats);
+  // Animate exactly one set width, so the loop is seamless
+  track.style.removeProperty('animation');
+  const pxPerSet = singleWidth;
+  const speed = Math.max(15, allItems.length * 6);
+  // Use a unique keyframe per render so duration change takes effect
+  const styleId = 'carousel-keyframe';
+  let styleEl = document.getElementById(styleId);
+  if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = styleId; document.head.appendChild(styleEl); }
+  styleEl.textContent = `@keyframes marquee-live { 0% { transform: translateX(0); } 100% { transform: translateX(-${pxPerSet}px); } }`;
+  track.style.animation = `marquee-live ${speed}s linear infinite`;
 }
 
 function renderHomeListsGrid() {
@@ -1798,7 +1980,417 @@ function deleteList() {
 }
 
 // ══════════════════════════════════════════════
-// ADVENTURES
+// EXPLORE — TIER ITEMS
+// ══════════════════════════════════════════════
+let tierItems = [
+  // TIER 1 — Big Dreams
+  {id:1,tier:'tier1',name:'Disneyland',cost:'~$1,500–2,500',image:'',notes:'Ultimate dream trip. Plan 3–4 days minimum.',status:'dream',inCarousel:false},
+  {id:2,tier:'tier1',name:'Silverwood Theme Park',cost:'~$300–500',image:'',notes:'Athol, Idaho. 6 hour drive. Biggest theme park in the Northwest.',status:'dream',inCarousel:false},
+  {id:3,tier:'tier1',name:'Universal Studios Hollywood',cost:'~$800–1,400',image:'',notes:'Harry Potter World. Plan around school breaks.',status:'dream',inCarousel:false},
+  {id:4,tier:'tier1',name:'San Juan Whale Watching',cost:'~$300–500',image:'',notes:'Ferry from Anacortes to Friday Harbor. Orca season is May–September.',status:'dream',inCarousel:false},
+  {id:5,tier:'tier1',name:'Rocky Mountaineer Train',cost:'~$2,000+',image:'',notes:'Bucket list. Vancouver to the Rockies. Once they\'re older.',status:'dream',inCarousel:false},
+  {id:6,tier:'tier1',name:'Treehouse Airbnb',cost:'~$300–600',image:'',notes:'Search Airbnb "treehouse" near Pacific Northwest. Book way in advance.',status:'dream',inCarousel:false},
+  {id:7,tier:'tier1',name:'Oregon Coast Road Trip',cost:'~$500–900',image:'',notes:'Cannon Beach, Tillamook, Lincoln City. 3–4 nights. Tide pools, seafood, salt air.',status:'dream',inCarousel:false},
+  {id:8,tier:'tier1',name:'Olympic National Park Cabin',cost:'~$400–800',image:'',notes:'Log Cabin Resort or Sol Duc Hot Springs Resort. Rainforest + hot springs.',status:'dream',inCarousel:false},
+  {id:9,tier:'tier1',name:'Leavenworth Christmas Weekend',cost:'~$400–700',image:'',notes:'Bavarian village decorated for Christmas. Book November for December.',status:'dream',inCarousel:false},
+  {id:10,tier:'tier1',name:'Great Wolf Lodge',cost:'~$400–700',image:'',notes:'Grand Mound WA — 2.5 hours from Auburn. Indoor waterpark.',status:'dream',inCarousel:false},
+  {id:11,tier:'tier1',name:'Glass Roof Cabin — Stargazing',cost:'~$500–900',image:'',notes:'Airbnb has several in eastern Washington and Oregon. Check availability summer.',status:'dream',inCarousel:false},
+  {id:12,tier:'tier1',name:'Alaska Cruise',cost:'~$2,000–4,000',image:'',notes:'Someday. Best when boys are 14–16.',status:'dream',inCarousel:false},
+  {id:13,tier:'tier1',name:'Hawaii',cost:'~$3,000–5,000',image:'',notes:'The ultimate dream. Big Island for landscape. Maui for beaches.',status:'dream',inCarousel:false},
+  {id:14,tier:'tier1',name:'Stay in a Yurt',cost:'~$150–350',image:'',notes:'Washington State Parks have yurts — Grayland Beach, Millersylvania. Book early.',status:'dream',inCarousel:false},
+  // TIER 2 — Adventure Weekends
+  {id:20,tier:'tier2',name:'Tiny Cabin Weekend',cost:'~$150–350',image:'',notes:'Hipcamp or Tentrr. Within 2 hours of Auburn.',status:'dream',inCarousel:false},
+  {id:21,tier:'tier2',name:'Beach House — One Night',cost:'~$200–400',image:'',notes:'Long Beach or Ocean Shores. Off-season is cheaper and less crowded.',status:'dream',inCarousel:false},
+  {id:22,tier:'tier2',name:'Historic Hotel Stay',cost:'~$150–300',image:'',notes:'Hotel Murano in Tacoma or the Davenport in Spokane.',status:'dream',inCarousel:false},
+  {id:23,tier:'tier2',name:'Castle or Hobbit Airbnb',cost:'~$200–500',image:'',notes:'Search Airbnb "unique stays" Pacific Northwest. Book months ahead.',status:'dream',inCarousel:false},
+  {id:24,tier:'tier2',name:'Railroad Museum Day',cost:'~$50–100',image:'',notes:'Northwest Railway Museum in Snoqualmie. Train rides on weekends.',status:'dream',inCarousel:false},
+  {id:25,tier:'tier2',name:'Mount Rainier Lodge Stay',cost:'~$200–400',image:'',notes:'Paradise Inn or National Park Inn. Summer only. Book very early.',status:'dream',inCarousel:false},
+  {id:26,tier:'tier2',name:'Seattle Staycation',cost:'~$150–300',image:'',notes:'Hotel + Pike Place + waterfront + Space Needle. Treat it like a real trip.',status:'dream',inCarousel:false},
+  {id:27,tier:'tier2',name:'Portland Foodie Weekend',cost:'~$250–500',image:'',notes:'Food carts, Powell\'s Books, Voodoo Doughnut, Lan Su Garden.',status:'dream',inCarousel:false},
+  {id:28,tier:'tier2',name:'Vancouver BC Weekend',cost:'~$400–700',image:'',notes:'Passport required. Granville Island, Capilano Bridge, amazing food.',status:'dream',inCarousel:false},
+  {id:29,tier:'tier2',name:'Escape Room + Hotel + Breakfast',cost:'~$200–350',image:'',notes:'Make a night of it. Dinner, escape room, hotel, nice breakfast.',status:'dream',inCarousel:false},
+  {id:30,tier:'tier2',name:'Ferry Trip to an Island',cost:'~$80–150',image:'',notes:'Vashon Island is closest. Orcas or Lopez for longer stays. Walk on is cheap.',status:'dream',inCarousel:false},
+  // TIER 3 — Discovery Days
+  {id:40,tier:'tier3',name:'Hidden Waterfalls Hunt',cost:'~$5–20',image:'',notes:'Franklin Falls (Snoqualmie), Twin Falls, Wallace Falls. Pick one per outing.',status:'dream',inCarousel:false},
+  {id:41,tier:'tier3',name:'Bookstore Hunt',cost:'~$0–40',image:'',notes:'Twice Sold Tales, Half Price Books, Mercer Street Books. Everyone gets $10.',status:'dream',inCarousel:false},
+  {id:42,tier:'tier3',name:'Used Record Store',cost:'~$0–30',image:'',notes:'Easy Street Records, Wall of Sound, Bop Street Records. Dig for an hour.',status:'dream',inCarousel:false},
+  {id:43,tier:'tier3',name:'International Grocery Challenge',cost:'~$20–40',image:'',notes:'H Mart, Uwajimaya, Mi Pueblo, Ranch 99. Everyone picks 5 things they\'ve never tried.',status:'dream',inCarousel:false},
+  {id:44,tier:'tier3',name:'Antique Store Treasure Hunt',cost:'~$0–50',image:'',notes:'Everyone gets $10 and has to find the weirdest thing in the store.',status:'dream',inCarousel:false},
+  {id:45,tier:'tier3',name:'Japanese Garden',cost:'~$10–20',image:'',notes:'Seattle Japanese Garden in the Arboretum. Spring blossoms or fall color.',status:'dream',inCarousel:false},
+  {id:46,tier:'tier3',name:'Point Defiance Zoo & Aquarium',cost:'~$40–60',image:'',notes:'Tacoma — 30 minutes. Better value than Seattle Aquarium. Get there early.',status:'dream',inCarousel:false},
+  {id:47,tier:'tier3',name:'Vintage Arcade',cost:'~$20–40',image:'',notes:'Round1 at Southcenter or GameWorks in Renton. Load a card and go.',status:'dream',inCarousel:false},
+  {id:48,tier:'tier3',name:'Mini Golf',cost:'~$25–40',image:'',notes:'Flatstick Pub in Seattle has great indoor mini golf + food.',status:'dream',inCarousel:false},
+  {id:49,tier:'tier3',name:'Thrift Store Challenge',cost:'~$20–30',image:'',notes:'Everyone gets $7. Best outfit wins. Or best weird find. You judge.',status:'dream',inCarousel:false},
+  {id:50,tier:'tier3',name:'Farmers Market',cost:'~$20–40',image:'',notes:'Auburn Farmers Market, Pike Place, Puyallup. Everyone gets $10 to spend however.',status:'dream',inCarousel:false},
+  {id:51,tier:'tier3',name:'Food Truck Friday',cost:'~$25–50',image:'',notes:'Tacoma has great food truck events. Check Roaming Hunger for current spots.',status:'dream',inCarousel:false},
+  {id:52,tier:'tier3',name:'Weird Roadside Attractions',cost:'~$0–10',image:'',notes:'Roadsideamerica.com for PNW. Fremont Troll, Hat n Boots, Ye Olde Curiosity Shop.',status:'dream',inCarousel:false},
+];
+let nextTierItemId = 200;
+let editingTierItemId = null;
+let activeTierTab = 'all';
+
+// GAMES
+const GAMES = [
+  {name:'Dice Day',desc:'Roll a die: 1=Burger, 2=Tacos, 3=Pho, 4=Arcade, 5=Bakery, 6=Waterfall. Your whole Saturday is decided.',rules:'Everyone at the table rolls once. Highest roll picks the category, second highest picks the specific spot.'},
+  {name:'Mystery Road Trip',desc:'Everyone gets one clue. No one knows where you\'re going until you\'re almost there.',rules:'You plan it. Each person gets a written clue the night before. Reveal location in the parking lot.'},
+  {name:'$30 Challenge',desc:'Everyone gets $10. Spend it however you want at an international grocery, farmers market, or Asian market.',rules:'You can\'t tell each other what you\'re buying. Get home, lay it all out, taste-test and rank everything.'},
+  {name:'Hidden Gem Challenge',desc:'Rate the place you visit across 6 categories: Food, Coolest Bathroom, Best Decor, Friendliest Staff, Most Surprising, Would Return.',rules:'Each person scores privately, then reveals. Argue about it. That\'s the game.'},
+  {name:'Around the World',desc:'Each month: pick a country, watch a movie from there, eat that food, listen to that music, learn 5 facts.',rules:'Boys take turns picking the country. You pick the movie and food spot. Run it as long as you want.'},
+  {name:'Bookstore Detective',desc:'Each person gets 20 minutes and $10. Find one book the others would love. Swap and read.',rules:'No peeking at each other\'s picks. Present your find like a sales pitch.'},
+];
+
+async function saveTierItems() {
+  try { await setDoc(doc(db,'life-menu','tierItems'),{data:tierItems}); flashSaved(); }
+  catch(e) { console.error('Save tier items failed:',e); }
+}
+
+// MISSIONS
+let missions = [];
+let nextMissionId = 300;
+let editingMissionId = null;
+
+async function saveMissions() {
+  try { await setDoc(doc(db,'life-menu','missions'),{data:missions}); flashSaved(); }
+  catch(e) { console.error('Save missions failed:',e); }
+}
+
+// BADGES
+const ALL_BADGES = [
+  {id:'quest5',name:'Quest Starter',desc:'Log 5 food quest entries',icon:'Q'},
+  {id:'quest20',name:'Quest Hunter',desc:'Log 20 food quest entries',icon:'Q+'},
+  {id:'pho5',name:'Pho Master',desc:'Log 5 Pho Passport entries',icon:'Ph'},
+  {id:'taco5',name:'Taco Expert',desc:'Log 5 Taco Trail entries',icon:'Ta'},
+  {id:'burger5',name:'Burger Expert',desc:'Log 5 Burger Quest entries',icon:'Bu'},
+  {id:'boba5',name:'Boba Explorer',desc:'Log 5 Boba Battle entries',icon:'Bo'},
+  {id:'ramen5',name:'Ramen Run',desc:'Log 5 Ramen Run entries',icon:'Ra'},
+  {id:'dump5',name:'Dumpling Champion',desc:'Log 5 Dumpling Diaries entries',icon:'Du'},
+  {id:'donut5',name:'Donut Detective',desc:'Log 5 Donut Detectives entries',icon:'Do'},
+  {id:'cafe5',name:'Cafe Curator',desc:'Log 5 Cozy Cafe Hunt entries',icon:'Ca'},
+  {id:'adventure5',name:'Adventure Seeker',desc:'Mark 5 items done across any tier',icon:'A'},
+  {id:'t1done',name:'Big Dreamer',desc:'Complete a Tier 1 Big Dream',icon:'T1'},
+  {id:'t2done3',name:'Weekend Warrior',desc:'Complete 3 Adventure Weekends',icon:'T2'},
+  {id:'t3done10',name:'Discovery Master',desc:'Complete 10 Discovery Days',icon:'T3'},
+  {id:'waterfall',name:'Waterfall Hunter',desc:'Do the Hidden Waterfalls Hunt',icon:'WF'},
+  {id:'road',name:'Road Tripper',desc:'Complete the Oregon Coast Road Trip',icon:'RT'},
+  {id:'cabin',name:'Cabin Camper',desc:'Complete any cabin stay',icon:'CB'},
+];
+let earnedBadges = [];
+
+async function saveBadges() {
+  try { await setDoc(doc(db,'life-menu','badges'),{data:earnedBadges}); flashSaved(); }
+  catch(e) { console.error('Save badges failed:',e); }
+}
+
+function checkAutoEarnBadges() {
+  const prevCount = earnedBadges.length;
+  const questMap = {};
+  quests.forEach(q => { questMap[q.name] = (q.entries||[]).length; });
+  const totalEntries = quests.reduce((sum,q) => sum+(q.entries||[]).length,0);
+  const doneItems = tierItems.filter(t=>t.status==='done');
+
+  const checks = [
+    ['quest5', totalEntries >= 5],
+    ['quest20', totalEntries >= 20],
+    ['pho5', (questMap['Pho Passport']||0) >= 5],
+    ['taco5', (questMap['Taco Trail']||0) >= 5],
+    ['burger5', (questMap['Burger Quest']||0) >= 5],
+    ['boba5', (questMap['Boba Battle']||0) >= 5],
+    ['ramen5', (questMap['Ramen Run']||0) >= 5],
+    ['dump5', (questMap['Dumpling Diaries']||0) >= 5],
+    ['donut5', (questMap['Donut Detectives']||0) >= 5],
+    ['cafe5', (questMap['Cozy Cafe Hunt']||0) >= 5],
+    ['adventure5', doneItems.length >= 5],
+    ['t1done', doneItems.some(t=>t.tier==='tier1')],
+    ['t2done3', doneItems.filter(t=>t.tier==='tier2').length >= 3],
+    ['t3done10', doneItems.filter(t=>t.tier==='tier3').length >= 10],
+    ['waterfall', doneItems.some(t=>t.name==='Hidden Waterfalls Hunt')],
+    ['road', doneItems.some(t=>t.name==='Oregon Coast Road Trip')],
+    ['cabin', doneItems.some(t=>t.name.toLowerCase().includes('cabin'))],
+  ];
+  checks.forEach(([id, earned]) => {
+    if (earned && !earnedBadges.includes(id)) {
+      earnedBadges.push(id);
+      showToast('Badge earned: ' + ALL_BADGES.find(b=>b.id===id)?.name);
+    }
+  });
+  if (earnedBadges.length !== prevCount) saveBadges();
+}
+
+// ── RENDER EXPLORE ──
+function renderExplore() {
+  const body = document.getElementById('explore-body');
+  if (activeTierTab === 'badges') { renderBadgesFull(body); return; }
+
+  const tiers = activeTierTab === 'all'
+    ? ['tier1','tier2','tier3']
+    : [activeTierTab];
+
+  const tierMeta = {
+    tier1:{label:'Big Dreams',sub:'These require months or years of saving. One every year or two.'},
+    tier2:{label:'Adventure Weekends',sub:'Sweet spot. Usually $100–500. Overnight or full-day.'},
+    tier3:{label:'Discovery Days',sub:'Bread and butter. Usually under $75.'},
+  };
+
+  let html = '';
+  tiers.forEach(tier => {
+    const items = tierItems.filter(t=>t.tier===tier);
+    const meta = tierMeta[tier];
+    const statusColors = {dream:'var(--blue)',saving:'var(--gold)',planned:'#BF89CC',done:'var(--green)'};
+    const statusLabels = {dream:'Dreaming',saving:'Saving',planned:'Planned',done:'Done'};
+    html += `<div class="tier-section">
+      <div class="tier-label">${meta.label}</div>
+      <div class="tier-sub">${meta.sub}</div>
+      <div class="tier-grid">
+        ${items.map(item => `
+          <div class="tier-card${item.status==='done'?' status-done':''}">
+            ${item.image ? `<img class="tier-card-img" src="${item.image}" alt="${item.name}">` : `<div class="tier-card-img-placeholder"><span style="font-family:Cinzel,serif;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);">${meta.label}</span></div>`}
+            <span class="tier-status-pill" style="color:${statusColors[item.status]||'var(--text-dim)'};border:1px solid ${statusColors[item.status]||'var(--border)'};background:rgba(0,0,0,0.5);">${statusLabels[item.status]||item.status}</span>
+            <div class="tier-card-body">
+              <div class="tier-card-name">${item.name}</div>
+              ${item.cost?`<div class="tier-card-cost">${item.cost}</div>`:''}
+              <div class="tier-card-actions">
+                <button class="tier-btn tier-btn-dream" onclick="setTierStatus(${item.id},'dream')">Dream</button>
+                <button class="tier-btn tier-btn-saving" onclick="openMissionForItem(${item.id})">Saving</button>
+                <button class="tier-btn tier-btn-planned" onclick="setTierStatus(${item.id},'planned')">Planned</button>
+                <button class="tier-btn tier-btn-done" onclick="setTierStatus(${item.id},'done')">Done</button>
+                <button class="tier-btn" onclick="openTierItemModal(${item.id})">Edit</button>
+              </div>
+            </div>
+          </div>`).join('')}
+        <div class="tier-card" style="border:1px dashed var(--border);background:transparent;display:flex;align-items:center;justify-content:center;min-height:120px;cursor:pointer;" onclick="openTierItemModal(null,'${tier}')">
+          <span style="font-family:Cinzel,serif;font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim);">+ Add</span>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  // Games section in Tier 3
+  if (activeTierTab === 'all' || activeTierTab === 'tier3') {
+    html += `<div class="tier-section">
+      <div class="tier-label">Games</div>
+      <div class="tier-sub">Make any outing more fun. Pick a format and go.</div>
+      <div class="games-grid">
+        ${GAMES.map(g=>`<div class="game-card" onclick="showGameRules('${g.name}')">
+          <div class="game-card-name">${g.name}</div>
+          <div class="game-card-desc">${g.desc}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+function renderBadgesFull(container) {
+  container.innerHTML = `<div class="tier-section">
+    <div class="tier-label">Adventure Badges</div>
+    <div class="tier-sub">Earned by the family. Auto-awarded from quest logs and completed adventures.</div>
+    <div class="badges-grid" style="margin-top:0.5rem;">
+      ${ALL_BADGES.map(b => {
+        const earned = earnedBadges.includes(b.id);
+        return `<div class="badge-chip ${earned?'earned':'locked'}" title="${b.desc}">
+          <span style="font-family:Cinzel,serif;font-size:0.6rem;font-weight:700;color:${earned?'var(--gold)':'var(--text-dim)'};">${b.icon}</span>
+          <div>
+            <div class="badge-name">${b.name}</div>
+            <div style="font-size:0.72rem;color:var(--text-dim);">${b.desc}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="margin-top:1.5rem;">
+      <button class="btn-add-event" onclick="promptManualBadge()">+ Award badge manually</button>
+    </div>
+  </div>`;
+}
+
+function switchExpTab(tab, btn) {
+  activeTierTab = tab;
+  document.querySelectorAll('.exp-tab').forEach(b=>b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderExplore();
+}
+
+function setTierStatus(id, status) {
+  const item = tierItems.find(x=>x.id===id);
+  if (!item) return;
+  item.status = item.status === status ? 'dream' : status;
+  saveTierItems(); renderExplore();
+  checkAutoEarnBadges();
+}
+
+function showGameRules(name) {
+  const g = GAMES.find(x=>x.name===name);
+  if (!g) return;
+  alert(`${g.name}\n\n${g.desc}\n\nHow to play:\n${g.rules}`);
+}
+
+function promptManualBadge() {
+  const unearned = ALL_BADGES.filter(b=>!earnedBadges.includes(b.id));
+  if (!unearned.length) { showToast('All badges earned!'); return; }
+  const names = unearned.map((b,i)=>`${i+1}. ${b.name} — ${b.desc}`).join('\n');
+  const pick = prompt(`Pick a badge to award (enter number):\n\n${names}`);
+  const idx = parseInt(pick) - 1;
+  if (idx >= 0 && idx < unearned.length) {
+    earnedBadges.push(unearned[idx].id);
+    saveBadges(); renderExplore(); renderHomeBadges();
+    showToast('Badge awarded: ' + unearned[idx].name);
+  }
+}
+
+// TIER ITEM MODAL
+function openTierItemModal(id, defaultTier) {
+  editingTierItemId = id || null;
+  const item = id ? tierItems.find(x=>x.id===id) : null;
+  document.getElementById('modal-tier-title').textContent = item ? 'Edit Adventure' : 'Add Adventure';
+  document.getElementById('edit-tier-id').value = id || '';
+  document.getElementById('ti-name').value = item?.name || '';
+  document.getElementById('ti-tier').value = item?.tier || defaultTier || 'tier2';
+  document.getElementById('ti-cost').value = item?.cost || '';
+  document.getElementById('ti-image').value = item?.image || '';
+  document.getElementById('ti-notes').value = item?.notes || '';
+  document.getElementById('ti-carousel').checked = item?.inCarousel || false;
+  document.getElementById('btn-delete-tier').style.display = item ? 'block' : 'none';
+  openModal('modal-tier-item');
+}
+
+function saveTierItem() {
+  const name = document.getElementById('ti-name').value.trim();
+  if (!name) return;
+  const obj = {
+    id: editingTierItemId || ++nextTierItemId,
+    name,
+    tier: document.getElementById('ti-tier').value,
+    cost: document.getElementById('ti-cost').value.trim(),
+    image: document.getElementById('ti-image').value.trim(),
+    notes: document.getElementById('ti-notes').value.trim(),
+    inCarousel: document.getElementById('ti-carousel').checked,
+    status: editingTierItemId ? (tierItems.find(x=>x.id===editingTierItemId)?.status||'dream') : 'dream',
+  };
+  if (editingTierItemId) { const i=tierItems.findIndex(x=>x.id===editingTierItemId); if(i>=0) tierItems[i]=obj; }
+  else tierItems.push(obj);
+  closeModal('modal-tier-item'); saveTierItems(); renderExplore();
+  if(document.getElementById('view-home').classList.contains('active')) renderCarousel();
+  showToast(editingTierItemId ? 'Updated' : 'Added');
+}
+
+function deleteTierItem() {
+  const item = tierItems.find(x=>x.id===editingTierItemId);
+  if (!item || !confirm(`Delete "${item.name}"?`)) return;
+  tierItems = tierItems.filter(x=>x.id!==editingTierItemId);
+  closeModal('modal-tier-item'); saveTierItems(); renderExplore();
+}
+
+// MISSIONS
+function openMissionForItem(tierId) {
+  const item = tierItems.find(x=>x.id===tierId);
+  if (!item) return;
+  setTierStatus(tierId, 'saving');
+  const existing = missions.find(m=>m.name.includes(item.name));
+  if (existing) { openMissionModal(existing.id); return; }
+  document.getElementById('ms-name').value = 'Mission: ' + item.name;
+  document.getElementById('ms-goal').value = '';
+  document.getElementById('ms-saved').value = '0';
+  document.getElementById('ms-tier').value = item.tier;
+  document.getElementById('edit-mission-id').value = '';
+  document.getElementById('modal-mission-title').textContent = 'New Mission';
+  document.getElementById('btn-delete-mission').style.display = 'none';
+  openModal('modal-mission');
+}
+
+function openMissionModal(id) {
+  editingMissionId = id || null;
+  const m = id ? missions.find(x=>x.id===id) : null;
+  document.getElementById('modal-mission-title').textContent = m ? 'Edit Mission' : 'New Mission';
+  document.getElementById('edit-mission-id').value = id || '';
+  document.getElementById('ms-name').value = m?.name || '';
+  document.getElementById('ms-goal').value = m?.goal || '';
+  document.getElementById('ms-saved').value = m?.saved || 0;
+  document.getElementById('ms-tier').value = m?.tier || 'tier1';
+  document.getElementById('btn-delete-mission').style.display = m ? 'block' : 'none';
+  openModal('modal-mission');
+}
+
+function saveMission() {
+  const name = document.getElementById('ms-name').value.trim();
+  const goal = parseFloat(document.getElementById('ms-goal').value);
+  if (!name || !goal) return;
+  const id = editingMissionId || ++nextMissionId;
+  const obj = {id, name, goal, saved: parseFloat(document.getElementById('ms-saved').value)||0, tier: document.getElementById('ms-tier').value};
+  if (editingMissionId) { const i=missions.findIndex(x=>x.id===editingMissionId); if(i>=0) missions[i]=obj; }
+  else missions.push(obj);
+  closeModal('modal-mission'); saveMissions(); renderHomeMissions();
+  showToast('Mission saved');
+}
+
+function deleteMission() {
+  const m = missions.find(x=>x.id===editingMissionId);
+  if (!m || !confirm(`Delete "${m.name}"?`)) return;
+  missions = missions.filter(x=>x.id!==editingMissionId);
+  closeModal('modal-mission'); saveMissions(); renderHomeMissions();
+}
+
+function openAddFundsModal(id) {
+  document.getElementById('funds-mission-id').value = id;
+  const m = missions.find(x=>x.id===id);
+  document.getElementById('modal-funds-title').textContent = m ? 'Add to: ' + m.name : 'Add Funds';
+  document.getElementById('funds-amount').value = '';
+  openModal('modal-add-funds');
+}
+
+function addFunds() {
+  const id = parseInt(document.getElementById('funds-mission-id').value);
+  const amount = parseFloat(document.getElementById('funds-amount').value);
+  if (!amount || amount <= 0) return;
+  const m = missions.find(x=>x.id===id);
+  if (!m) return;
+  m.saved = Math.min(m.goal, (m.saved||0) + amount);
+  closeModal('modal-add-funds'); saveMissions(); renderHomeMissions();
+  const pct = Math.round((m.saved/m.goal)*100);
+  showToast(`+$${amount} added — ${pct}% to goal`);
+}
+
+function renderHomeMissions() {
+  const el = document.getElementById('home-mission-cards');
+  if (!el) return;
+  const tierLabel = {tier1:'Big Dream',tier2:'Adventure Weekend',tier3:'Discovery Day'};
+  const cards = missions.map(m => {
+    const pct = Math.min(100, Math.round((m.saved/m.goal)*100));
+    return `<div class="mission-card">
+      <div class="mission-card-name">${m.name}</div>
+      <div class="mission-card-tier">${tierLabel[m.tier]||''}</div>
+      <div class="mission-progress-track"><div class="mission-progress-fill" style="width:${pct}%"></div></div>
+      <div class="mission-progress-label">
+        <span>$${m.saved.toFixed(0)} of $${m.goal.toFixed(0)}</span>
+        <span class="mission-progress-pct">${pct}%</span>
+      </div>
+      <button class="mission-add-btn" onclick="openAddFundsModal(${m.id})">+ Add funds</button>
+    </div>`;
+  }).join('');
+  el.innerHTML = cards + `<div class="mission-card mission-card-new" onclick="openMissionModal(null)">
+    <span style="font-size:1.25rem;color:var(--text-dim);">+</span>
+    <span style="font-family:Cinzel,serif;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);">New Mission</span>
+  </div>`;
+  document.getElementById('home-missions-widget').style.display = missions.length ? 'block' : 'none';
+}
+
+function renderHomeBadges() {
+  const el = document.getElementById('home-badges-grid');
+  if (!el) return;
+  const earned = ALL_BADGES.filter(b=>earnedBadges.includes(b.id));
+  const preview = earned.slice(0,6);
+  if (!earned.length) {
+    document.getElementById('home-badges-section').style.display = 'none';
+    return;
+  }
+  document.getElementById('home-badges-section').style.display = 'block';
+  el.innerHTML = preview.map(b=>`<div class="badge-chip earned">
+    <span style="font-family:Cinzel,serif;font-size:0.6rem;font-weight:700;color:var(--gold);">${b.icon}</span>
+    <span class="badge-name">${b.name}</span>
+  </div>`).join('') + (earned.length > 6 ? `<div class="badge-chip" style="cursor:pointer;" onclick="showView('explore')"><span class="badge-name">+${earned.length-6} more</span></div>` : '');
+}
+
+// ══════════════════════════════════════════════
+// ADVENTURES (legacy — kept for carousel toggle compat)
 // ══════════════════════════════════════════════
 let adventures = [
   {id:1,name:"International Food Adventure",season:"Winter",vibe:"Cold weather = cozy food. Pick a cuisine you've never cooked together.",image:"",notes:"Hit H Mart or Uwajimaya. Everyone gets $10 to pick mystery ingredients. Go home and cook something.",status:"open"},
@@ -2468,12 +3060,15 @@ document.querySelectorAll('.modal-backdrop').forEach(m => {
 
 // Expose functions to global scope (required for onclick= in module scripts)
 Object.assign(window, {
-  showView, switchKitchenTab,
+  showView, switchKitchenTab, switchExpTab,
   openDetail, closeDetail, closeDetailDirect,
   markPlanned, markSkip, getIdeas,
   openAddModal, openEditModal, saveEvent, deleteEvent, confirmDelete,
   addUrlRow, removeUrlRow,
   openListEdit, saveListEdit, deleteList, saveNewList, addListItem, toggleListItem,
+  openTierItemModal, saveTierItem, deleteTierItem, setTierStatus, showGameRules,
+  openMissionModal, openMissionForItem, saveMission, deleteMission, openAddFundsModal, addFunds,
+  promptManualBadge,
   filterAdventures, openAdvModal, saveAdventure, deleteAdventure, setAdvStatus, toggleAdvCarousel,
   openQuestModal, saveQuest, deleteQuest, toggleQuestCarousel,
   openQuestEntryModal, saveQuestEntry, deleteQuestEntry, setQeStar,
@@ -2537,6 +3132,25 @@ async function init() {
       if (allEntries.length) nextQuestEntryId = Math.max(...allEntries, 5000) + 1;
     } else {
       await saveQuests();
+    }
+
+    const tierSnap = await getDoc(doc(db, 'life-menu', 'tierItems'));
+    if (tierSnap.exists() && tierSnap.data().data && tierSnap.data().data.length) {
+      tierItems = tierSnap.data().data;
+      nextTierItemId = Math.max(...tierItems.map(t => t.id), 200) + 1;
+    } else {
+      await saveTierItems();
+    }
+
+    const missionSnap = await getDoc(doc(db, 'life-menu', 'missions'));
+    if (missionSnap.exists() && missionSnap.data().data) {
+      missions = missionSnap.data().data;
+      if (missions.length) nextMissionId = Math.max(...missions.map(m=>m.id), 300) + 1;
+    }
+
+    const badgeSnap = await getDoc(doc(db, 'life-menu', 'badges'));
+    if (badgeSnap.exists() && badgeSnap.data().data) {
+      earnedBadges = badgeSnap.data().data;
     }
 
   } catch(e) {
