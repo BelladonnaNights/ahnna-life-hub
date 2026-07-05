@@ -488,6 +488,36 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
 .badge-chip.earned .badge-name{color:var(--gold);}
 .badge-see-all{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;border-bottom:1px solid var(--border);padding-bottom:1px;transition:all 0.15s;}
 .badge-see-all:hover{color:var(--gold);}
+/* Event notes / memory log */
+.ev-notes-section{margin-top:1rem;}
+.ev-notes-label{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.6rem;display:flex;align-items:center;justify-content:space-between;}
+.ev-notes-add-btn{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 9px;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:2px;cursor:pointer;transition:all 0.15s;}
+.ev-notes-add-btn:hover{color:var(--gold);border-color:var(--border-strong);}
+.ev-note-entry{background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:0.7rem 0.85rem;margin-bottom:6px;position:relative;}
+.ev-note-date{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.3rem;}
+.ev-note-text{font-size:0.9rem;color:var(--text-muted);line-height:1.5;}
+.ev-note-edit-btn{position:absolute;top:7px;right:7px;font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:2px;cursor:pointer;}
+.ev-note-edit-btn:hover{color:var(--gold);}
+.ev-note-compose{margin-top:8px;}
+.ev-note-textarea{width:100%;background:var(--surface2);border:1px solid var(--border-med);border-radius:3px;padding:0.6rem 0.75rem;color:var(--text);font-family:'Crimson Text',serif;font-size:0.95rem;outline:none;resize:vertical;min-height:80px;line-height:1.5;}
+.ev-note-textarea::placeholder{color:var(--text-dim);}
+.ev-note-save-row{display:flex;gap:6px;margin-top:6px;}
+.ev-note-save-btn{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.4rem 1rem;border:1px solid var(--border-strong);background:rgba(201,168,76,0.1);color:var(--gold);border-radius:3px;cursor:pointer;}
+.ev-note-cancel-btn{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.4rem 0.8rem;border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:3px;cursor:pointer;}
+
+/* Home featured cards with images */
+.home-featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;}
+.home-feat-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;cursor:pointer;transition:all 0.15s;position:relative;}
+.home-feat-card:hover{border-color:var(--border-med);transform:translateY(-1px);}
+.home-feat-card-img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;}
+.home-feat-card-placeholder{width:100%;aspect-ratio:4/5;background:var(--surface2);display:flex;align-items:center;justify-content:center;}
+.home-feat-card-body{padding:0.65rem 0.8rem;}
+.home-feat-card-label{font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:0.2rem;}
+.home-feat-card-name{font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--text);line-height:1.25;}
+.home-feat-card-meta{font-size:0.78rem;color:var(--text-dim);margin-top:0.2rem;}
+.featured-toggle{font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;border-radius:2px;cursor:pointer;border:1px solid var(--border);background:none;color:var(--text-dim);transition:all 0.15s;margin-left:auto;flex-shrink:0;}
+.featured-toggle.is-featured{color:var(--gold);border-color:rgba(201,168,76,0.4);background:rgba(201,168,76,0.07);}
+.featured-toggle:hover{color:var(--gold);}
 </style>
 </head>
 <body>
@@ -557,7 +587,7 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
         </div>
         <span class="home-section-link" onclick="showView('quests')">See all &rarr;</span>
       </div>
-      <div class="list-preview-grid" id="home-quests-grid"></div>
+      <div class="home-featured-grid" id="home-quests-grid"></div>
     </div>
     <div class="home-section">
       <div class="home-section-header">
@@ -567,7 +597,7 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
         </div>
         <span class="home-section-link" onclick="showView('lists')">See all lists &rarr;</span>
       </div>
-      <div class="list-preview-grid" id="home-lists-grid"></div>
+      <div class="home-featured-grid" id="home-lists-grid"></div>
     </div>
   </div>
 </div>
@@ -1057,6 +1087,10 @@ body{background:var(--ink);color:var(--text);font-family:'Crimson Text',serif;fo
       <input class="list-edit-title-input" id="list-edit-title" placeholder="List name">
     </div>
     <div class="modal-field">
+      <label class="modal-label">Cover image URL (optional, 4:5)</label>
+      <input class="modal-input" id="list-edit-image" placeholder="https://… shows on home page">
+    </div>
+    <div class="modal-field">
       <label class="modal-label" style="margin-bottom:0.4rem;">Items &mdash; one per line</label>
       <textarea class="bulk-textarea" id="list-edit-bulk" placeholder="One item per line&#10;&#10;Stranger Things&#10;Cobra Kai&#10;Avatar: The Last Airbender&#10;&#10;Paste a whole list at once or type one per line."></textarea>
       <div class="bulk-hint">Each line becomes an item. Paste a whole list at once. Items you've already checked off are preserved and shown at the bottom.</div>
@@ -1127,15 +1161,21 @@ const SEASON_MAP = {1:'Winter',2:'Winter',3:'Spring',4:'Spring',5:'Spring',6:'Su
 function daysUntil(month, day) {
   const d = day || 15;
   const target = new Date(NOW.getFullYear(), month - 1, d);
-  if (target < NOW) target.setFullYear(NOW.getFullYear() + 1);
+  if (target < new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 1)) target.setFullYear(NOW.getFullYear() + 1);
   return Math.ceil((target - NOW) / 86400000);
 }
 
-// Is this event within the next 30 days?
+// Is this event within the next 30 days? Stays until day AFTER event date.
 function isComingUp(ev) {
   if (ev.status === 'done') return false;
-  const du = daysUntil(ev.month, ev.day);
-  return du >= 0 && du <= 30;
+  const d = ev.day || 15;
+  const eventDate = new Date(NOW.getFullYear(), ev.month - 1, d);
+  if (eventDate < new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 1)) {
+    eventDate.setFullYear(NOW.getFullYear() + 1);
+  }
+  const tomorrow = new Date(NOW); tomorrow.setDate(NOW.getDate() + 1);
+  const daysAway = Math.ceil((eventDate - NOW) / 86400000);
+  return daysAway >= -1 && daysAway <= 30;
 }
 
 let events = [
@@ -1436,13 +1476,20 @@ function renderHomeAdventuresGrid() {
 function renderHomeQuestsGrid() {
   const grid = document.getElementById('home-quests-grid');
   if (!grid) return;
-  grid.innerHTML = quests.slice(0,4).map(q => {
+  const featured = quests.filter(q => q.featuredHome);
+  const display = featured.length ? featured : quests.slice(0, 4);
+  grid.innerHTML = display.map(q => {
     const count = (q.entries||[]).length;
     const last = count ? q.entries[q.entries.length-1].place : null;
-    return `<div class="list-preview-card" onclick="showView('quests')">
-      <div class="lpc-title">${q.name}</div>
-      <div class="lpc-items">${last ? 'Last: ' + last : q.desc}</div>
-      <div class="lpc-count">${count} visit${count!==1?'s':''} logged</div>
+    return `<div class="home-feat-card" onclick="showView('quests')">
+      ${q.image
+        ? `<img class="home-feat-card-img" src="${q.image}" alt="${q.name}" loading="lazy">`
+        : `<div class="home-feat-card-placeholder"><span style="font-family:Cinzel,serif;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);">Quest</span></div>`}
+      <div class="home-feat-card-body">
+        <div class="home-feat-card-label">Food Quest</div>
+        <div class="home-feat-card-name">${q.name}</div>
+        <div class="home-feat-card-meta">${last ? 'Last: ' + last : q.desc}</div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -1545,13 +1592,21 @@ function renderCarousel() {
 
 function renderHomeListsGrid() {
   const grid = document.getElementById('home-lists-grid');
-  grid.innerHTML = lists.map(l => {
+  if (!grid) return;
+  const featured = lists.filter(l => l.featuredHome);
+  const display = featured.length ? featured : lists.slice(0, 4);
+  grid.innerHTML = display.map(l => {
     const remaining = l.items.filter(i => !i.done);
-    const preview = remaining.slice(0,4).map(i => i.name).join(', ');
-    return `<div class="list-preview-card" onclick="showView('lists')">
-      <div class="lpc-title">${l.title}</div>
-      <div class="lpc-items">${preview}${remaining.length > 4 ? '…' : ''}</div>
-      <div class="lpc-count">${remaining.length} remaining</div>
+    const nextUp = remaining[0]?.name || 'All done!';
+    return `<div class="home-feat-card" onclick="showView('lists')">
+      ${l.image
+        ? `<img class="home-feat-card-img" src="${l.image}" alt="${l.title}" loading="lazy">`
+        : `<div class="home-feat-card-placeholder"><span style="font-family:Cinzel,serif;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);">${l.tag||'List'}</span></div>`}
+      <div class="home-feat-card-body">
+        <div class="home-feat-card-label">${l.tag || 'List'}</div>
+        <div class="home-feat-card-name">${l.title}</div>
+        <div class="home-feat-card-meta">${nextUp} &middot; ${remaining.length} left</div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -1656,6 +1711,15 @@ function renderDetailPanel(ev) {
 
   const ideasLabel = !ev.options || !ev.options.length ? 'Build my options' : 'Give me more ideas';
 
+  // Memory log — last 5 entries, newest first
+  const memories = (ev.memories || []).slice(-5).reverse();
+  const memoriesHtml = memories.map((m,i) => `
+    <div class="ev-note-entry" id="ev-note-${ev.id}-${i}">
+      <div class="ev-note-date">${m.date}</div>
+      <div class="ev-note-text" id="ev-note-text-${ev.id}-${i}">${m.text}</div>
+      <button class="ev-note-edit-btn" onclick="startEditNote(${ev.id},${i})">Edit</button>
+    </div>`).join('');
+
   inner.innerHTML = `
     <button class="detail-close" onclick="closeDetailDirect()">Close &times;</button>
     <div class="ed-eyebrow">${ev.season} &middot; ${MONTHS[ev.month-1]}${ev.day ? ' ' + ev.day : ''}</div>
@@ -1666,6 +1730,24 @@ function renderDetailPanel(ev) {
     <div class="options-list">${optionsHtml}</div>
     ${bringHtml}
     ${linksHtml}
+
+    <hr class="divider">
+
+    <div class="ev-notes-section">
+      <div class="ev-notes-label">
+        Brainstorm Notes
+        <button class="ev-notes-add-btn" onclick="toggleNoteCompose(${ev.id})">+ Add note</button>
+      </div>
+      <div class="ev-note-compose" id="note-compose-${ev.id}" style="display:none;">
+        <textarea class="ev-note-textarea" id="note-textarea-${ev.id}" placeholder="Jot down your brainstorm, what you're thinking, what the boys want to do…"></textarea>
+        <div class="ev-note-save-row">
+          <button class="ev-note-save-btn" onclick="saveEventNote(${ev.id})">Save note</button>
+          <button class="ev-note-cancel-btn" onclick="toggleNoteCompose(${ev.id})">Cancel</button>
+        </div>
+      </div>
+      ${memoriesHtml || '<div style="font-size:0.85rem;color:var(--text-dim);font-style:italic;">No notes yet.</div>'}
+    </div>
+
     <hr class="divider">
     <div class="action-row">
       <button class="btn-confirm ${confirmExtra}" onclick="markPlanned(${ev.id})">${confirmLabel}</button>
@@ -1699,6 +1781,75 @@ function markSkip(id) {
   if(document.getElementById('view-home').classList.contains('active')) renderCarousel();
   saveEvents();
   showToast('Skipped for this year');
+}
+
+// ── EVENT NOTES / MEMORIES ──
+function toggleNoteCompose(evId) {
+  const el = document.getElementById('note-compose-' + evId);
+  if (!el) return;
+  const isVisible = el.style.display !== 'none';
+  el.style.display = isVisible ? 'none' : 'block';
+  if (!isVisible) document.getElementById('note-textarea-' + evId)?.focus();
+}
+
+function saveEventNote(evId) {
+  const ta = document.getElementById('note-textarea-' + evId);
+  const text = ta?.value.trim();
+  if (!text) return;
+  const ev = events.find(e => e.id === evId);
+  if (!ev) return;
+  if (!ev.memories) ev.memories = [];
+  ev.memories.push({ date: NOW.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}), text });
+  // Keep only last 5
+  if (ev.memories.length > 5) ev.memories = ev.memories.slice(-5);
+  saveEvents();
+  renderDetailPanel(ev);
+  showToast('Note saved');
+}
+
+function startEditNote(evId, reversedIdx) {
+  const ev = events.find(e => e.id === evId);
+  if (!ev || !ev.memories) return;
+  const realIdx = ev.memories.length - 1 - reversedIdx;
+  const entry = ev.memories[realIdx];
+  if (!entry) return;
+  const textEl = document.getElementById(`ev-note-text-${evId}-${reversedIdx}`);
+  const noteEl = document.getElementById(`ev-note-${evId}-${reversedIdx}`);
+  if (!textEl || !noteEl) return;
+  // Replace text div with an inline editor
+  textEl.style.display = 'none';
+  const existing = noteEl.querySelector('.ev-note-inline-edit');
+  if (existing) return; // already editing
+  const editor = document.createElement('div');
+  editor.className = 'ev-note-inline-edit';
+  editor.innerHTML = `<textarea class="ev-note-textarea" style="margin-top:6px;">${entry.text}</textarea>
+    <div class="ev-note-save-row" style="margin-top:4px;">
+      <button class="ev-note-save-btn" onclick="saveEditNote(${evId},${realIdx},this)">Save</button>
+      <button class="ev-note-cancel-btn" onclick="cancelEditNote(${evId},${reversedIdx})">Cancel</button>
+      <button class="ev-note-cancel-btn" style="color:#C0654F;border-color:rgba(139,58,42,0.4);" onclick="deleteNote(${evId},${realIdx})">Delete</button>
+    </div>`;
+  noteEl.appendChild(editor);
+}
+
+function saveEditNote(evId, realIdx, btn) {
+  const ev = events.find(e => e.id === evId);
+  if (!ev || !ev.memories) return;
+  const ta = btn.closest('.ev-note-inline-edit').querySelector('textarea');
+  ev.memories[realIdx].text = ta.value.trim();
+  saveEvents(); renderDetailPanel(ev);
+}
+
+function cancelEditNote(evId, reversedIdx) {
+  const ev = events.find(e => e.id === evId);
+  if (ev) renderDetailPanel(ev);
+}
+
+function deleteNote(evId, realIdx) {
+  const ev = events.find(e => e.id === evId);
+  if (!ev || !ev.memories) return;
+  if (!confirm('Delete this note?')) return;
+  ev.memories.splice(realIdx, 1);
+  saveEvents(); renderDetailPanel(ev);
 }
 
 // ── AI IDEAS ──
@@ -1908,7 +2059,10 @@ function renderLists() {
     <div class="list-card">
       <div class="list-card-header">
         <div class="list-card-title">${l.title}</div>
-        <button class="list-card-edit-btn" onclick="openListEdit(${l.id})">Edit</button>
+        <div style="display:flex;gap:5px;align-items:center;">
+          <button class="featured-toggle ${l.featuredHome?'is-featured':''}" onclick="toggleListFeatured(${l.id})">${l.featuredHome?'Featured':'+ Home'}</button>
+          <button class="list-card-edit-btn" onclick="openListEdit(${l.id})">Edit</button>
+        </div>
       </div>
       <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.75rem;">${l.items.filter(i=>!i.done).length} remaining</div>
       <ul class="list-items-ul">
@@ -1969,7 +2123,7 @@ function openListEdit(id) {
   editingListId = id;
   document.getElementById('list-edit-id').value = id;
   document.getElementById('list-edit-title').value = l.title;
-  // Show unchecked items in the textarea, one per line
+  document.getElementById('list-edit-image').value = l.image || '';
   const unchecked = l.items.filter(i => !i.done).map(i => i.name).join('\n');
   document.getElementById('list-edit-bulk').value = unchecked;
   openModal('modal-list-edit');
@@ -1980,18 +2134,18 @@ function saveListEdit() {
   if (!l) return;
   const newTitle = document.getElementById('list-edit-title').value.trim();
   if (newTitle) l.title = newTitle;
+  l.image = document.getElementById('list-edit-image').value.trim();
   const raw = document.getElementById('list-edit-bulk').value;
   const newNames = raw.split('\n').map(s => s.trim()).filter(s => s.length > 0);
-  // Keep already-done items, replace unchecked with new list
   const done = l.items.filter(i => i.done);
   const newItems = newNames.map(name => {
-    // Preserve existing item IDs if the name matches (keeps done state consistent)
     const existing = l.items.find(i => i.name === name);
     return existing || {id: ++nextItemId, name, done: false};
   });
   l.items = [...newItems, ...done];
   closeModal('modal-list-edit');
   renderLists();
+  renderHomeListsGrid();
   saveLists();
   showToast('List updated');
 }
@@ -2612,7 +2766,9 @@ function renderQuests() {
       <div class="quest-wishlist-items">
         ${wishlist.map((w,i) => {
           const alreadyDone = visitedPlaces.has(w.toLowerCase());
-          return `<span class="quest-wishlist-chip${alreadyDone?' visited':''}" title="${alreadyDone?'Already visited':''}" onclick="removeWishlistItem(${q.id},${i})">${w}${alreadyDone?' (done)':' &times;'}</span>`;
+          return `<span class="quest-wishlist-chip${alreadyDone?' visited':''}"
+            onclick="${alreadyDone ? `removeWishlistItem(${q.id},${i})` : `wishlistToLogVisit(${q.id},'${w.replace(/'/g,"\\'")}',${i})`}"
+            title="${alreadyDone ? 'Already visited — click to remove' : 'Click to log a visit here'}">${w}${alreadyDone?' (done)':''}</span>`;
         }).join('')}
       </div>
       <div class="quest-wishlist-add">
@@ -2637,6 +2793,7 @@ function renderQuests() {
       <div class="quest-card-footer">
         <span class="quest-total">${entries.length} visit${entries.length!==1?'s':''} logged</span>
         <div style="display:flex;gap:6px;">
+          <button class="quest-edit-btn ${q.featuredHome?'active-carousel-btn':''}" onclick="toggleQuestFeatured(${q.id})">${q.featuredHome ? 'Featured' : '+ Home'}</button>
           <button class="quest-edit-btn ${q.inCarousel?'active-carousel-btn':''}" onclick="toggleQuestCarousel(${q.id})">${q.inCarousel ? 'In carousel' : '+ Carousel'}</button>
           <button class="quest-edit-btn" onclick="openQuestModal(${q.id})">Edit quest</button>
         </div>
@@ -2662,6 +2819,32 @@ function removeWishlistItem(questId, idx) {
   if (!q || !q.wishlist) return;
   q.wishlist.splice(idx, 1);
   saveQuests(); renderQuests();
+}
+
+function wishlistToLogVisit(questId, placeName, idx) {
+  // Pre-fill the log visit modal with the place name and open it
+  openQuestEntryModal(questId, null);
+  // After modal opens, fill in the place
+  setTimeout(() => {
+    const placeInput = document.getElementById('qe-place');
+    if (placeInput) placeInput.value = placeName;
+  }, 50);
+}
+
+function toggleQuestFeatured(id) {
+  const q = quests.find(x => x.id === id);
+  if (!q) return;
+  q.featuredHome = !q.featuredHome;
+  saveQuests(); renderQuests(); renderHomeQuestsGrid();
+  showToast(q.featuredHome ? 'Featured on home' : 'Removed from home');
+}
+
+function toggleListFeatured(id) {
+  const l = lists.find(x => x.id === id);
+  if (!l) return;
+  l.featuredHome = !l.featuredHome;
+  saveLists(); renderLists(); renderHomeListsGrid();
+  showToast(l.featuredHome ? 'Featured on home' : 'Removed from home');
 }
 
 function openQuestModal(id) {
@@ -3148,8 +3331,9 @@ Object.assign(window, {
   openMissionModal, openMissionForItem, saveMission, deleteMission, openAddFundsModal, addFunds,
   promptManualBadge,
   filterAdventures, openAdvModal, saveAdventure, deleteAdventure, setAdvStatus, toggleAdvCarousel,
-  addWishlistItem, removeWishlistItem,
-  parseCostNum,
+  addWishlistItem, removeWishlistItem, wishlistToLogVisit,
+  toggleQuestFeatured, toggleListFeatured,
+  toggleNoteCompose, saveEventNote, startEditNote, saveEditNote, cancelEditNote, deleteNote,
   openQuestModal, saveQuest, deleteQuest, toggleQuestCarousel,
   openQuestEntryModal, saveQuestEntry, deleteQuestEntry, setQeStar,
   openRecipeModal, saveRecipe, deleteRecipe, openUrlImportModal, importFromUrl,
