@@ -314,6 +314,15 @@ function effectivePlanForOffset(offsetDays){
   const override = state.calendarOverrides[dateIso];
   if(override) return { date:dateIso, kind:override.kind, dayTemplateId:override.dayTemplateId || null, completed:false };
   if(state.dayTemplates.length === 0) return { date:dateIso, kind:'none', completed:false };
+  const anchor = state.rotationAnchor;
+  if(anchor && dateIso >= anchor.date){
+    const anchorIdx = state.dayTemplates.findIndex(t => t.id === anchor.dayTemplateId);
+    if(anchorIdx !== -1){
+      const fromAnchor = daysBetween(anchor.date, dateIso);
+      const idx = ((anchorIdx + fromAnchor) % state.dayTemplates.length + state.dayTemplates.length) % state.dayTemplates.length;
+      return { date:dateIso, kind:'workout', dayTemplateId: state.dayTemplates[idx].id, completed:false };
+    }
+  }
   const idx = ((state.rotationIndex + offsetDays) % state.dayTemplates.length + state.dayTemplates.length) % state.dayTemplates.length;
   const tpl = state.dayTemplates[idx];
   return { date:dateIso, kind:'workout', dayTemplateId:tpl.id, completed:false };
@@ -563,7 +572,9 @@ function finishWorkoutDay(){
   const iso = todayISO();
   state.completedDays[iso] = { kind:'workout', dayTemplateId: plan.dayTemplateId };
   delete state.calendarOverrides[iso];
-  state.rotationIndex = (state.rotationIndex + 1) % state.dayTemplates.length;
+  const doneIdx = state.dayTemplates.findIndex(t => t.id === plan.dayTemplateId);
+  state.rotationIndex = doneIdx !== -1 ? (doneIdx + 1) % state.dayTemplates.length : (state.rotationIndex + 1) % state.dayTemplates.length;
+  if(state.rotationAnchor && iso >= state.rotationAnchor.date) delete state.rotationAnchor;
   state.today = { extra: [], removed: [] };
   saveState(); renderAll();
   const tpl = state.dayTemplates.find(t => t.id === plan.dayTemplateId);
@@ -781,6 +792,11 @@ function openDayDetail(iso){
         <select id="day-detail-select">${switchOptionsHTML(plan)}</select>
         <button onclick="setDayOverride('${iso}')">Save</button>
       </div>
+      <div class="row-flex" style="align-items:center;">
+        <label style="font-size:12.5px;color:var(--parchment-dim);display:flex;align-items:center;gap:6px;">
+          <input type="checkbox" id="day-detail-reorder"> Also reorder every day after this one
+        </label>
+      </div>
       <div class="row-flex">
         <button onclick="clearDayOverride('${iso}')" style="background:var(--espresso-3);color:var(--parchment-dim);">Reset to auto plan</button>
       </div>
@@ -796,10 +812,20 @@ function openDayDetail(iso){
 
 function setDayOverride(iso){
   const sel = document.getElementById('day-detail-select');
+  const reorderBox = document.getElementById('day-detail-reorder');
+  const reorder = !!(reorderBox && reorderBox.checked);
   const val = sel.value;
-  if(val === 'rest') state.calendarOverrides[iso] = { kind:'rest' };
-  else if(val === 'break') state.calendarOverrides[iso] = { kind:'break' };
-  else state.calendarOverrides[iso] = { kind:'workout', dayTemplateId: val.split(':')[1] };
+  if(val === 'rest'){ state.calendarOverrides[iso] = { kind:'rest' }; }
+  else if(val === 'break'){ state.calendarOverrides[iso] = { kind:'break' }; }
+  else {
+    const tplId = val.split(':')[1];
+    if(reorder){
+      state.rotationAnchor = { date: iso, dayTemplateId: tplId };
+      Object.keys(state.calendarOverrides).forEach(d => { if(d >= iso) delete state.calendarOverrides[d]; });
+    } else {
+      state.calendarOverrides[iso] = { kind:'workout', dayTemplateId: tplId };
+    }
+  }
   saveState(); closeDetail(); renderCalendarTab();
   if(iso === todayISO()) renderToday();
 }
