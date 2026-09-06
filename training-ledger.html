@@ -107,6 +107,7 @@
   .cal-planned{ border-style:dashed; }
   .cal-planned-rest{ border-style:dashed; }
   .cal-planned-break{ border-style:dashed; }
+  .cal-fb-mark{ font-size:7.5px; color:var(--sage-bright); margin-top:auto; padding-top:2px; border-top:1px dotted var(--sage); line-height:1.1; }
 </style>
 </head>
 <body>
@@ -324,6 +325,28 @@ function formatDateDisplay(iso){
   return iso;
 }
 
+const FULL_BODY_SUGGEST_INTERVAL = 7;
+
+function lastFullBodyDate(){
+  let latest = null;
+  Object.keys(state.completedDays).forEach(function(iso){
+    const rec = state.completedDays[iso];
+    if(rec.kind === 'workout'){
+      const tpl = findTemplateById(rec.dayTemplateId);
+      if(tpl && tpl.combinesFrom && tpl.combinesFrom.length){
+        if(!latest || iso > latest) latest = iso;
+      }
+    }
+  });
+  return latest;
+}
+
+function isFullBodySuggestedDay(iso){
+  const anchor = lastFullBodyDate() || todayISO();
+  const diff = daysBetween(anchor, iso);
+  return diff > 0 && diff % FULL_BODY_SUGGEST_INTERVAL === 0;
+}
+
 function nextRotationIndexAfter(dateIso, currentIndex){
   const rec = state.completedDays[dateIso];
   if(rec && rec.kind === 'workout'){
@@ -357,7 +380,10 @@ function effectivePlanForOffset(offsetDays){
   const dateIso = addDays(todayISO(), offsetDays);
   if(offsetDays < 0){
     const rec = state.completedDays[dateIso];
-    return rec ? { date:dateIso, kind:rec.kind, dayTemplateId:rec.dayTemplateId || null, completed:true } : { date:dateIso, kind:'none', completed:false };
+    if(rec) return { date:dateIso, kind:rec.kind, dayTemplateId:rec.dayTemplateId || null, completed:true };
+    const pastOverride = state.calendarOverrides[dateIso];
+    if(pastOverride) return { date:dateIso, kind:pastOverride.kind, dayTemplateId:pastOverride.dayTemplateId || null, completed:false };
+    return { date:dateIso, kind:'none', completed:false };
   }
   if(state.completedDays[dateIso]){
     const rec = state.completedDays[dateIso];
@@ -520,6 +546,11 @@ function switchOptionsHTML(plan){
   return opts + fbOpts + `<option value="rest" ${restSel}>Rest day</option><option value="break" ${breakSel}>Break day</option>`;
 }
 
+function renderFullBodyHint(plan){
+  if(plan.completed || !isFullBodySuggestedDay(plan.date)) return '';
+  return `<div class="card"><p class="sub" style="margin:0;">Based on your last one, today could be a good day for a full body session — check the Switch dropdown below if you're up for it.</p></div>`;
+}
+
 function renderToday(){
   const sec = document.getElementById('today');
   const plan = effectivePlanForOffset(0);
@@ -529,8 +560,9 @@ function renderToday(){
     const label = plan.kind === 'rest' ? 'Rest day' : 'Break day';
     const desc = plan.kind === 'rest' ? 'Planned recovery — no training today.' : 'Unplanned pause — your rotation picks up right where it left off.';
     const switchControl = !plan.completed ? `<div class="row-flex"><select id="today-switch">${switchOptionsHTML(plan)}</select><button onclick="switchTodayPlan()">Switch</button></div>` : '';
-    const actionBtn = !plan.completed ? `<button class="advance-btn" onclick="completeNonWorkoutDay('${plan.kind}')">Mark ${label.toLowerCase()} done</button>` : `<p class="sub" style="margin-top:8px;">Logged for today.</p>`;
+    const actionBtn = !plan.completed ? `<button class="advance-btn" onclick="completeNonWorkoutDay('${plan.kind}')">Mark ${label.toLowerCase()} done</button>` : `<p class="sub" style="margin-top:8px;">Logged for today.</p><button class="advance-btn" style="background:var(--espresso-3);color:var(--parchment-dim);" onclick="undoDay('${plan.date}')">Undo — I need to change this</button>`;
     sec.innerHTML = `
+      ${renderFullBodyHint(plan)}
       <div class="card">
         <div class="today-header"><span class="dayname">${label}</span><span class="daytype">${dateLabel}</span></div>
         <p class="sub">${desc}</p>
@@ -550,6 +582,7 @@ function renderToday(){
       <div class="card">
         <div class="today-header"><span class="dayname">${tpl.name}</span><span class="daytype">${dateLabel} &middot; logged</span></div>
         ${rows || '<p class="sub">Marked done — no exercises logged individually.</p>'}
+        <button class="advance-btn" style="background:var(--espresso-3);color:var(--parchment-dim);margin-top:10px;" onclick="undoDay('${plan.date}')">Undo — I need to change this</button>
       </div>
       ${renderEllipticalGoal()}`;
     return;
@@ -590,6 +623,7 @@ function renderToday(){
   const addOptions = allEx.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
 
   sec.innerHTML = `
+    ${renderFullBodyHint(plan)}
     <div class="card">
       <div class="today-header">
         <span class="dayname">${tpl.name}</span>
@@ -637,6 +671,16 @@ function finishWorkoutDay(){
   saveState(); renderAll();
   const doneTpl = findTemplateById(plan.dayTemplateId);
   showToast('Logged ' + (doneTpl ? doneTpl.name : 'workout'));
+}
+
+function undoDay(iso){
+  const rec = state.completedDays[iso];
+  if(!rec) return;
+  delete state.completedDays[iso];
+  state.calendarOverrides[iso] = { kind: rec.kind, dayTemplateId: rec.dayTemplateId || null };
+  saveState();
+  closeDetail();
+  renderAll();
 }
 
 function completeNonWorkoutDay(kind){
@@ -879,7 +923,8 @@ function renderCalendarTab(){
       cls += plan.completed ? ' cal-done-break' : ' cal-planned-break';
     }
     if(iso === todayIso) cls += ' cal-today';
-    cells += `<div class="${cls}" onclick="openDayDetail('${iso}')"><div class="cal-daynum">${d}</div><div class="cal-label">${label}</div></div>`;
+    const fbMark = (!plan.completed && isFullBodySuggestedDay(iso)) ? '<div class="cal-fb-mark">full body?</div>' : '';
+    cells += `<div class="${cls}" onclick="openDayDetail('${iso}')"><div class="cal-daynum">${d}</div><div class="cal-label">${label}</div>${fbMark}</div>`;
   }
 
   sec.innerHTML = `
@@ -891,7 +936,7 @@ function renderCalendarTab(){
       </div>
       <div class="cal-grid cal-weekdays"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
       <div class="cal-grid">${cells}</div>
-      <p class="sub" style="margin-top:10px;">Solid fill = logged. Dashed border = planned estimate — tap any day to view or change it.</p>
+      <p class="sub" style="margin-top:10px;">Solid fill = logged. Dashed border = planned estimate — tap any day to view or change it. "full body?" = a good day to consider one, based on your last one.</p>
     </div>
   `;
 }
@@ -903,7 +948,7 @@ function openDayDetail(iso){
   const offset = daysBetween(todayIso, iso);
   const plan = effectivePlanForOffset(offset);
   const dateLabel = formatDateDisplay(iso);
-  const isLocked = plan.completed || offset < 0;
+  const isLocked = plan.completed;
 
   let body = '';
   if(plan.kind === 'none'){
@@ -914,7 +959,8 @@ function openDayDetail(iso){
       : (plan.kind === 'rest' ? 'Rest day' : 'Break day');
     const logged = exercisesLoggedOn(iso);
     const rows = logged.map(({ex,entry}) => `<div class="plan-ex-row"><span>${ex.name}</span><span>${entry.weight}${ex.unit==='min'?'min':'lbs'} × ${entry.sets}×${entry.reps}</span></div>`).join('');
-    body = `<p class="sub">${kindLabel}</p>` + (rows ? `<div style="margin-top:8px;">${rows}</div>` : '<div class="empty">No exercises logged this day.</div>');
+    body = `<p class="sub">${kindLabel}</p>` + (rows ? `<div style="margin-top:8px;">${rows}</div>` : '<div class="empty">No exercises logged this day.</div>')
+      + `<div class="row-flex"><button onclick="undoDay('${iso}')" style="background:var(--espresso-3);color:var(--parchment-dim);">Undo — I need to change this</button></div>`;
   } else {
     body = `
       <p class="sub">Planned (estimate) — change it below.</p>
@@ -945,16 +991,20 @@ function setDayOverride(iso){
   const reorderBox = document.getElementById('day-detail-reorder');
   const reorder = !!(reorderBox && reorderBox.checked);
   const val = sel.value;
-  if(val === 'rest'){ state.calendarOverrides[iso] = { kind:'rest' }; }
-  else if(val === 'break'){ state.calendarOverrides[iso] = { kind:'break' }; }
-  else {
-    const tplId = val.split(':')[1];
-    if(reorder){
-      state.rotationAnchor = { date: iso, dayTemplateId: tplId };
-      Object.keys(state.calendarOverrides).forEach(d => { if(d >= iso) delete state.calendarOverrides[d]; });
-    } else {
-      state.calendarOverrides[iso] = { kind:'workout', dayTemplateId: tplId };
-    }
+  const isPast = daysBetween(todayISO(), iso) < 0;
+  let kind, dayTemplateId = null;
+  if(val === 'rest'){ kind = 'rest'; }
+  else if(val === 'break'){ kind = 'break'; }
+  else { kind = 'workout'; dayTemplateId = val.split(':')[1]; }
+
+  if(isPast){
+    state.completedDays[iso] = { kind, dayTemplateId };
+    delete state.calendarOverrides[iso];
+  } else if(reorder && kind === 'workout'){
+    state.rotationAnchor = { date: iso, dayTemplateId };
+    Object.keys(state.calendarOverrides).forEach(d => { if(d >= iso) delete state.calendarOverrides[d]; });
+  } else {
+    state.calendarOverrides[iso] = { kind, dayTemplateId };
   }
   saveState(); closeDetail(); renderCalendarTab();
   if(iso === todayISO()) renderToday();
