@@ -263,6 +263,27 @@ function applyCoreAdditions(){
   return changed;
 }
 
+function buildCombo(id1, id2, coreMap){
+  const t1 = coreMap[id1], t2 = coreMap[id2];
+  if(!t1 || !t2) return null;
+  const merged = t1.exerciseIds.concat(t2.exerciseIds.filter(id => !t1.exerciseIds.includes(id)));
+  return {
+    id: 'combo-' + id1 + '-' + id2,
+    name: 'Full Body (' + t1.name.split(' — ')[0] + ' + ' + t2.name.split(' — ')[0] + ')',
+    type: 'full',
+    optional: true,
+    combinesFrom: [id1, id2],
+    exerciseIds: merged
+  };
+}
+
+function seedFullBodyPresets(){
+  const coreMap = {};
+  state.dayTemplates.forEach(t => { coreMap[t.id] = t; });
+  const pairs = [['lower-a','upper-a'], ['lower-b','upper-b'], ['lower-a','upper-b'], ['lower-b','upper-a']];
+  return pairs.map(function(p){ return buildCombo(p[0], p[1], coreMap); }).filter(Boolean);
+}
+
 async function loadState(){
   const local = localStorage.getItem(STORAGE_KEY);
   state = local ? JSON.parse(local) : null;
@@ -273,7 +294,9 @@ async function loadState(){
   }
   if(!state.calendarOverrides){ state.calendarOverrides = {}; needsSave = true; }
   if(!state.completedDays){ state.completedDays = {}; needsSave = true; }
+  if(!state.fullBodyTemplates){ state.fullBodyTemplates = seedFullBodyPresets(); needsSave = true; }
   if(applyCoreAdditions()) needsSave = true;
+  if(rolloverRotationIfNeeded()) needsSave = true;
   if(needsSave) saveState();
   renderAll();
   syncFromFirebase();
@@ -301,6 +324,35 @@ function formatDateDisplay(iso){
   return iso;
 }
 
+function nextRotationIndexAfter(dateIso, currentIndex){
+  const rec = state.completedDays[dateIso];
+  if(rec && rec.kind === 'workout'){
+    const doneTpl = findTemplateById(rec.dayTemplateId);
+    if(doneTpl && doneTpl.combinesFrom && doneTpl.combinesFrom.length){
+      const idxs = doneTpl.combinesFrom.map(id => state.dayTemplates.findIndex(t => t.id === id)).filter(i => i !== -1);
+      const maxIdx = idxs.length ? Math.max(...idxs) : -1;
+      if(maxIdx !== -1) return (maxIdx + 1) % state.dayTemplates.length;
+    }
+    const doneIdx = state.dayTemplates.findIndex(t => t.id === rec.dayTemplateId);
+    if(doneIdx !== -1) return (doneIdx + 1) % state.dayTemplates.length;
+  }
+  return currentIndex;
+}
+
+function rolloverRotationIfNeeded(){
+  const today = todayISO();
+  if(!state.lastKnownDate){ state.lastKnownDate = today; return true; }
+  let cursor = state.lastKnownDate;
+  let changed = false;
+  while(cursor < today){
+    state.rotationIndex = nextRotationIndexAfter(cursor, state.rotationIndex);
+    cursor = addDays(cursor, 1);
+    changed = true;
+  }
+  if(changed) state.lastKnownDate = today;
+  return changed;
+}
+
 function effectivePlanForOffset(offsetDays){
   const dateIso = addDays(todayISO(), offsetDays);
   if(offsetDays < 0){
@@ -323,7 +375,11 @@ function effectivePlanForOffset(offsetDays){
       return { date:dateIso, kind:'workout', dayTemplateId: state.dayTemplates[idx].id, completed:false };
     }
   }
-  const idx = ((state.rotationIndex + offsetDays) % state.dayTemplates.length + state.dayTemplates.length) % state.dayTemplates.length;
+  const todayRec = state.completedDays[todayISO()];
+  const todayDoneAsWorkout = !!(todayRec && todayRec.kind === 'workout');
+  const baseIndex = todayDoneAsWorkout ? nextRotationIndexAfter(todayISO(), state.rotationIndex) : state.rotationIndex;
+  const effectiveOffset = todayDoneAsWorkout ? offsetDays - 1 : offsetDays;
+  const idx = ((baseIndex + effectiveOffset) % state.dayTemplates.length + state.dayTemplates.length) % state.dayTemplates.length;
   const tpl = state.dayTemplates[idx];
   return { date:dateIso, kind:'workout', dayTemplateId:tpl.id, completed:false };
 }
@@ -389,6 +445,10 @@ function syncFromFirebase(){
 function renderAll(){ renderToday(); renderCalendarTab(); renderPlans(); renderProgress(); }
 
 function currentTemplate(){ return state.dayTemplates[state.rotationIndex % state.dayTemplates.length]; }
+function findTemplateById(id){
+  return state.dayTemplates.find(t => t.id === id) || (state.fullBodyTemplates || []).find(t => t.id === id);
+}
+
 function catLabel(c){ return c === 'lower' ? 'lower body' : c === 'upper' ? 'upper body' : 'full body'; }
 
 function todayExerciseIds(tpl){
@@ -454,9 +514,10 @@ function logEllipticalCustom(){
 
 function switchOptionsHTML(plan){
   const opts = state.dayTemplates.map(t => `<option value="workout:${t.id}" ${plan.kind==='workout'&&plan.dayTemplateId===t.id?'selected':''}>${t.name}</option>`).join('');
+  const fbOpts = (state.fullBodyTemplates || []).map(t => `<option value="workout:${t.id}" ${plan.kind==='workout'&&plan.dayTemplateId===t.id?'selected':''}>${t.name}</option>`).join('');
   const restSel = plan.kind === 'rest' ? 'selected' : '';
   const breakSel = plan.kind === 'break' ? 'selected' : '';
-  return opts + `<option value="rest" ${restSel}>Rest day</option><option value="break" ${breakSel}>Break day</option>`;
+  return opts + fbOpts + `<option value="rest" ${restSel}>Rest day</option><option value="break" ${breakSel}>Break day</option>`;
 }
 
 function renderToday(){
@@ -479,7 +540,7 @@ function renderToday(){
     return;
   }
 
-  const tpl = state.dayTemplates.find(t => t.id === plan.dayTemplateId);
+  const tpl = findTemplateById(plan.dayTemplateId);
   if(!tpl){ sec.innerHTML = '<div class="empty">No day plans yet — add one in Day plans.</div>'; return; }
 
   if(plan.completed){
@@ -572,13 +633,10 @@ function finishWorkoutDay(){
   const iso = todayISO();
   state.completedDays[iso] = { kind:'workout', dayTemplateId: plan.dayTemplateId };
   delete state.calendarOverrides[iso];
-  const doneIdx = state.dayTemplates.findIndex(t => t.id === plan.dayTemplateId);
-  state.rotationIndex = doneIdx !== -1 ? (doneIdx + 1) % state.dayTemplates.length : (state.rotationIndex + 1) % state.dayTemplates.length;
-  if(state.rotationAnchor && iso >= state.rotationAnchor.date) delete state.rotationAnchor;
   state.today = { extra: [], removed: [] };
   saveState(); renderAll();
-  const tpl = state.dayTemplates.find(t => t.id === plan.dayTemplateId);
-  showToast('Logged ' + (tpl ? tpl.name : 'workout'));
+  const doneTpl = findTemplateById(plan.dayTemplateId);
+  showToast('Logged ' + (doneTpl ? doneTpl.name : 'workout'));
 }
 
 function completeNonWorkoutDay(kind){
@@ -671,20 +729,85 @@ function renderPlans(){
         <button onclick="addTemplate()">Add day</button>
       </div>
     </div>
+    ${renderFullBodySection()}
   `;
+}
+
+function renderFullBodySection(){
+  const fbTemplates = state.fullBodyTemplates || [];
+  const blocks = fbTemplates.map(tpl => {
+    const rows = tpl.exerciseIds.map(id => {
+      const ex = state.exercises[id];
+      if(!ex) return '';
+      return `<div class="plan-ex-row"><span>${ex.name}</span><button class="remove-x" onclick="removeFromTemplate('${tpl.id}','${id}')">&times;</button></div>`;
+    }).join('');
+    const otherEx = Object.values(state.exercises).filter(e => !tpl.exerciseIds.includes(e.id));
+    const opts = otherEx.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+    return `
+    <div class="card plan-block">
+      <div class="plan-title">
+        <span class="name-edit">${tpl.name}</span>
+        <button class="del-day" onclick="deleteTemplate('${tpl.id}')">delete day</button>
+      </div>
+      ${rows || '<div class="empty">No exercises on this combo yet.</div>'}
+      <div class="row-flex" style="margin-top:10px;">
+        <select id="plan-add-${tpl.id}">${opts || '<option value="">No other exercises</option>'}</select>
+        <button onclick="addToTemplate('${tpl.id}')">Add</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  const dayOpts = state.dayTemplates.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+
+  return `
+    <div class="card">
+      <h2>Full body options</h2>
+      <p class="sub">Combined sessions you can pick from the "Switch" dropdown on any day, if you're up for a bigger one. Doing one advances your rotation past both combined days.</p>
+    </div>
+    ${blocks || '<div class="empty">No combos yet — build one below.</div>'}
+    <div class="card">
+      <h2>Build a new combo</h2>
+      <div class="row-flex">
+        <select id="combo-day-1">${dayOpts}</select>
+        <select id="combo-day-2">${dayOpts}</select>
+      </div>
+      <div class="row-flex">
+        <button onclick="createCombo()">Create combo</button>
+      </div>
+    </div>
+  `;
+}
+
+function createCombo(){
+  const sel1 = document.getElementById('combo-day-1');
+  const sel2 = document.getElementById('combo-day-2');
+  const id1 = sel1.value, id2 = sel2.value;
+  if(!id1 || !id2 || id1 === id2) return;
+  const coreMap = {};
+  state.dayTemplates.forEach(t => { coreMap[t.id] = t; });
+  const combo = buildCombo(id1, id2, coreMap);
+  if(!combo) return;
+  if(!state.fullBodyTemplates) state.fullBodyTemplates = [];
+  if(state.fullBodyTemplates.find(t => t.id === combo.id)){
+    showToast('That combo already exists');
+    return;
+  }
+  state.fullBodyTemplates.push(combo);
+  saveState(); renderAll();
+  showToast('Created ' + combo.name);
 }
 
 function addToTemplate(tplId){
   const sel = document.getElementById(`plan-add-${tplId}`);
   const id = sel.value;
   if(!id) return;
-  const tpl = state.dayTemplates.find(t => t.id === tplId);
+  const tpl = findTemplateById(tplId);
   tpl.exerciseIds.push(id);
   saveState(); renderPlans();
 }
 
 function removeFromTemplate(tplId, exId){
-  const tpl = state.dayTemplates.find(t => t.id === tplId);
+  const tpl = findTemplateById(tplId);
   tpl.exerciseIds = tpl.exerciseIds.filter(id => id !== exId);
   saveState(); renderAll();
 }
@@ -702,10 +825,17 @@ function addTemplate(){
 
 function deleteTemplate(tplId){
   const idx = state.dayTemplates.findIndex(t => t.id === tplId);
-  if(idx === -1) return;
-  state.dayTemplates.splice(idx, 1);
-  if(state.rotationIndex >= state.dayTemplates.length) state.rotationIndex = 0;
-  saveState(); renderAll();
+  if(idx !== -1){
+    state.dayTemplates.splice(idx, 1);
+    if(state.rotationIndex >= state.dayTemplates.length) state.rotationIndex = 0;
+    saveState(); renderAll();
+    return;
+  }
+  const fbIdx = (state.fullBodyTemplates || []).findIndex(t => t.id === tplId);
+  if(fbIdx !== -1){
+    state.fullBodyTemplates.splice(fbIdx, 1);
+    saveState(); renderAll();
+  }
 }
 
 function moveTemplate(idx, dir){
@@ -738,7 +868,7 @@ function renderCalendarTab(){
     let label = '';
     let cls = 'cal-cell';
     if(plan.kind === 'workout'){
-      const tpl = state.dayTemplates.find(t => t.id === plan.dayTemplateId);
+      const tpl = findTemplateById(plan.dayTemplateId);
       label = tpl ? tpl.name.split(' — ')[0] : 'Workout';
       cls += plan.completed ? ' cal-done' : ' cal-planned';
     } else if(plan.kind === 'rest'){
@@ -780,7 +910,7 @@ function openDayDetail(iso){
     body = '<div class="empty">No record for this day.</div>';
   } else if(isLocked){
     const kindLabel = plan.kind === 'workout'
-      ? (state.dayTemplates.find(t => t.id === plan.dayTemplateId) || { name:'Workout' }).name
+      ? (findTemplateById(plan.dayTemplateId) || { name:'Workout' }).name
       : (plan.kind === 'rest' ? 'Rest day' : 'Break day');
     const logged = exercisesLoggedOn(iso);
     const rows = logged.map(({ex,entry}) => `<div class="plan-ex-row"><span>${ex.name}</span><span>${entry.weight}${ex.unit==='min'?'min':'lbs'} × ${entry.sets}×${entry.reps}</span></div>`).join('');
