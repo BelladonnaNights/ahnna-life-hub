@@ -108,6 +108,19 @@
   .cal-planned-rest{ border-style:dashed; }
   .cal-planned-break{ border-style:dashed; }
   .cal-fb-mark{ font-size:7.5px; color:var(--sage-bright); margin-top:auto; padding-top:2px; border-top:1px dotted var(--sage); line-height:1.1; }
+  .cal-ac-mark{ font-size:7.5px; color:var(--brass-bright); padding-top:1px; line-height:1.1; }
+  .phase-badge{ display:inline-block; font-size:11.5px; color:var(--brass-bright); border:1px solid var(--line); padding:2px 8px; border-radius:10px; margin-bottom:8px; }
+  .energy-scale{ display:flex; gap:6px; margin:8px 0; }
+  .energy-scale button{ flex:1; background:var(--espresso); border:1px solid var(--line); color:var(--parchment-dim); padding:8px 0; border-radius:3px; cursor:pointer; font-size:14px; }
+  .energy-scale button.picked{ background:var(--brass); color:var(--espresso); border-color:var(--brass); font-weight:700; }
+  .cycle-history-row{ display:flex; justify-content:space-between; font-size:12.5px; padding:6px 0; border-bottom:1px solid var(--line); color:var(--parchment-dim); }
+  .cycle-history-row:last-child{ border-bottom:none; }
+  .howto-item{ border:1px solid var(--line); border-radius:4px; padding:12px; margin-bottom:10px; background:var(--espresso-2); }
+  .howto-item .n{ font-family:'Fraunces',serif; font-weight:600; font-size:14.5px; color:var(--parchment); margin-bottom:6px; }
+  .howto-item ul{ margin:0; padding-left:18px; }
+  .howto-item li{ font-size:12.5px; color:var(--parchment-dim); line-height:1.5; margin-bottom:3px; }
+  .howto-cat-title{ font-family:'Fraunces',serif; color:var(--brass-bright); font-size:13px; text-transform:uppercase; letter-spacing:0.5px; margin:16px 0 8px 0; }
+  .howto-cat-title:first-child{ margin-top:0; }
 </style>
 </head>
 <body>
@@ -123,6 +136,8 @@
   <button class="tab-btn" data-tab="plans">Day plans</button>
   <button class="tab-btn" data-tab="progress">Progress</button>
   <button class="tab-btn" data-tab="rule">Rule</button>
+  <button class="tab-btn" data-tab="cycle">Cycle</button>
+  <button class="tab-btn" data-tab="howto">How To</button>
 </nav>
 
 <main>
@@ -148,6 +163,8 @@
       <p style="font-size:13px;color:var(--parchment-dim);line-height:1.5;">Rotary torso and elevate core spike your heart rate and can tip toward lightheaded &mdash; that's a real response, not just fatigue. The new additions (pallof press, plank, leg raise, cable crunch) are lower-intensity by design, since they're static or controlled rather than fast rotational work &mdash; but still worth flagging the pattern to whoever manages your blood pressure medication.</p>
     </div>
   </section>
+  <section id="cycle"></section>
+  <section id="howto"></section>
 </main>
 
 <div class="overlay" id="overlay">
@@ -159,6 +176,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="shared-cycle.js"></script>
 
 <script>
 const STORAGE_KEY = 'training-ledger-v2';
@@ -237,6 +255,140 @@ const libraryOnlyAdditions = () => ({
 
 const removedIds = ['cable-crunch', 'pallof-press'];
 
+function g(weight, reps, sets, label){ return { weight:weight, reps:reps, sets:sets, label:label, achieved:false, achievedDate:null }; }
+
+// Goals + alternative-group links for exercises that already exist in the library.
+const EXISTING_GOAL_SEED = {
+  'hip-abduction': [g(200,15,3,'Strong'), g(200,20,3,'Very strong')],
+  'hip-adduction': [g(150,12,3,'Strong'), g(190,12,3,'Very strong')],
+  'back-extension': [g(0,15,3,'Strong'), g(35,12,3,'Very strong')],
+  'leg-press': [g(225,12,3,'Strong'), g(300,10,3,'Very strong')],
+  'calf-extension': [g(150,15,3,'Strong'), g(200,12,3,'Very strong')],
+  'leg-curl': [g(80,12,3,'Strong'), g(100,10,3,'Very strong')],
+  'rotary-torso': [g(100,20,3,'Very strong \u2014 control, not more weight')],
+  'elevate-core': [g(0,15,3,'Strong'), g(0,20,3,'Very strong')],
+  'ab-bench': [g(0,15,3,'Strong'), g(0,20,3,'Very strong')],
+  'leg-raise': [g(0,12,3,'Strong'), g(0,18,3,'Very strong')],
+  'plank': [g(0,60,3,'Strong (seconds)'), g(0,90,3,'Very strong (seconds)')],
+  'chest-press': [g(80,12,3,'Strong'), g(100,10,3,'Very strong')],
+  'shoulder-press': [g(50,12,3,'Strong'), g(65,10,3,'Very strong')],
+  'tricep-machine': [g(100,12,3,'Strong'), g(120,10,3,'Very strong')],
+  'back-row': [g(100,12,3,'Strong'), g(120,10,3,'Very strong')],
+  'bicep-curl-standard': [g(50,12,3,'Strong'), g(65,10,3,'Very strong')],
+  'bicep-curl-hammer': [g(25,12,3,'Strong'), g(30,10,3,'Very strong')],
+  'bulgarian-split-squat': [g(25,12,3,'Strong'), g(40,10,3,'Very strong')],
+  'walking-lunges': [g(25,12,3,'Strong'), g(40,10,3,'Very strong')],
+};
+
+const EXISTING_ALT_GROUP_SEED = {
+  'chest-press': 'chest-group',
+  'shoulder-press': 'shoulder-group',
+  'tricep-machine': 'tricep-group',
+  'back-row': 'back-group',
+  'bicep-curl-standard': 'bicep-curl-group',
+  'hip-abduction': 'hip-abduction-group',
+  'hip-adduction': 'hip-adduction-group',
+  'hip-thrust': 'hip-thrust-group',
+  'leg-curl': 'leg-curl-group',
+};
+
+const freeWeightExercises = () => ({
+  'barbell-bench-press': { id:'barbell-bench-press', name:'Barbell bench press', cat:'upper', defaultSets:3, defaultReps:8, isNew:true, alternativeGroup:'chest-group', log:[],
+    goals:[g(95,8,3,'Strong'), g(115,6,3,'Very strong')] },
+  'db-bench-press': { id:'db-bench-press', name:'DB bench press (each)', cat:'upper', defaultSets:3, defaultReps:12, isNew:true, alternativeGroup:'chest-group', log:[],
+    goals:[g(35,12,3,'Strong'), g(45,8,3,'Very strong')] },
+  'barbell-overhead-press': { id:'barbell-overhead-press', name:'Barbell overhead press', cat:'upper', defaultSets:3, defaultReps:8, isNew:true, alternativeGroup:'shoulder-group', log:[],
+    goals:[g(55,8,3,'Strong'), g(75,6,3,'Very strong')] },
+  'db-shoulder-press': { id:'db-shoulder-press', name:'DB shoulder press (each)', cat:'upper', defaultSets:3, defaultReps:12, isNew:true, alternativeGroup:'shoulder-group', log:[],
+    goals:[g(25,12,3,'Strong'), g(35,8,3,'Very strong')] },
+  'db-lateral-raise': { id:'db-lateral-raise', name:'DB lateral raise (each)', cat:'upper', defaultSets:3, defaultReps:15, isNew:true, log:[],
+    goals:[g(12,15,3,'Strong'), g(20,12,3,'Very strong')] },
+  'skull-crusher': { id:'skull-crusher', name:'Skull crusher', cat:'upper', defaultSets:3, defaultReps:12, isNew:true, alternativeGroup:'tricep-group', log:[],
+    goals:[g(65,12,3,'Strong'), g(75,8,3,'Very strong')] },
+  'bent-over-barbell-row': { id:'bent-over-barbell-row', name:'Bent-over barbell row', cat:'upper', defaultSets:3, defaultReps:10, isNew:true, alternativeGroup:'back-group', log:[],
+    goals:[g(95,8,3,'Strong (estimate)'), g(115,6,3,'Very strong (estimate)')] },
+  'one-arm-db-row': { id:'one-arm-db-row', name:'One-arm DB row (each)', cat:'upper', defaultSets:3, defaultReps:12, isNew:true, alternativeGroup:'back-group', log:[],
+    goals:[g(40,12,3,'Strong'), g(55,8,3,'Very strong')] },
+  'seated-cable-row': { id:'seated-cable-row', name:'Seated cable row', cat:'upper', defaultSets:3, defaultReps:12, isNew:true, alternativeGroup:'back-group', log:[],
+    goals:[g(100,12,3,'Strong'), g(125,8,3,'Very strong')] },
+  'db-bicep-curl': { id:'db-bicep-curl', name:'DB bicep curl (each)', cat:'upper', defaultSets:3, defaultReps:12, isNew:true, alternativeGroup:'bicep-curl-group', log:[],
+    goals:[g(22,12,3,'Strong'), g(30,8,3,'Very strong')] },
+  'barbell-hip-thrust': { id:'barbell-hip-thrust', name:'Barbell hip thrust', cat:'lower', defaultSets:3, defaultReps:10, isNew:true, alternativeGroup:'hip-thrust-group', log:[],
+    goals:[g(185,10,3,'Strong'), g(225,8,3,'Very strong')] },
+  'smith-hip-thrust': { id:'smith-hip-thrust', name:'Smith machine hip thrust', cat:'lower', defaultSets:3, defaultReps:10, isNew:true, alternativeGroup:'hip-thrust-group', log:[],
+    goals:[g(185,10,3,'Strong'), g(225,10,3,'Very strong')] },
+  'cable-hamstring-curl': { id:'cable-hamstring-curl', name:'Cable hamstring curl (each)', cat:'lower', defaultSets:3, defaultReps:12, isNew:true, alternativeGroup:'leg-curl-group', log:[] },
+  'cable-hip-abduction': { id:'cable-hip-abduction', name:'Cable hip abduction (each)', cat:'lower', defaultSets:3, defaultReps:12, isNew:true, alternativeGroup:'hip-abduction-group', log:[] },
+  'cable-hip-adduction': { id:'cable-hip-adduction', name:'Cable hip adduction (each)', cat:'lower', defaultSets:3, defaultReps:12, isNew:true, alternativeGroup:'hip-adduction-group', log:[] },
+  'cable-leg-extension': { id:'cable-leg-extension', name:'Cable leg extension (each)', cat:'lower', defaultSets:3, defaultReps:12, isNew:true, log:[] },
+  'cable-glute-kickback': { id:'cable-glute-kickback', name:'Cable glute kickback (each)', cat:'lower', defaultSets:3, defaultReps:12, isNew:true, log:[] },
+  'cable-knee-drive': { id:'cable-knee-drive', name:'Cable knee drive / hip flexion (each)', cat:'lower', defaultSets:3, defaultReps:12, isNew:true, log:[] },
+  'goblet-squat': { id:'goblet-squat', name:'Goblet squat', cat:'lower', defaultSets:3, defaultReps:12, isNew:true, alternativeGroup:'squat-group', log:[],
+    goals:[g(50,12,3,'Strong'), g(70,10,3,'Very strong')] },
+  'barbell-back-squat': { id:'barbell-back-squat', name:'Barbell back squat', cat:'lower', defaultSets:3, defaultReps:8, isNew:true, alternativeGroup:'squat-group', log:[],
+    goals:[g(135,8,3,'Strong'), g(185,6,3,'Very strong')] },
+  'barbell-front-squat': { id:'barbell-front-squat', name:'Barbell front squat', cat:'lower', defaultSets:3, defaultReps:8, isNew:true, alternativeGroup:'squat-group', log:[],
+    goals:[g(95,8,3,'Strong'), g(135,6,3,'Very strong')] },
+  'smith-back-squat': { id:'smith-back-squat', name:'Smith machine back squat', cat:'lower', defaultSets:3, defaultReps:8, isNew:true, alternativeGroup:'squat-group', log:[],
+    goals:[g(135,8,3,'Strong'), g(185,8,3,'Very strong')] },
+  'smith-sumo-squat': { id:'smith-sumo-squat', name:'Smith machine sumo squat', cat:'lower', defaultSets:3, defaultReps:10, isNew:true, alternativeGroup:'squat-group', log:[],
+    goals:[g(135,10,3,'Strong'), g(185,8,3,'Very strong')] },
+  'romanian-deadlift': { id:'romanian-deadlift', name:'Romanian deadlift (RDL)', cat:'lower', defaultSets:3, defaultReps:10, isNew:true, alternativeGroup:'deadlift-group', log:[],
+    goals:[g(135,10,3,'Strong'), g(185,8,3,'Very strong')] },
+  'conventional-deadlift': { id:'conventional-deadlift', name:'Conventional deadlift', cat:'lower', defaultSets:3, defaultReps:6, isNew:true, alternativeGroup:'deadlift-group', log:[],
+    goals:[g(185,6,3,'Strong'), g(225,5,3,'Very strong')] },
+  'sumo-deadlift': { id:'sumo-deadlift', name:'Sumo deadlift', cat:'lower', defaultSets:3, defaultReps:6, isNew:true, alternativeGroup:'deadlift-group', log:[],
+    goals:[g(185,6,3,'Strong'), g(225,5,3,'Very strong')] },
+  'db-step-up': { id:'db-step-up', name:'DB step-up (each)', cat:'lower', defaultSets:3, defaultReps:12, isNew:true, log:[],
+    goals:[g(25,12,3,'Strong'), g(40,10,3,'Very strong')] },
+  'farmers-carry': { id:'farmers-carry', name:'Farmer\u2019s carry (seconds)', cat:'lower', defaultSets:3, defaultReps:45, isNew:true, log:[],
+    goals:[g(45,45,3,'Strong'), g(65,60,3,'Very strong')] },
+});
+
+const freeWeightDayTemplates = () => ([
+  { id:'free-weights-lower', name:'Free Weights \u2014 Lower', type:'lower', optional:true,
+    exerciseIds:['goblet-squat','romanian-deadlift','db-step-up','cable-leg-extension','farmers-carry'] },
+  { id:'free-weights-upper', name:'Free Weights \u2014 Upper', type:'upper', optional:true,
+    exerciseIds:['barbell-bench-press','bent-over-barbell-row','db-lateral-raise','skull-crusher'] },
+]);
+
+const nonMachineAdditions = () => ({
+  'bulgarian-split-squat': { id:'bulgarian-split-squat', name:'Bulgarian split squat (each leg)', cat:'lower', defaultSets:3, defaultReps:10, isNew:true, log:[] },
+  'walking-lunges': { id:'walking-lunges', name:'Walking lunges (each leg)', cat:'lower', defaultSets:3, defaultReps:12, isNew:true, log:[] },
+});
+
+const nonMachineDayAssignments = {
+  'lower-a': ['bulgarian-split-squat'],
+  'lower-b': ['walking-lunges'],
+};
+
+const ABS_CORE_EXERCISE_IDS = ['ab-bench','plank','leg-raise','rotary-torso','elevate-core'];
+const ABS_CORE_DEFAULT_INTERVAL = 2;
+
+const EXERCISE_TECHNIQUES = {
+  'hip-abduction': ['Lean slightly forward into the pad to shift the target toward the lower/upper glute rather than just the outer thigh.', 'Control the release — don\u2019t let the weight snap your knees back together.', 'Keep your back flat against the pad, don\u2019t arch to force the range of motion.'],
+  'hip-adduction': ['Squeeze from the inner thigh, not just letting the pads fall inward.', 'Keep your hips squared — don\u2019t let one side rotate more than the other.', 'Go for a controlled 2-second squeeze at the innermost point.'],
+  'hip-thrust': ['Drive through your heels, not your toes.', 'Squeeze your glutes hard at the top — pause for a beat before lowering.', 'Keep your chin tucked and ribs down so your lower back doesn\u2019t arch.'],
+  'back-extension': ['Move slowly — this is not a speed exercise.', 'Hinge from the hips, not the lower back, to avoid strain.', 'Stop the movement well before you feel any pull in your lower spine.'],
+  'leg-press': ['Don\u2019t let your knees cave inward — track them over your toes.', 'Avoid locking your knees out hard at the top.', 'Keep your lower back flat against the pad; if it lifts, the weight is too heavy.'],
+  'calf-extension': ['Pause and squeeze at the very top of the movement.', 'Lower slowly to get a real stretch at the bottom, don\u2019t bounce.', 'Keep the movement happening only at the ankle, not the knee.'],
+  'leg-curl': ['Don\u2019t let your hips lift off the pad as you curl.', 'Squeeze at the top rather than just swinging the weight up.', 'Control the lowering phase — that\u2019s where a lot of the benefit is.'],
+  'bulgarian-split-squat': ['Keep most of your weight in the front foot — the back foot is just for balance.', 'Drop straight down rather than lunging forward.', 'Keep your torso upright; don\u2019t lean heavily over the front knee.'],
+  'walking-lunges': ['Keep your front knee tracking over your ankle, not past your toes.', 'Take a step long enough that your back knee can drop straight down.', 'Keep your torso tall — don\u2019t lean forward to catch your balance.'],
+  'chest-press': ['Don\u2019t let your shoulders round forward — keep them pinned back against the pad.', 'Press in a straight line, not up toward your face.', 'Stop the stretch just before your shoulders feel the pull at the back.'],
+  'shoulder-press': ['Avoid arching your lower back to get the weight up — keep your core braced.', 'Press up and slightly forward, not straight up past your ears.', 'Don\u2019t lock your elbows out hard at the top.'],
+  'bicep-curl-standard': ['Keep your elbows pinned at your sides — don\u2019t let them drift forward.', 'Avoid swinging your body to help the weight up.', 'Lower all the way down for a full stretch before the next rep.'],
+  'bicep-curl-hammer': ['Keep your wrist neutral (thumb up) through the whole rep.', 'Don\u2019t let your shoulder roll forward to assist.', 'Control the negative — don\u2019t just drop the weight down.'],
+  'tricep-machine': ['Keep your elbows tucked close to your body, not flaring out.', 'Focus on squeezing the tricep at full extension.', 'Avoid using your body weight to push through the sticking point.'],
+  'back-row': ['Lead with your elbows, not your hands.', 'Squeeze your shoulder blades together at the end of the pull.', 'Avoid using momentum — no rocking your torso to help the pull.'],
+  'rotary-torso': ['Rotate from your ribcage, not just your arms.', 'Keep your hips relatively still so the twist happens through your core.', 'Stop immediately if you feel lightheaded — this one raises heart rate fast.'],
+  'elevate-core': ['Bring your navel toward your spine before each rep, not just at the start.', 'Move slowly — this machine rewards control over speed.', 'Breathe out on the crunch, don\u2019t hold your breath through the set.'],
+  'ab-bench': ['Focus on curling your ribs toward your hips, not just bending at the neck.', 'Keep a small gap between your chin and chest to avoid neck strain.', 'Hit the marked position with control, not momentum.'],
+  'plank': ['Keep your hips level — don\u2019t let them sag or pike up.', 'Squeeze your glutes to help keep your lower back protected.', 'Breathe normally — don\u2019t hold your breath through the hold.'],
+  'leg-raise': ['Keep your lower back flat against the pad or floor, not arched.', 'Lower your legs only as far as you can control without your back lifting.', 'Move slowly on the way down — that\u2019s where this exercise does the most work.'],
+  'elliptical': ['Keep your posture tall rather than hunching over the handles.', 'Push through the whole pedal stroke, not just the front half.', 'Let your arms drive naturally if the machine has moving handles — don\u2019t just hang on.'],
+};
+
 function applyCoreAdditions(){
   let changed = false;
   removedIds.forEach(id => {
@@ -260,6 +412,53 @@ function applyCoreAdditions(){
   const libAdditions = libraryOnlyAdditions();
   Object.values(libAdditions).forEach(ex => {
     if(!state.exercises[ex.id]){ state.exercises[ex.id] = ex; changed = true; }
+  });
+  const nmAdditions = nonMachineAdditions();
+  Object.values(nmAdditions).forEach(ex => {
+    if(!state.exercises[ex.id]){ state.exercises[ex.id] = ex; changed = true; }
+  });
+  Object.entries(nonMachineDayAssignments).forEach(([dayId, exIds]) => {
+    const tpl = state.dayTemplates.find(t => t.id === dayId);
+    if(tpl){
+      exIds.forEach(exId => {
+        if(!tpl.exerciseIds.includes(exId)){ tpl.exerciseIds.push(exId); changed = true; }
+      });
+    }
+  });
+  Object.keys(state.exercises).forEach(id => {
+    if(EXERCISE_TECHNIQUES[id] && !state.exercises[id].technique){
+      state.exercises[id].technique = EXERCISE_TECHNIQUES[id];
+      changed = true;
+    }
+  });
+  if(!state.absCoreInterval){ state.absCoreInterval = ABS_CORE_DEFAULT_INTERVAL; changed = true; }
+  if(!state.absCoreLoggedDates){ state.absCoreLoggedDates = []; changed = true; }
+  return changed;
+}
+
+function applyFreeWeightAdditions(){
+  let changed = false;
+  const fwEx = freeWeightExercises();
+  Object.values(fwEx).forEach(ex => {
+    if(!state.exercises[ex.id]){ state.exercises[ex.id] = ex; changed = true; }
+  });
+  freeWeightDayTemplates().forEach(tpl => {
+    if(!state.fullBodyTemplates.find(t => t.id === tpl.id)){ state.fullBodyTemplates.push(tpl); changed = true; }
+  });
+  Object.entries(EXISTING_GOAL_SEED).forEach(([id, goals]) => {
+    if(state.exercises[id] && !state.exercises[id].goals){
+      state.exercises[id].goals = JSON.parse(JSON.stringify(goals));
+      changed = true;
+    }
+  });
+  Object.entries(EXISTING_ALT_GROUP_SEED).forEach(([id, groupId]) => {
+    if(state.exercises[id] && !state.exercises[id].alternativeGroup){
+      state.exercises[id].alternativeGroup = groupId;
+      changed = true;
+    }
+  });
+  Object.keys(state.exercises).forEach(id => {
+    if(!state.exercises[id].goals) state.exercises[id].goals = [];
   });
   return changed;
 }
@@ -297,6 +496,7 @@ async function loadState(){
   if(!state.completedDays){ state.completedDays = {}; needsSave = true; }
   if(!state.fullBodyTemplates){ state.fullBodyTemplates = seedFullBodyPresets(); needsSave = true; }
   if(applyCoreAdditions()) needsSave = true;
+  if(applyFreeWeightAdditions()) needsSave = true;
   if(rolloverRotationIfNeeded()) needsSave = true;
   if(needsSave) saveState();
   renderAll();
@@ -345,6 +545,38 @@ function isFullBodySuggestedDay(iso){
   const anchor = lastFullBodyDate() || todayISO();
   const diff = daysBetween(anchor, iso);
   return diff > 0 && diff % FULL_BODY_SUGGEST_INTERVAL === 0;
+}
+
+function lastAbsCoreDate(){
+  const dates = state.absCoreLoggedDates || [];
+  if(!dates.length) return null;
+  return dates.slice().sort().pop();
+}
+
+function isAbsCoreSuggestedDay(iso){
+  const interval = state.absCoreInterval || ABS_CORE_DEFAULT_INTERVAL;
+  const anchor = lastAbsCoreDate() || todayISO();
+  const diff = daysBetween(anchor, iso);
+  return diff > 0 && diff % interval === 0;
+}
+
+function addAbsCoreToToday(){
+  const iso = todayISO();
+  ABS_CORE_EXERCISE_IDS.forEach(id => {
+    if(state.exercises[id] && !state.today.extra.includes(id) && !currentTodayHasExercise(id)){
+      state.today.extra.push(id);
+    }
+  });
+  if(!state.absCoreLoggedDates.includes(iso)) state.absCoreLoggedDates.push(iso);
+  saveState(); renderAll();
+  showToast('Abs/Core added to today');
+}
+
+function currentTodayHasExercise(id){
+  const plan = effectivePlanForOffset(0);
+  if(plan.kind !== 'workout') return false;
+  const tpl = findTemplateById(plan.dayTemplateId);
+  return !!(tpl && tpl.exerciseIds.includes(id));
 }
 
 function nextRotationIndexAfter(dateIso, currentIndex){
@@ -468,7 +700,7 @@ function syncFromFirebase(){
     .catch(function(e){ console.error('Firebase read failed (using local copy)', e); });
 }
 
-function renderAll(){ renderToday(); renderCalendarTab(); renderPlans(); renderProgress(); }
+function renderAll(){ renderToday(); renderCalendarTab(); renderPlans(); renderProgress(); renderHowTo(); if(typeof cycleState !== 'undefined' && cycleState) renderCycleTab(); }
 
 function currentTemplate(){ return state.dayTemplates[state.rotationIndex % state.dayTemplates.length]; }
 function findTemplateById(id){
@@ -551,6 +783,21 @@ function renderFullBodyHint(plan){
   return `<div class="card"><p class="sub" style="margin:0;">Based on your last one, today could be a good day for a full body session — check the Switch dropdown below if you're up for it.</p></div>`;
 }
 
+function renderPhaseNote(){
+  if(typeof cycleState === 'undefined' || !cycleState) return '';
+  const phaseInfo = cyclePhaseForDate(todayISO());
+  if(!phaseInfo) return '';
+  return `<span class="phase-badge">${phaseInfo.phase} &middot; day ${phaseInfo.day}</span>`;
+}
+
+function renderAbsCoreHint(plan){
+  if(plan.completed || !isAbsCoreSuggestedDay(plan.date)) return '';
+  const iso = todayISO();
+  const alreadyTackedOn = (state.absCoreLoggedDates || []).includes(iso);
+  if(alreadyTackedOn) return '';
+  return `<div class="card"><p class="sub" style="margin:0 0 8px 0;">Based on your last one, today's a good day to tack on Abs/Core.</p><button class="advance-btn" style="margin-top:0;" onclick="addAbsCoreToToday()">Add Abs/Core to today</button></div>`;
+}
+
 function renderToday(){
   const sec = document.getElementById('today');
   const plan = effectivePlanForOffset(0);
@@ -563,6 +810,7 @@ function renderToday(){
     const actionBtn = !plan.completed ? `<button class="advance-btn" onclick="completeNonWorkoutDay('${plan.kind}')">Mark ${label.toLowerCase()} done</button>` : `<p class="sub" style="margin-top:8px;">Logged for today.</p><button class="advance-btn" style="background:var(--espresso-3);color:var(--parchment-dim);" onclick="undoDay('${plan.date}')">Undo — I need to change this</button>`;
     sec.innerHTML = `
       ${renderFullBodyHint(plan)}
+      ${renderAbsCoreHint(plan)}
       <div class="card">
         <div class="today-header"><span class="dayname">${label}</span><span class="daytype">${dateLabel}</span></div>
         <p class="sub">${desc}</p>
@@ -602,6 +850,10 @@ function renderToday(){
       : (last ? `Starting point: ${last.weight}${ex.unit === 'min' ? 'min' : 'lbs'} × ${last.reps} × ${last.sets}` : `New — target ${ex.defaultReps} reps × ${ex.defaultSets} sets`);
     const readyText = prefWeight > 0 ? 'ready to add weight' : 'ready to push further';
     const readyBadge = isReady(ex) ? `<span class="status ready">${readyText}</span>` : '';
+    const goal = activeGoal(ex);
+    const goalLine = goal ? `<div class="last-line" style="margin-top:-6px;">Target: ${goal.label || 'Goal'} \u2014 ${goal.weight}${ex.unit==='min'?'min':'lbs'} \u00d7 ${goal.reps} \u00d7 ${goal.sets}</div>` : '';
+    const alts = ex.alternativeGroup ? Object.values(state.exercises).filter(e => e.alternativeGroup === ex.alternativeGroup && e.id !== id) : [];
+    const swapControl = alts.length ? `<div class="row-flex" style="margin-top:6px;"><select id="alt-${id}">${alts.map(a => `<option value="${a.id}">${a.name}</option>`).join('')}</select><button onclick="swapExerciseToday('${id}', document.getElementById('alt-${id}').value)">Swap</button></div>` : '';
     return `
     <div class="exercise">
       <div class="exercise-head">
@@ -609,6 +861,7 @@ function renderToday(){
         <button class="remove-x" onclick="removeFromToday('${id}')" title="Remove from today">&times;</button>
       </div>
       <div class="last-line">${lastLine}${readyBadge}</div>
+      ${goalLine}
       <div class="inputs">
         <div class="field"><label>${ex.unit === 'min' ? 'minutes' : 'weight'}</label><input type="number" id="tw-${id}" value="${prefWeight}"></div>
         <div class="field"><label>sets</label><input type="number" id="ts-${id}" value="${prefSets}"></div>
@@ -616,6 +869,7 @@ function renderToday(){
       </div>
       <div class="notes-field"><textarea id="tn-${id}" placeholder="Notes"></textarea></div>
       <button class="log-btn" onclick="logToday('${id}')">Log this set</button>
+      ${swapControl}
     </div>`;
   }).join('');
 
@@ -624,11 +878,13 @@ function renderToday(){
 
   sec.innerHTML = `
     ${renderFullBodyHint(plan)}
+    ${renderAbsCoreHint(plan)}
     <div class="card">
       <div class="today-header">
         <span class="dayname">${tpl.name}</span>
         <span class="daytype">${catLabel(tpl.type)} &middot; ${dateLabel}</span>
       </div>
+      ${renderPhaseNote()}
       <p class="sub">Weights, sets and reps are pre-filled from your last session for each exercise.</p>
       ${switchControl}
     </div>
@@ -692,6 +948,27 @@ function completeNonWorkoutDay(kind){
   showToast(kind === 'rest' ? 'Rest day logged' : 'Break day logged');
 }
 
+function activeGoal(ex){
+  if(!ex.goals || !ex.goals.length) return null;
+  return ex.goals.find(g => !g.achieved) || null;
+}
+
+function checkGoalHit(ex, entry){
+  const goal = activeGoal(ex);
+  if(!goal) return false;
+  if(entry.weight >= goal.weight && entry.reps >= goal.reps && entry.sets >= goal.sets){
+    const unitLabel = ex.unit === 'min' ? 'min' : 'lbs';
+    const confirmed = confirm('Logged as a hit goal? (' + (goal.label || 'Goal') + ': ' + goal.weight + unitLabel + ' \u00d7 ' + entry.reps + ' \u00d7 ' + entry.sets + ')');
+    if(confirmed){
+      goal.achieved = true;
+      goal.achievedDate = entry.date;
+      entry.goalHit = true;
+      return true;
+    }
+  }
+  return false;
+}
+
 function logToday(id){
   const ex = state.exercises[id];
   const weight = parseFloat(document.getElementById(`tw-${id}`).value) || 0;
@@ -699,15 +976,26 @@ function logToday(id){
   const reps = parseInt(document.getElementById(`tr-${id}`).value) || 0;
   const notes = document.getElementById(`tn-${id}`).value.trim();
   const date = todayISO();
-  ex.log.push({ date, weight, sets, reps, notes });
+  const entry = { date, weight, sets, reps, notes };
+  ex.log.push(entry);
+  const hit = checkGoalHit(ex, entry);
   saveState(); renderAll();
-  showToast('Logged ' + ex.name);
+  showToast(hit ? 'Goal hit! ' + ex.name : 'Logged ' + ex.name);
 }
 
 function removeFromToday(id){
   if(!state.today.removed.includes(id)) state.today.removed.push(id);
   state.today.extra = state.today.extra.filter(x => x !== id);
   saveState(); renderToday();
+}
+
+function swapExerciseToday(oldId, newId){
+  if(!newId) return;
+  if(!state.today.removed.includes(oldId)) state.today.removed.push(oldId);
+  state.today.extra = state.today.extra.filter(x => x !== oldId);
+  if(!state.today.extra.includes(newId)) state.today.extra.push(newId);
+  saveState(); renderToday();
+  showToast('Swapped to ' + state.exercises[newId].name);
 }
 
 function addToToday(){
@@ -774,7 +1062,30 @@ function renderPlans(){
       </div>
     </div>
     ${renderFullBodySection()}
+    ${renderAbsCoreSection()}
   `;
+}
+
+function renderAbsCoreSection(){
+  const lastDate = lastAbsCoreDate();
+  return `
+    <div class="card">
+      <h2>Abs/Core tack-on</h2>
+      <p class="sub">${lastDate ? 'Last tacked on ' + formatDateDisplay(lastDate) + '.' : 'Not tacked on yet.'} Suggested again every ${state.absCoreInterval || ABS_CORE_DEFAULT_INTERVAL} days after that.</p>
+      <div class="row-flex">
+        <div class="field" style="flex:1;"><label>suggest every (days)</label><input type="number" id="abs-core-interval" value="${state.absCoreInterval || ABS_CORE_DEFAULT_INTERVAL}"></div>
+        <button onclick="saveAbsCoreInterval()" style="align-self:flex-end;">Save</button>
+      </div>
+      <button class="advance-btn" onclick="addAbsCoreToToday()">Add Abs/Core to today now</button>
+    </div>
+  `;
+}
+
+function saveAbsCoreInterval(){
+  const val = parseInt(document.getElementById('abs-core-interval').value) || ABS_CORE_DEFAULT_INTERVAL;
+  state.absCoreInterval = Math.max(1, val);
+  saveState(); renderPlans();
+  showToast('Abs/Core interval updated');
 }
 
 function renderFullBodySection(){
@@ -805,8 +1116,8 @@ function renderFullBodySection(){
 
   return `
     <div class="card">
-      <h2>Full body options</h2>
-      <p class="sub">Combined sessions you can pick from the "Switch" dropdown on any day, if you're up for a bigger one. Doing one advances your rotation past both combined days.</p>
+      <h2>Optional days</h2>
+      <p class="sub">Full body combos and Free Weights days you can pick from the "Switch" dropdown on any day, if you're up for one. Full body combos advance your rotation past both combined days; Free Weights days don't affect the rotation at all.</p>
     </div>
     ${blocks || '<div class="empty">No combos yet — build one below.</div>'}
     <div class="card">
@@ -924,7 +1235,8 @@ function renderCalendarTab(){
     }
     if(iso === todayIso) cls += ' cal-today';
     const fbMark = (!plan.completed && isFullBodySuggestedDay(iso)) ? '<div class="cal-fb-mark">full body?</div>' : '';
-    cells += `<div class="${cls}" onclick="openDayDetail('${iso}')"><div class="cal-daynum">${d}</div><div class="cal-label">${label}</div>${fbMark}</div>`;
+    const acMark = (!plan.completed && isAbsCoreSuggestedDay(iso)) ? '<div class="cal-ac-mark">+abs/core</div>' : '';
+    cells += `<div class="${cls}" onclick="openDayDetail('${iso}')"><div class="cal-daynum">${d}</div><div class="cal-label">${label}</div>${fbMark}${acMark}</div>`;
   }
 
   sec.innerHTML = `
@@ -1016,6 +1328,129 @@ function clearDayOverride(iso){
   if(iso === todayISO()) renderToday();
 }
 
+const ENERGY_TYPES = ['energized','motivated','steady','foggy','sluggish','irritable'];
+
+function renderCycleTab(){
+  const sec = document.getElementById('cycle');
+  if(!sec) return;
+  const todayIso = todayISO();
+  const phaseInfo = cyclePhaseForDate(todayIso);
+  const phaseBlock = phaseInfo
+    ? `<span class="phase-badge">${phaseInfo.phase} &middot; day ${phaseInfo.day}</span>`
+    : `<p class="sub">Log a period start date below to begin tracking your phase.</p>`;
+
+  const todayEnergy = cycleState.energyLogs[todayIso];
+  const activeRating = pickedEnergyRating !== null ? pickedEnergyRating : (todayEnergy ? todayEnergy.rating : null);
+  const scaleButtons = [1,2,3,4,5].map(n => `<button class="${activeRating===n ? 'picked' : ''}" onclick="pickEnergyRating(${n})">${n}</button>`).join('');
+  const typeOptions = ENERGY_TYPES.map(t => `<option value="${t}" ${todayEnergy && todayEnergy.type===t ? 'selected' : ''}>${t}</option>`).join('');
+
+  const recentStarts = cycleState.periodStarts.slice().sort().reverse().slice(0,6);
+  const startsRows = recentStarts.map(iso => `<div class="plan-ex-row"><span>${formatDateDisplay(iso)}</span><button class="remove-x" onclick="removePeriodStartUI('${iso}')">&times;</button></div>`).join('');
+
+  const historyRows = [];
+  for(let i=0;i<14;i++){
+    const iso = addDays(todayIso, -i);
+    const p = cyclePhaseForDate(iso);
+    const e = cycleState.energyLogs[iso];
+    if(!p && !e) continue;
+    historyRows.push(`<div class="cycle-history-row"><span>${formatDateDisplay(iso)}</span><span>${p ? p.phase + ' d' + p.day : '—'}</span><span>${e ? e.rating + '/5 ' + e.type : '—'}</span></div>`);
+  }
+
+  sec.innerHTML = `
+    <div class="card">
+      <h2>Where you're at</h2>
+      ${phaseBlock}
+    </div>
+    <div class="card">
+      <h2>Log today's energy</h2>
+      <p class="sub">Rating (1 = wiped out, 5 = great) and what it feels like.</p>
+      <div class="energy-scale">${scaleButtons}</div>
+      <div class="row-flex">
+        <select id="energy-type">${typeOptions}</select>
+      </div>
+      <div class="notes-field"><textarea id="energy-notes" placeholder="Notes (optional)">${todayEnergy ? todayEnergy.notes : ''}</textarea></div>
+      <button class="log-btn" onclick="saveEnergyToday()">Save today's energy</button>
+    </div>
+    <div class="card">
+      <h2>Period start dates</h2>
+      <div class="row-flex">
+        <input type="date" id="period-start-input" value="${todayIso}">
+        <button onclick="addPeriodStartUI()">Log start</button>
+      </div>
+      ${startsRows || '<div class="empty">None logged yet.</div>'}
+      <div class="row-flex" style="margin-top:10px;">
+        <div class="field" style="flex:1;"><label>avg cycle length</label><input type="number" id="cycle-length-input" value="${cycleState.avgCycleLength}"></div>
+        <div class="field" style="flex:1;"><label>avg period length</label><input type="number" id="period-length-input" value="${cycleState.avgPeriodLength}"></div>
+        <button onclick="saveCycleLengths()" style="align-self:flex-end;">Save</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Last 14 days</h2>
+      <div class="cycle-history-row" style="color:var(--brass);font-weight:600;"><span>Date</span><span>Phase</span><span>Energy</span></div>
+      ${historyRows.join('') || '<div class="empty">Nothing logged yet.</div>'}
+    </div>
+  `;
+}
+
+let pickedEnergyRating = null;
+
+function pickEnergyRating(n){
+  pickedEnergyRating = n;
+  renderCycleTab();
+}
+
+function saveEnergyToday(){
+  const iso = todayISO();
+  const existing = cycleState.energyLogs[iso];
+  const rating = pickedEnergyRating || (existing ? existing.rating : 3);
+  const type = document.getElementById('energy-type').value;
+  const notes = document.getElementById('energy-notes').value.trim();
+  logEnergy(iso, rating, type, notes);
+  pickedEnergyRating = null;
+  renderCycleTab();
+  showToast('Energy logged');
+}
+
+function addPeriodStartUI(){
+  const val = document.getElementById('period-start-input').value;
+  if(!val) return;
+  logPeriodStart(val);
+  renderCycleTab();
+  renderToday();
+  showToast('Period start logged');
+}
+
+function removePeriodStartUI(iso){
+  removePeriodStart(iso);
+  renderCycleTab();
+  renderToday();
+}
+
+function saveCycleLengths(){
+  const len = parseInt(document.getElementById('cycle-length-input').value) || 28;
+  const plen = parseInt(document.getElementById('period-length-input').value) || 5;
+  cycleState.avgCycleLength = len;
+  cycleState.avgPeriodLength = plen;
+  saveCycleState();
+  renderCycleTab();
+}
+
+function renderHowTo(){
+  const sec = document.getElementById('howto');
+  if(!sec) return;
+  const cats = [['lower','Lower body'],['upper','Upper body'],['core','Core'],['cardio','Cardio']];
+  let html = '<div class="card"><h2>Form cues</h2><p class="sub">Quick technique reminders per exercise, grouped by category.</p></div>';
+  cats.forEach(([catKey, catLabelText]) => {
+    const exList = Object.values(state.exercises).filter(e => e.cat === catKey && e.technique && e.technique.length);
+    if(!exList.length) return;
+    html += `<div class="howto-cat-title">${catLabelText}</div>`;
+    exList.forEach(ex => {
+      html += `<div class="howto-item"><div class="n">${ex.name}</div><ul>${ex.technique.map(t => '<li>' + t + '</li>').join('')}</ul></div>`;
+    });
+  });
+  sec.innerHTML = html;
+}
+
 function renderProgress(){
   const sec = document.getElementById('progress');
   const items = Object.values(state.exercises).map(ex => {
@@ -1040,10 +1475,13 @@ function buildChartSVG(log, unit){
   const coords = points.map((p,i) => {
     const x = pad + i*stepX;
     const y = h - pad - ((p.weight - min) / range) * (h - pad*2);
-    return [x,y];
+    return [x,y,p.goalHit];
   });
-  const path = coords.map(c => c.join(',')).join(' ');
-  const dots = coords.map(([x,y]) => `<circle cx="${x}" cy="${y}" r="3" fill="var(--brass-bright)"/>`).join('');
+  const path = coords.map(c => c[0] + ',' + c[1]).join(' ');
+  const dots = coords.map(([x,y,hit]) => hit
+    ? `<circle cx="${x}" cy="${y}" r="5.5" fill="var(--sage-bright)" stroke="var(--espresso)" stroke-width="1.5"/>`
+    : `<circle cx="${x}" cy="${y}" r="3" fill="var(--brass-bright)"/>`
+  ).join('');
   return `<svg width="100%" viewBox="0 0 ${w} ${h}" style="overflow:visible;">
     <polyline points="${path}" fill="none" stroke="var(--brass)" stroke-width="2"/>
     ${dots}
@@ -1052,18 +1490,75 @@ function buildChartSVG(log, unit){
   </svg>`;
 }
 
+function goalsPanelHTML(ex){
+  const goals = ex.goals || [];
+  const rows = goals.map((goal, i) => {
+    const unitLabel = ex.unit === 'min' ? 'min' : 'lbs';
+    const status = goal.achieved ? ('\u2713 hit ' + formatDateDisplay(goal.achievedDate)) : (activeGoal(ex) === goal ? 'active target' : 'queued');
+    return `<div class="plan-ex-row">
+      <span>${goal.label || 'Goal'}: ${goal.weight}${unitLabel} \u00d7 ${goal.reps} \u00d7 ${goal.sets}<br><span style="font-size:11px;color:var(--parchment-dim);">${status}</span></span>
+      <button class="remove-x" onclick="removeGoal('${ex.id}',${i})">&times;</button>
+    </div>`;
+  }).join('');
+  return `
+    <div class="card">
+      <h2>Goals</h2>
+      ${rows || '<div class="empty">No goals set yet.</div>'}
+      <div class="row-flex">
+        <input type="number" id="goal-weight-${ex.id}" placeholder="weight">
+        <input type="number" id="goal-reps-${ex.id}" placeholder="reps">
+        <input type="number" id="goal-sets-${ex.id}" placeholder="sets" value="3">
+      </div>
+      <div class="row-flex">
+        <input type="text" id="goal-label-${ex.id}" placeholder="label (e.g. Strong, Very strong)">
+        <button onclick="addGoal('${ex.id}')">Add goal</button>
+      </div>
+    </div>
+  `;
+}
+
+function addGoal(exId){
+  const ex = state.exercises[exId];
+  if(!ex) return;
+  const weight = parseFloat(document.getElementById('goal-weight-' + exId).value) || 0;
+  const reps = parseInt(document.getElementById('goal-reps-' + exId).value) || 0;
+  const sets = parseInt(document.getElementById('goal-sets-' + exId).value) || 3;
+  const label = document.getElementById('goal-label-' + exId).value.trim() || 'Goal';
+  if(!ex.goals) ex.goals = [];
+  ex.goals.push({ weight, reps, sets, label, achieved:false, achievedDate:null });
+  saveState();
+  openDetail(exId);
+}
+
+function removeGoal(exId, index){
+  const ex = state.exercises[exId];
+  if(!ex || !ex.goals) return;
+  ex.goals.splice(index, 1);
+  saveState();
+  openDetail(exId);
+}
+
+function alternativesPanelHTML(ex){
+  if(!ex.alternativeGroup) return '';
+  const alts = Object.values(state.exercises).filter(e => e.alternativeGroup === ex.alternativeGroup && e.id !== ex.id);
+  if(!alts.length) return '';
+  return `<div class="card"><h2>Alternatives</h2><p class="sub">Same target muscle \u2014 tracked separately.</p>${alts.map(a => `<div class="plan-ex-row"><span>${a.name}</span></div>`).join('')}</div>`;
+}
+
 function openDetail(id){
   const ex = state.exercises[id];
   if(!ex) return;
   const chart = buildChartSVG(ex.log, ex.unit);
   const rows = (ex.log.slice().reverse()).map(e => `
-    <tr><td>${formatDateDisplay(e.date)}</td><td>${e.weight}${ex.unit === 'min' ? 'min' : 'lbs'}</td><td>${e.sets}×${e.reps}</td><td>${e.notes || ''}</td></tr>
+    <tr><td>${formatDateDisplay(e.date)}${e.goalHit ? ' \u2605' : ''}</td><td>${e.weight}${ex.unit === 'min' ? 'min' : 'lbs'}</td><td>${e.sets}×${e.reps}</td><td>${e.notes || ''}</td></tr>
   `).join('');
   document.getElementById('sheet-content').innerHTML = `
     <div class="sheet-head"><h3>${ex.name}</h3><button class="close-btn" onclick="closeDetail()">&times;</button></div>
     <div class="chart-wrap">${chart}</div>
     ${ex.log.length ? `<table class="history-table"><thead><tr><th>Date</th><th>Weight</th><th>Sets×Reps</th><th>Notes</th></tr></thead><tbody>${rows}</tbody></table>`
       : '<div class="empty">No sessions logged yet.</div>'}
+    ${goalsPanelHTML(ex)}
+    ${alternativesPanelHTML(ex)}
   `;
   document.getElementById('overlay').classList.add('open');
 }
@@ -1087,6 +1582,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
 loadState();
 initFirebase();
+initCycleFirebase(renderCycleTab);
 </script>
 </body>
 </html>
