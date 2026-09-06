@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training Ledger</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --ink:#2b2115; --parchment:#efe4cd; --parchment-dim:#e3d5b8; --espresso:#1d1712;
+    --espresso-2:#241c15; --espresso-3:#2c2219; --brass:#b6893f; --brass-bright:#d4a656;
+    --wine:#7a2e2e; --sage:#6f7d54; --sage-bright:#8ea36a; --line:rgba(182,137,63,0.28);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--espresso);
+    background-image:radial-gradient(circle at 15% 0%, rgba(182,137,63,0.06), transparent 45%),
+      radial-gradient(circle at 90% 100%, rgba(122,46,46,0.08), transparent 50%);
+    color:var(--parchment); font-family:'Inter',sans-serif; min-height:100vh; padding-bottom:60px;
+  }
+  header{ padding:24px 20px 16px 20px; border-bottom:1px solid var(--line); }
+  header h1{ font-family:'Fraunces',serif; font-weight:700; font-size:26px; margin:0 0 3px 0; color:var(--brass-bright); }
+  header p{ margin:0; font-size:13px; color:var(--parchment-dim); opacity:0.85; }
+  nav{ display:flex; gap:4px; padding:14px 16px 0 16px; overflow-x:auto; }
+  nav button{ background:transparent; border:1px solid var(--line); color:var(--parchment-dim); font-family:'Inter',sans-serif;
+    font-size:12.5px; font-weight:500; padding:8px 12px; border-radius:3px; cursor:pointer; white-space:nowrap; }
+  nav button.active{ background:var(--brass); color:var(--espresso); border-color:var(--brass); font-weight:600; }
+  main{ padding:18px 16px; max-width:640px; margin:0 auto; }
+  section{ display:none; } section.active{ display:block; }
+  .card{ background:var(--espresso-2); border:1px solid var(--line); border-radius:4px; padding:16px; margin-bottom:14px; }
+  .card h2{ font-family:'Fraunces',serif; font-size:16.5px; font-weight:600; color:var(--brass-bright); margin:0 0 4px 0; }
+  .card .sub{ font-size:12.5px; color:var(--parchment-dim); margin:0 0 12px 0; }
+  .today-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:2px; }
+  .today-header .dayname{ font-family:'Fraunces',serif; font-size:20px; font-weight:700; color:var(--brass-bright); }
+  .today-header .daytype{ font-size:11px; text-transform:lowercase; color:var(--brass); border:1px solid var(--line); padding:3px 8px; border-radius:10px; }
+  .exercise{ border:1px solid var(--line); border-radius:4px; padding:13px; margin-bottom:10px; background:var(--espresso-2); }
+  .exercise-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:6px; }
+  .exercise-name{ font-family:'Fraunces',serif; font-weight:600; font-size:15px; color:var(--parchment); cursor:pointer; }
+  .exercise-name:active{ opacity:0.75; }
+  .new-tag{ font-size:9.5px; color:var(--sage-bright); border:1px solid var(--sage); border-radius:8px; padding:1px 6px; margin-left:6px; vertical-align:1px; }
+  .remove-x{ background:none; border:none; color:var(--parchment-dim); font-size:16px; cursor:pointer; line-height:1; padding:0 2px; }
+  .last-line{ font-size:12px; color:var(--parchment-dim); margin-bottom:9px; }
+  .status{ display:inline-block; font-size:11px; padding:2px 7px; border-radius:9px; margin-left:6px; }
+  .status.ready{ background:rgba(111,125,84,0.25); color:#c3d1a4; }
+  .status.working{ background:rgba(182,137,63,0.18); color:var(--brass-bright); }
+  .inputs{ display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-bottom:8px; }
+  .field label{ display:block; font-size:10px; color:var(--parchment-dim); margin-bottom:3px; }
+  .field input{ width:100%; background:var(--espresso); border:1px solid var(--line); color:var(--parchment); font-size:14px;
+    padding:6px 7px; border-radius:3px; font-family:'Inter',sans-serif; }
+  .field input:focus{ outline:none; border-color:var(--brass); }
+  .notes-field textarea{ width:100%; background:var(--espresso); border:1px solid var(--line); color:var(--parchment); font-size:12.5px;
+    padding:6px 7px; border-radius:3px; font-family:'Inter',sans-serif; resize:vertical; min-height:30px; margin-bottom:8px; }
+  .log-btn{ width:100%; background:var(--wine); color:var(--parchment); border:none; padding:8px; border-radius:3px;
+    font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+  .row-flex{ display:flex; gap:8px; margin-top:10px; }
+  .row-flex select, .row-flex input{ flex:1; background:var(--espresso); border:1px solid var(--line); color:var(--parchment);
+    padding:8px; border-radius:3px; font-size:13px; }
+  .row-flex button{ background:var(--brass); color:var(--espresso); border:none; padding:8px 14px; border-radius:3px;
+    font-weight:600; font-size:12.5px; cursor:pointer; white-space:nowrap; }
+  .advance-btn{ width:100%; background:var(--sage); color:var(--espresso); border:none; padding:11px; border-radius:4px;
+    font-size:14px; font-weight:700; cursor:pointer; font-family:'Fraunces',serif; margin-top:6px; }
+  .plan-block{ margin-bottom:16px; }
+  .plan-title{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .plan-title .name-edit{ font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; color:var(--brass-bright); }
+  .plan-title .del-day{ background:none; border:1px solid var(--wine); color:#d99; font-size:11px; padding:3px 8px; border-radius:8px; cursor:pointer; }
+  .plan-ex-row{ display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
+  .plan-ex-row:last-child{ border-bottom:none; }
+  .move-btns{ display:flex; gap:6px; margin-bottom:10px; }
+  .move-btns button{ flex:1; background:var(--espresso-3); border:1px solid var(--line); color:var(--parchment-dim); padding:6px; border-radius:3px; font-size:12px; cursor:pointer; }
+  .rule-step{ display:flex; gap:10px; margin:9px 0; font-size:13.5px; line-height:1.5; }
+  .rule-step .num{ font-family:'Fraunces',serif; color:var(--brass); font-weight:700; flex-shrink:0; width:18px; }
+  .empty{ font-size:13.5px; color:var(--parchment-dim); font-style:italic; text-align:center; padding:16px 0; }
+  .lib-grid{ display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .lib-item{ border:1px solid var(--line); border-radius:4px; padding:11px; background:var(--espresso-2); cursor:pointer; }
+  .lib-item .n{ font-family:'Fraunces',serif; font-size:13.5px; font-weight:600; color:var(--parchment); margin-bottom:3px; }
+  .lib-item .w{ font-size:12px; color:var(--brass-bright); }
+  .overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; align-items:flex-end; justify-content:center; z-index:50; }
+  .overlay.open{ display:flex; }
+  .sheet{ background:var(--espresso-2); border-top:1px solid var(--brass); border-radius:10px 10px 0 0; width:100%; max-width:640px;
+    max-height:85vh; overflow-y:auto; padding:20px 18px 30px 18px; }
+  .sheet-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .sheet-head h3{ font-family:'Fraunces',serif; font-size:19px; color:var(--brass-bright); margin:0; }
+  .close-btn{ background:none; border:none; color:var(--parchment-dim); font-size:22px; cursor:pointer; line-height:1; }
+  .chart-wrap{ background:var(--espresso); border:1px solid var(--line); border-radius:4px; padding:10px; margin-bottom:14px; }
+  .history-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  .history-table th{ text-align:left; color:var(--brass); font-weight:600; font-size:11px; padding:5px 4px; border-bottom:1px solid var(--line); }
+  .history-table td{ padding:6px 4px; color:var(--parchment-dim); border-bottom:1px solid var(--line); }
+  .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--brass); color:var(--espresso);
+    padding:9px 18px; border-radius:4px; font-size:13px; font-weight:600; opacity:0; transition:opacity 0.25s; pointer-events:none; z-index:60; }
+  .toast.show{ opacity:1; }
+  .cal-nav{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .cal-nav button{ background:var(--espresso-3); border:1px solid var(--line); color:var(--parchment); padding:6px 12px; border-radius:4px; cursor:pointer; }
+  .cal-month-title{ font-family:'Fraunces',serif; font-weight:600; color:var(--brass-bright); font-size:15px; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .cal-weekdays{ margin-bottom:4px; font-size:10px; color:var(--parchment-dim); text-align:center; }
+  .cal-cell{ aspect-ratio:1; border:1px solid var(--line); border-radius:4px; padding:4px; font-size:10px; cursor:pointer;
+    display:flex; flex-direction:column; justify-content:flex-start; background:var(--espresso-2); overflow:hidden; }
+  .cal-cell.empty-cell{ visibility:hidden; cursor:default; }
+  .cal-daynum{ font-weight:600; color:var(--parchment-dim); }
+  .cal-label{ font-size:8.5px; color:var(--brass-bright); margin-top:2px; line-height:1.15; }
+  .cal-today{ border-color:var(--brass); box-shadow:0 0 0 1px var(--brass); }
+  .cal-done{ background:rgba(111,125,84,0.22); }
+  .cal-done-rest{ background:rgba(182,137,63,0.16); }
+  .cal-done-break{ background:rgba(122,46,46,0.2); }
+  .cal-planned{ border-style:dashed; }
+  .cal-planned-rest{ border-style:dashed; }
+  .cal-planned-break{ border-style:dashed; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Training Ledger</h1>
+  <p>Your rotating plan — knows what day you're on, what you lifted last, and where you're headed.</p>
+</header>
+
+<nav>
+  <button class="tab-btn active" data-tab="today">Today</button>
+  <button class="tab-btn" data-tab="calendar">Calendar</button>
+  <button class="tab-btn" data-tab="plans">Day plans</button>
+  <button class="tab-btn" data-tab="progress">Progress</button>
+  <button class="tab-btn" data-tab="rule">Rule</button>
+</nav>
+
+<main>
+  <section id="today" class="active"></section>
+  <section id="calendar"></section>
+  <section id="plans"></section>
+  <section id="progress"></section>
+  <section id="rule">
+    <div class="card">
+      <h2>When to add weight</h2>
+      <div class="rule-step"><span class="num">1</span><span>Pick your rep range per exercise (base is 12; some machines differ on purpose).</span></div>
+      <div class="rule-step"><span class="num">2</span><span>Stay at a weight until you hit the <strong>top</strong> of that range for every set, form intact.</span></div>
+      <div class="rule-step"><span class="num">3</span><span>Do that two sessions running &rarr; bump the weight 5&ndash;10%, drop back to the bottom of the range.</span></div>
+      <div class="rule-step"><span class="num">4</span><span>Failing well before your target rep on set 2 or 3 &rarr; the weight's too heavy, drop it back.</span></div>
+      <div class="rule-step"><span class="num">5</span><span>Last set should be a genuine grind on the final 2&ndash;3 reps &mdash; not easy, not breaking form.</span></div>
+    </div>
+    <div class="card">
+      <h2>Why the split looks like this</h2>
+      <p style="font-size:13.5px;line-height:1.55;">Four rotating days &mdash; Lower A, Upper A, Lower B, Upper B &mdash; hits every major muscle group twice a week, which is the sweet spot for building muscle while losing fat at the same time. Lower body carries slightly more variety since that's where your energy naturally goes; upper still gets full coverage across the two upper days rather than repeating the same lifts.</p>
+    </div>
+    <div class="card">
+      <h2>Watch for</h2>
+      <p style="font-size:13px;color:var(--parchment-dim);line-height:1.5;">Rotary torso and elevate core spike your heart rate and can tip toward lightheaded &mdash; that's a real response, not just fatigue. The new additions (pallof press, plank, leg raise, cable crunch) are lower-intensity by design, since they're static or controlled rather than fast rotational work &mdash; but still worth flagging the pattern to whoever manages your blood pressure medication.</p>
+    </div>
+  </section>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="sheet" id="sheet-content"></div>
+</div>
+
+<div class="toast" id="toast">Logged</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
+<script>
+const STORAGE_KEY = 'training-ledger-v2';
+
+// Fill this in with your ahnna-recomp Firebase project config (Project settings → General → Your apps → SDK setup and config)
+const FIREBASE_CONFIG = {
+  apiKey: 'PASTE_YOUR_API_KEY_HERE',
+  authDomain: 'ahnna-recomp.firebaseapp.com',
+  projectId: 'ahnna-recomp',
+  storageBucket: 'ahnna-recomp.appspot.com',
+  messagingSenderId: 'PASTE_SENDER_ID',
+  appId: 'PASTE_APP_ID'
+};
+
+const seedExercises = () => ({
+  'hip-abduction':   { id:'hip-abduction', name:'Hip abduction', cat:'lower', defaultSets:3, defaultReps:12, isNew:false,
+    log:[{date:'start',weight:200,sets:3,reps:12,notes:''}] },
+  'hip-adduction':   { id:'hip-adduction', name:'Hip adduction', cat:'lower', defaultSets:3, defaultReps:12, isNew:true,
+    log:[] },
+  'hip-thrust':      { id:'hip-thrust', name:'Hip thrust', cat:'lower', defaultSets:3, defaultReps:10, isNew:false,
+    log:[{date:'start',weight:70,sets:2,reps:10,notes:''}] },
+  'back-extension':  { id:'back-extension', name:'Back extension', cat:'lower', defaultSets:2, defaultReps:12, isNew:false,
+    log:[{date:'start',weight:0,sets:2,reps:10,notes:'going carefully, back-strengthening focus'}] },
+  'leg-press':       { id:'leg-press', name:'Seated leg press', cat:'lower', defaultSets:3, defaultReps:12, isNew:false,
+    log:[{date:'start',weight:130,sets:2,reps:12,notes:''}] },
+  'calf-extension':  { id:'calf-extension', name:'Calf extension', cat:'lower', defaultSets:3, defaultReps:15, isNew:false,
+    log:[{date:'start',weight:85,sets:3,reps:15,notes:''}] },
+  'leg-curl':        { id:'leg-curl', name:'Leg curl (hamstring)', cat:'lower', defaultSets:3, defaultReps:12, isNew:true,
+    log:[] },
+  'chest-press':     { id:'chest-press', name:'Chest press', cat:'upper', defaultSets:3, defaultReps:12, isNew:false,
+    log:[{date:'start',weight:50,sets:3,reps:12,notes:''}] },
+  'shoulder-press':  { id:'shoulder-press', name:'Shoulder press', cat:'upper', defaultSets:3, defaultReps:12, isNew:true,
+    log:[] },
+  'bicep-curl-standard': { id:'bicep-curl-standard', name:'Bicep curl (standard)', cat:'upper', defaultSets:3, defaultReps:12, isNew:false,
+    log:[] },
+  'bicep-curl-hammer':   { id:'bicep-curl-hammer', name:'Hammer curl', cat:'upper', defaultSets:3, defaultReps:12, isNew:false,
+    log:[{date:'start',weight:15,sets:3,reps:12,notes:''}] },
+  'tricep-machine':  { id:'tricep-machine', name:'Tricep machine', cat:'upper', defaultSets:3, defaultReps:12, isNew:false,
+    log:[{date:'start',weight:80,sets:3,reps:12,notes:''}] },
+  'back-row':        { id:'back-row', name:'Back row / lat pulldown', cat:'upper', defaultSets:3, defaultReps:12, isNew:true,
+    log:[] },
+  'rotary-torso':    { id:'rotary-torso', name:'Rotary torso (each side)', cat:'core', defaultSets:2, defaultReps:20, isNew:false,
+    log:[{date:'start',weight:100,sets:2,reps:20,notes:'watch HR/lightheadedness'}] },
+  'elevate-core':    { id:'elevate-core', name:'Elevate core (level 2)', cat:'core', defaultSets:1, defaultReps:10, isNew:false,
+    log:[{date:'start',weight:0,sets:1,reps:10,notes:'reduced to 1 set — very intense'}] },
+});
+
+const seedDayTemplates = () => ([
+  { id:'lower-a', name:'Lower A — Glutes & Hips', type:'lower', exerciseIds:['hip-abduction','hip-adduction','hip-thrust','back-extension'] },
+  { id:'upper-a', name:'Upper A — Push & Arms', type:'upper', exerciseIds:['chest-press','shoulder-press','bicep-curl-standard','tricep-machine','rotary-torso'] },
+  { id:'lower-b', name:'Lower B — Legs & Calves', type:'lower', exerciseIds:['leg-press','calf-extension','leg-curl'] },
+  { id:'upper-b', name:'Upper B — Pull & Arms', type:'upper', exerciseIds:['back-row','bicep-curl-hammer','tricep-machine','elevate-core'] },
+]);
+
+let state = null;
+
+const coreAdditions = () => ({
+  'ab-bench': { id:'ab-bench', name:'Ab bench (marked positions)', cat:'core', defaultSets:3, defaultReps:12, isNew:true, log:[] },
+  'plank': { id:'plank', name:'Plank (hold, seconds)', cat:'core', defaultSets:3, defaultReps:30, isNew:true, log:[] },
+  'leg-raise': { id:'leg-raise', name:"Leg raise (captain's chair or lying)", cat:'core', defaultSets:3, defaultReps:12, isNew:true, log:[] },
+});
+
+const coreDayAssignments = {
+  'lower-a': ['ab-bench'],
+  'upper-a': ['ab-bench'],
+  'lower-b': ['plank'],
+  'upper-b': ['leg-raise'],
+};
+
+const libraryOnlyAdditions = () => ({
+  'elliptical': { id:'elliptical', name:'Elliptical (cardio)', cat:'cardio', unit:'min', defaultSets:1, defaultReps:0, isNew:false, goalMinutes:20,
+    log:[{date:'session 1', weight:7, sets:1, reps:0, notes:''},
+         {date:'session 2', weight:7, sets:1, reps:157, notes:'HR 155-160'}] },
+  'stretching': { id:'stretching', name:'Deep stretching', cat:'mobility', unit:'min', defaultSets:1, defaultReps:0, isNew:false, log:[] },
+});
+
+const removedIds = ['cable-crunch', 'pallof-press'];
+
+function applyCoreAdditions(){
+  let changed = false;
+  removedIds.forEach(id => {
+    if(state.exercises[id]){ delete state.exercises[id]; changed = true; }
+    state.dayTemplates.forEach(tpl => {
+      if(tpl.exerciseIds.includes(id)){ tpl.exerciseIds = tpl.exerciseIds.filter(x => x !== id); changed = true; }
+    });
+  });
+  const additions = coreAdditions();
+  Object.values(additions).forEach(ex => {
+    if(!state.exercises[ex.id]){ state.exercises[ex.id] = ex; changed = true; }
+  });
+  Object.entries(coreDayAssignments).forEach(([dayId, exIds]) => {
+    const tpl = state.dayTemplates.find(t => t.id === dayId);
+    if(tpl){
+      exIds.forEach(exId => {
+        if(!tpl.exerciseIds.includes(exId)){ tpl.exerciseIds.push(exId); changed = true; }
+      });
+    }
+  });
+  const libAdditions = libraryOnlyAdditions();
+  Object.values(libAdditions).forEach(ex => {
+    if(!state.exercises[ex.id]){ state.exercises[ex.id] = ex; changed = true; }
+  });
+  return changed;
+}
+
+async function loadState(){
+  const local = localStorage.getItem(STORAGE_KEY);
+  state = local ? JSON.parse(local) : null;
+  let needsSave = false;
+  if(!state){
+    state = { exercises: seedExercises(), dayTemplates: seedDayTemplates(), rotationIndex: 0, today: { extra: [], removed: [] } };
+    needsSave = true;
+  }
+  if(!state.calendarOverrides){ state.calendarOverrides = {}; needsSave = true; }
+  if(!state.completedDays){ state.completedDays = {}; needsSave = true; }
+  if(applyCoreAdditions()) needsSave = true;
+  if(needsSave) saveState();
+  renderAll();
+  syncFromFirebase();
+}
+
+function pad2(n){ return n < 10 ? '0' + n : '' + n; }
+function toISO(d){ return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
+function todayISO(){ return toISO(new Date()); }
+function addDays(iso, n){
+  const parts = iso.split('-').map(Number);
+  const dt = new Date(parts[0], parts[1]-1, parts[2]);
+  dt.setDate(dt.getDate() + n);
+  return toISO(dt);
+}
+function daysBetween(fromIso, toIso){
+  const a = fromIso.split('-').map(Number), b = toIso.split('-').map(Number);
+  const d1 = new Date(a[0], a[1]-1, a[2]), d2 = new Date(b[0], b[1]-1, b[2]);
+  return Math.round((d2 - d1) / 86400000);
+}
+function formatDateDisplay(iso){
+  if(/^\d{4}-\d{2}-\d{2}$/.test(iso)){
+    const p = iso.split('-').map(Number);
+    return new Date(p[0], p[1]-1, p[2]).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  }
+  return iso;
+}
+
+function effectivePlanForOffset(offsetDays){
+  const dateIso = addDays(todayISO(), offsetDays);
+  if(offsetDays < 0){
+    const rec = state.completedDays[dateIso];
+    return rec ? { date:dateIso, kind:rec.kind, dayTemplateId:rec.dayTemplateId || null, completed:true } : { date:dateIso, kind:'none', completed:false };
+  }
+  if(state.completedDays[dateIso]){
+    const rec = state.completedDays[dateIso];
+    return { date:dateIso, kind:rec.kind, dayTemplateId:rec.dayTemplateId || null, completed:true };
+  }
+  const override = state.calendarOverrides[dateIso];
+  if(override) return { date:dateIso, kind:override.kind, dayTemplateId:override.dayTemplateId || null, completed:false };
+  if(state.dayTemplates.length === 0) return { date:dateIso, kind:'none', completed:false };
+  const idx = ((state.rotationIndex + offsetDays) % state.dayTemplates.length + state.dayTemplates.length) % state.dayTemplates.length;
+  const tpl = state.dayTemplates[idx];
+  return { date:dateIso, kind:'workout', dayTemplateId:tpl.id, completed:false };
+}
+
+function exercisesLoggedOn(dateIso){
+  const results = [];
+  Object.values(state.exercises).forEach(ex => {
+    (ex.log || []).forEach(entry => { if(entry.date === dateIso) results.push({ ex, entry }); });
+  });
+  return results;
+}
+
+function saveState(){
+  state.updatedAt = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  pushToFirebase();
+}
+
+let firebaseReady = false;
+let firebaseUser = null;
+
+function initFirebase(){
+  if(!window.firebase || !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey === 'PASTE_YOUR_API_KEY_HERE'){
+    console.warn('Firebase not configured — running in local-only mode.');
+    return;
+  }
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    firebase.auth().signInAnonymously().then(function(cred){
+      firebaseUser = cred.user;
+      firebaseReady = true;
+      syncFromFirebase();
+    }).catch(function(e){ console.error('Firebase auth failed', e); });
+  }catch(e){ console.error('Firebase init failed', e); }
+}
+
+function pushToFirebase(){
+  if(!firebaseReady || !firebaseUser) return;
+  firebase.firestore().collection('training-ledger').doc(firebaseUser.uid)
+    .set({ value: JSON.stringify(state), updatedAt: state.updatedAt })
+    .catch(function(e){ console.error('Firebase sync failed (saved locally though)', e); });
+}
+
+function syncFromFirebase(){
+  if(!firebaseReady || !firebaseUser) return;
+  firebase.firestore().collection('training-ledger').doc(firebaseUser.uid).get()
+    .then(function(doc){
+      if(!doc.exists) { pushToFirebase(); return; }
+      const remote = doc.data();
+      const remoteUpdated = remote.updatedAt || 0;
+      const localUpdated = state.updatedAt || 0;
+      if(remoteUpdated > localUpdated){
+        state = JSON.parse(remote.value);
+        localStorage.setItem(STORAGE_KEY, remote.value);
+        renderAll();
+      } else if(localUpdated > remoteUpdated){
+        pushToFirebase();
+      }
+    })
+    .catch(function(e){ console.error('Firebase read failed (using local copy)', e); });
+}
+
+function renderAll(){ renderToday(); renderCalendarTab(); renderPlans(); renderProgress(); }
+
+function currentTemplate(){ return state.dayTemplates[state.rotationIndex % state.dayTemplates.length]; }
+function catLabel(c){ return c === 'lower' ? 'lower body' : c === 'upper' ? 'upper body' : 'full body'; }
+
+function todayExerciseIds(tpl){
+  if(!tpl) return [];
+  const removed = new Set(state.today.removed);
+  const base = tpl.exerciseIds.filter(id => !removed.has(id));
+  return base.concat(state.today.extra.filter(id => !removed.has(id) && !base.includes(id)));
+}
+
+function lastEntry(ex){ return ex.log && ex.log.length ? ex.log[ex.log.length-1] : null; }
+
+function isReady(ex){
+  if(!ex.log || ex.log.length < 2) return false;
+  const a = ex.log[ex.log.length-1], b = ex.log[ex.log.length-2];
+  return a.weight === b.weight && a.reps >= ex.defaultReps && b.reps >= ex.defaultReps;
+}
+
+function renderEllipticalGoal(){
+  const ex = state.exercises['elliptical'];
+  if(!ex) return '';
+  if(typeof ex.goalMinutes !== 'number') ex.goalMinutes = 20;
+  const iso = todayISO();
+  const todayLog = (ex.log || []).find(e => e.date === iso);
+  if(todayLog){
+    const note = todayLog.weight !== ex.goalMinutes ? ' (different from your goal, logged as-is)' : '';
+    return `
+    <div class="card">
+      <h2>Elliptical &mdash; goal ${ex.goalMinutes} min</h2>
+      <p class="sub">&#10003; Logged ${todayLog.weight} min today${note}.</p>
+    </div>`;
+  }
+  return `
+    <div class="card">
+      <h2>Elliptical &mdash; goal ${ex.goalMinutes} min</h2>
+      <div class="row-flex">
+        <button onclick="logEllipticalGoal()">&#10003; Mark ${ex.goalMinutes} min done</button>
+      </div>
+      <div class="row-flex">
+        <input type="number" id="elliptical-custom-min" placeholder="Did a different amount? Enter minutes">
+        <button onclick="logEllipticalCustom()">Log</button>
+      </div>
+    </div>`;
+}
+
+function logEllipticalGoal(){
+  const ex = state.exercises['elliptical'];
+  if(!ex) return;
+  ex.log.push({ date: todayISO(), weight: ex.goalMinutes, sets:1, reps:0, notes:'' });
+  saveState(); renderAll();
+  showToast('Elliptical logged: ' + ex.goalMinutes + ' min');
+}
+
+function logEllipticalCustom(){
+  const input = document.getElementById('elliptical-custom-min');
+  const val = parseFloat(input.value);
+  if(!val || val <= 0) return;
+  const ex = state.exercises['elliptical'];
+  if(!ex) return;
+  ex.log.push({ date: todayISO(), weight: val, sets:1, reps:0, notes:'' });
+  saveState(); renderAll();
+  showToast('Elliptical logged: ' + val + ' min');
+}
+
+function switchOptionsHTML(plan){
+  const opts = state.dayTemplates.map(t => `<option value="workout:${t.id}" ${plan.kind==='workout'&&plan.dayTemplateId===t.id?'selected':''}>${t.name}</option>`).join('');
+  const restSel = plan.kind === 'rest' ? 'selected' : '';
+  const breakSel = plan.kind === 'break' ? 'selected' : '';
+  return opts + `<option value="rest" ${restSel}>Rest day</option><option value="break" ${breakSel}>Break day</option>`;
+}
+
+function renderToday(){
+  const sec = document.getElementById('today');
+  const plan = effectivePlanForOffset(0);
+  const dateLabel = formatDateDisplay(plan.date);
+
+  if(plan.kind === 'rest' || plan.kind === 'break'){
+    const label = plan.kind === 'rest' ? 'Rest day' : 'Break day';
+    const desc = plan.kind === 'rest' ? 'Planned recovery — no training today.' : 'Unplanned pause — your rotation picks up right where it left off.';
+    const switchControl = !plan.completed ? `<div class="row-flex"><select id="today-switch">${switchOptionsHTML(plan)}</select><button onclick="switchTodayPlan()">Switch</button></div>` : '';
+    const actionBtn = !plan.completed ? `<button class="advance-btn" onclick="completeNonWorkoutDay('${plan.kind}')">Mark ${label.toLowerCase()} done</button>` : `<p class="sub" style="margin-top:8px;">Logged for today.</p>`;
+    sec.innerHTML = `
+      <div class="card">
+        <div class="today-header"><span class="dayname">${label}</span><span class="daytype">${dateLabel}</span></div>
+        <p class="sub">${desc}</p>
+        ${switchControl}
+        ${actionBtn}
+      </div>`;
+    return;
+  }
+
+  const tpl = state.dayTemplates.find(t => t.id === plan.dayTemplateId);
+  if(!tpl){ sec.innerHTML = '<div class="empty">No day plans yet — add one in Day plans.</div>'; return; }
+
+  if(plan.completed){
+    const logged = exercisesLoggedOn(plan.date);
+    const rows = logged.map(({ex,entry}) => `<div class="plan-ex-row"><span>${ex.name}</span><span>${entry.weight}${ex.unit==='min'?'min':'lbs'} × ${entry.sets}×${entry.reps}</span></div>`).join('');
+    sec.innerHTML = `
+      <div class="card">
+        <div class="today-header"><span class="dayname">${tpl.name}</span><span class="daytype">${dateLabel} &middot; logged</span></div>
+        ${rows || '<p class="sub">Marked done — no exercises logged individually.</p>'}
+      </div>
+      ${renderEllipticalGoal()}`;
+    return;
+  }
+
+  const switchControl = `<div class="row-flex"><select id="today-switch">${switchOptionsHTML(plan)}</select><button onclick="switchTodayPlan()">Switch</button></div>`;
+  const ids = todayExerciseIds(tpl);
+  const cards = ids.map(id => {
+    const ex = state.exercises[id];
+    if(!ex) return '';
+    const last = lastEntry(ex);
+    const prefWeight = last ? last.weight : 0;
+    const prefSets = last ? last.sets : ex.defaultSets;
+    const prefReps = last ? last.reps : ex.defaultReps;
+    const lastLine = last && last.date !== 'start'
+      ? `Last: ${last.weight}${ex.unit === 'min' ? 'min' : 'lbs'} × ${last.reps} × ${last.sets} on ${formatDateDisplay(last.date)}`
+      : (last ? `Starting point: ${last.weight}${ex.unit === 'min' ? 'min' : 'lbs'} × ${last.reps} × ${last.sets}` : `New — target ${ex.defaultReps} reps × ${ex.defaultSets} sets`);
+    const readyText = prefWeight > 0 ? 'ready to add weight' : 'ready to push further';
+    const readyBadge = isReady(ex) ? `<span class="status ready">${readyText}</span>` : '';
+    return `
+    <div class="exercise">
+      <div class="exercise-head">
+        <span class="exercise-name" onclick="openDetail('${id}')">${ex.name}${ex.isNew ? '<span class="new-tag">new</span>' : ''}</span>
+        <button class="remove-x" onclick="removeFromToday('${id}')" title="Remove from today">&times;</button>
+      </div>
+      <div class="last-line">${lastLine}${readyBadge}</div>
+      <div class="inputs">
+        <div class="field"><label>${ex.unit === 'min' ? 'minutes' : 'weight'}</label><input type="number" id="tw-${id}" value="${prefWeight}"></div>
+        <div class="field"><label>sets</label><input type="number" id="ts-${id}" value="${prefSets}"></div>
+        <div class="field"><label>reps</label><input type="number" id="tr-${id}" value="${prefReps}"></div>
+      </div>
+      <div class="notes-field"><textarea id="tn-${id}" placeholder="Notes"></textarea></div>
+      <button class="log-btn" onclick="logToday('${id}')">Log this set</button>
+    </div>`;
+  }).join('');
+
+  const allEx = Object.values(state.exercises).filter(e => !ids.includes(e.id));
+  const addOptions = allEx.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+
+  sec.innerHTML = `
+    <div class="card">
+      <div class="today-header">
+        <span class="dayname">${tpl.name}</span>
+        <span class="daytype">${catLabel(tpl.type)} &middot; ${dateLabel}</span>
+      </div>
+      <p class="sub">Weights, sets and reps are pre-filled from your last session for each exercise.</p>
+      ${switchControl}
+    </div>
+    ${renderEllipticalGoal()}
+    ${cards || '<div class="empty">Nothing on the plan for today — add something below or in Day plans.</div>'}
+    <div class="card">
+      <h2>Add to today only</h2>
+      <p class="sub">Doesn't change the ${tpl.name} template — just for this session.</p>
+      <div class="row-flex">
+        <select id="add-today-select">${addOptions || '<option value="">No other exercises yet</option>'}</select>
+        <button onclick="addToToday()">Add</button>
+      </div>
+      <div class="row-flex">
+        <input type="text" id="add-today-new" placeholder="Or create a new exercise">
+        <select id="add-today-new-cat"><option value="lower">lower</option><option value="upper">upper</option><option value="core">core</option></select>
+        <button onclick="addNewToToday()">Add</button>
+      </div>
+    </div>
+    <button class="advance-btn" onclick="finishWorkoutDay()">Finish day → move to next</button>
+  `;
+}
+
+function switchTodayPlan(){
+  const sel = document.getElementById('today-switch');
+  const val = sel.value;
+  const iso = todayISO();
+  if(val === 'rest') state.calendarOverrides[iso] = { kind:'rest' };
+  else if(val === 'break') state.calendarOverrides[iso] = { kind:'break' };
+  else state.calendarOverrides[iso] = { kind:'workout', dayTemplateId: val.split(':')[1] };
+  saveState(); renderToday(); renderCalendarTab();
+}
+
+function finishWorkoutDay(){
+  const plan = effectivePlanForOffset(0);
+  if(plan.kind !== 'workout') return;
+  const iso = todayISO();
+  state.completedDays[iso] = { kind:'workout', dayTemplateId: plan.dayTemplateId };
+  delete state.calendarOverrides[iso];
+  state.rotationIndex = (state.rotationIndex + 1) % state.dayTemplates.length;
+  state.today = { extra: [], removed: [] };
+  saveState(); renderAll();
+  const tpl = state.dayTemplates.find(t => t.id === plan.dayTemplateId);
+  showToast('Logged ' + (tpl ? tpl.name : 'workout'));
+}
+
+function completeNonWorkoutDay(kind){
+  const iso = todayISO();
+  state.completedDays[iso] = { kind };
+  delete state.calendarOverrides[iso];
+  state.today = { extra: [], removed: [] };
+  saveState(); renderAll();
+  showToast(kind === 'rest' ? 'Rest day logged' : 'Break day logged');
+}
+
+function logToday(id){
+  const ex = state.exercises[id];
+  const weight = parseFloat(document.getElementById(`tw-${id}`).value) || 0;
+  const sets = parseInt(document.getElementById(`ts-${id}`).value) || 0;
+  const reps = parseInt(document.getElementById(`tr-${id}`).value) || 0;
+  const notes = document.getElementById(`tn-${id}`).value.trim();
+  const date = todayISO();
+  ex.log.push({ date, weight, sets, reps, notes });
+  saveState(); renderAll();
+  showToast('Logged ' + ex.name);
+}
+
+function removeFromToday(id){
+  if(!state.today.removed.includes(id)) state.today.removed.push(id);
+  state.today.extra = state.today.extra.filter(x => x !== id);
+  saveState(); renderToday();
+}
+
+function addToToday(){
+  const sel = document.getElementById('add-today-select');
+  const id = sel.value;
+  if(!id) return;
+  state.today.extra.push(id);
+  state.today.removed = state.today.removed.filter(x => x !== id);
+  saveState(); renderToday();
+}
+
+function addNewToToday(){
+  const nameInput = document.getElementById('add-today-new');
+  const catSel = document.getElementById('add-today-new-cat');
+  const name = nameInput.value.trim();
+  if(!name) return;
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-' + Date.now();
+  state.exercises[id] = { id, name, cat: catSel.value, defaultSets:3, defaultReps:12, isNew:true, log:[] };
+  state.today.extra.push(id);
+  nameInput.value = '';
+  saveState(); renderAll();
+}
+
+function renderPlans(){
+  const sec = document.getElementById('plans');
+  const blocks = state.dayTemplates.map((tpl, ti) => {
+    const rows = tpl.exerciseIds.map(id => {
+      const ex = state.exercises[id];
+      if(!ex) return '';
+      return `<div class="plan-ex-row"><span>${ex.name}</span><button class="remove-x" onclick="removeFromTemplate('${tpl.id}','${id}')">&times;</button></div>`;
+    }).join('');
+    const otherEx = Object.values(state.exercises).filter(e => !tpl.exerciseIds.includes(e.id));
+    const opts = otherEx.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+    return `
+    <div class="card plan-block">
+      <div class="plan-title">
+        <span class="name-edit">${tpl.name}</span>
+        <button class="del-day" onclick="deleteTemplate('${tpl.id}')">delete day</button>
+      </div>
+      <div class="move-btns">
+        <button onclick="moveTemplate(${ti},-1)">↑ move earlier</button>
+        <button onclick="moveTemplate(${ti},1)">↓ move later</button>
+      </div>
+      ${rows || '<div class="empty">No exercises on this day yet.</div>'}
+      <div class="row-flex" style="margin-top:10px;">
+        <select id="plan-add-${tpl.id}">${opts || '<option value="">No other exercises</option>'}</select>
+        <button onclick="addToTemplate('${tpl.id}')">Add</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  sec.innerHTML = `
+    <div class="card">
+      <h2>Rotation order</h2>
+      <p class="sub">This is the order "Today" cycles through when you finish a day. Rearrange with the arrows on each card.</p>
+    </div>
+    ${blocks}
+    <div class="card">
+      <h2>Add a new day</h2>
+      <div class="row-flex">
+        <input type="text" id="new-day-name" placeholder="Day name (e.g. Full Body C)">
+        <select id="new-day-type"><option value="lower">lower</option><option value="upper">upper</option><option value="full">full body</option></select>
+        <button onclick="addTemplate()">Add day</button>
+      </div>
+    </div>
+  `;
+}
+
+function addToTemplate(tplId){
+  const sel = document.getElementById(`plan-add-${tplId}`);
+  const id = sel.value;
+  if(!id) return;
+  const tpl = state.dayTemplates.find(t => t.id === tplId);
+  tpl.exerciseIds.push(id);
+  saveState(); renderPlans();
+}
+
+function removeFromTemplate(tplId, exId){
+  const tpl = state.dayTemplates.find(t => t.id === tplId);
+  tpl.exerciseIds = tpl.exerciseIds.filter(id => id !== exId);
+  saveState(); renderAll();
+}
+
+function addTemplate(){
+  const nameInput = document.getElementById('new-day-name');
+  const typeSel = document.getElementById('new-day-type');
+  const name = nameInput.value.trim();
+  if(!name) return;
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-' + Date.now();
+  state.dayTemplates.push({ id, name, type: typeSel.value, exerciseIds: [] });
+  nameInput.value = '';
+  saveState(); renderAll();
+}
+
+function deleteTemplate(tplId){
+  const idx = state.dayTemplates.findIndex(t => t.id === tplId);
+  if(idx === -1) return;
+  state.dayTemplates.splice(idx, 1);
+  if(state.rotationIndex >= state.dayTemplates.length) state.rotationIndex = 0;
+  saveState(); renderAll();
+}
+
+function moveTemplate(idx, dir){
+  const newIdx = idx + dir;
+  if(newIdx < 0 || newIdx >= state.dayTemplates.length) return;
+  const arr = state.dayTemplates;
+  [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+  saveState(); renderAll();
+}
+
+let calendarMonthOffset = 0;
+
+function renderCalendarTab(){
+  const sec = document.getElementById('calendar');
+  if(!sec) return;
+  const now = new Date();
+  const viewDate = new Date(now.getFullYear(), now.getMonth() + calendarMonthOffset, 1);
+  const year = viewDate.getFullYear(), month = viewDate.getMonth();
+  const monthName = viewDate.toLocaleDateString('en-US', { month:'long', year:'numeric' });
+  const firstWeekday = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const todayIso = todayISO();
+
+  let cells = '';
+  for(let i=0;i<firstWeekday;i++) cells += '<div class="cal-cell empty-cell"></div>';
+  for(let d=1; d<=daysInMonth; d++){
+    const iso = toISO(new Date(year, month, d));
+    const offset = daysBetween(todayIso, iso);
+    const plan = effectivePlanForOffset(offset);
+    let label = '';
+    let cls = 'cal-cell';
+    if(plan.kind === 'workout'){
+      const tpl = state.dayTemplates.find(t => t.id === plan.dayTemplateId);
+      label = tpl ? tpl.name.split(' — ')[0] : 'Workout';
+      cls += plan.completed ? ' cal-done' : ' cal-planned';
+    } else if(plan.kind === 'rest'){
+      label = 'Rest';
+      cls += plan.completed ? ' cal-done-rest' : ' cal-planned-rest';
+    } else if(plan.kind === 'break'){
+      label = 'Break';
+      cls += plan.completed ? ' cal-done-break' : ' cal-planned-break';
+    }
+    if(iso === todayIso) cls += ' cal-today';
+    cells += `<div class="${cls}" onclick="openDayDetail('${iso}')"><div class="cal-daynum">${d}</div><div class="cal-label">${label}</div></div>`;
+  }
+
+  sec.innerHTML = `
+    <div class="card">
+      <div class="cal-nav">
+        <button onclick="changeMonth(-1)">&larr;</button>
+        <span class="cal-month-title">${monthName}</span>
+        <button onclick="changeMonth(1)">&rarr;</button>
+      </div>
+      <div class="cal-grid cal-weekdays"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
+      <div class="cal-grid">${cells}</div>
+      <p class="sub" style="margin-top:10px;">Solid fill = logged. Dashed border = planned estimate — tap any day to view or change it.</p>
+    </div>
+  `;
+}
+
+function changeMonth(delta){ calendarMonthOffset += delta; renderCalendarTab(); }
+
+function openDayDetail(iso){
+  const todayIso = todayISO();
+  const offset = daysBetween(todayIso, iso);
+  const plan = effectivePlanForOffset(offset);
+  const dateLabel = formatDateDisplay(iso);
+  const isLocked = plan.completed || offset < 0;
+
+  let body = '';
+  if(plan.kind === 'none'){
+    body = '<div class="empty">No record for this day.</div>';
+  } else if(isLocked){
+    const kindLabel = plan.kind === 'workout'
+      ? (state.dayTemplates.find(t => t.id === plan.dayTemplateId) || { name:'Workout' }).name
+      : (plan.kind === 'rest' ? 'Rest day' : 'Break day');
+    const logged = exercisesLoggedOn(iso);
+    const rows = logged.map(({ex,entry}) => `<div class="plan-ex-row"><span>${ex.name}</span><span>${entry.weight}${ex.unit==='min'?'min':'lbs'} × ${entry.sets}×${entry.reps}</span></div>`).join('');
+    body = `<p class="sub">${kindLabel}</p>` + (rows ? `<div style="margin-top:8px;">${rows}</div>` : '<div class="empty">No exercises logged this day.</div>');
+  } else {
+    body = `
+      <p class="sub">Planned (estimate) — change it below.</p>
+      <div class="row-flex">
+        <select id="day-detail-select">${switchOptionsHTML(plan)}</select>
+        <button onclick="setDayOverride('${iso}')">Save</button>
+      </div>
+      <div class="row-flex">
+        <button onclick="clearDayOverride('${iso}')" style="background:var(--espresso-3);color:var(--parchment-dim);">Reset to auto plan</button>
+      </div>
+    `;
+  }
+
+  document.getElementById('sheet-content').innerHTML = `
+    <div class="sheet-head"><h3>${dateLabel}</h3><button class="close-btn" onclick="closeDetail()">&times;</button></div>
+    ${body}
+  `;
+  document.getElementById('overlay').classList.add('open');
+}
+
+function setDayOverride(iso){
+  const sel = document.getElementById('day-detail-select');
+  const val = sel.value;
+  if(val === 'rest') state.calendarOverrides[iso] = { kind:'rest' };
+  else if(val === 'break') state.calendarOverrides[iso] = { kind:'break' };
+  else state.calendarOverrides[iso] = { kind:'workout', dayTemplateId: val.split(':')[1] };
+  saveState(); closeDetail(); renderCalendarTab();
+  if(iso === todayISO()) renderToday();
+}
+
+function clearDayOverride(iso){
+  delete state.calendarOverrides[iso];
+  saveState(); closeDetail(); renderCalendarTab();
+  if(iso === todayISO()) renderToday();
+}
+
+function renderProgress(){
+  const sec = document.getElementById('progress');
+  const items = Object.values(state.exercises).map(ex => {
+    const last = lastEntry(ex);
+    const w = last ? `${last.weight}${ex.unit === 'min' ? 'min' : 'lbs'} × ${last.reps} × ${last.sets}` : 'not logged yet';
+    return `<div class="lib-item" onclick="openDetail('${ex.id}')"><div class="n">${ex.name}</div><div class="w">${w}</div></div>`;
+  }).join('');
+  sec.innerHTML = `<div class="card"><h2>Every exercise</h2><p class="sub">Tap one to see its full history and progress chart.</p></div><div class="lib-grid">${items}</div>`;
+}
+
+function buildChartSVG(log, unit){
+  const suffix = unit === 'min' ? 'min' : 'lbs';
+  const points = log.filter(e => typeof e.weight === 'number');
+  if(points.length < 2){
+    return '<p style="font-size:12.5px;color:var(--parchment-dim);">Log this exercise a couple more times to see a progress chart.</p>';
+  }
+  const w = 280, h = 110, pad = 14;
+  const weights = points.map(p => p.weight);
+  const min = Math.min(...weights), max = Math.max(...weights);
+  const range = max - min || 1;
+  const stepX = (w - pad*2) / (points.length - 1);
+  const coords = points.map((p,i) => {
+    const x = pad + i*stepX;
+    const y = h - pad - ((p.weight - min) / range) * (h - pad*2);
+    return [x,y];
+  });
+  const path = coords.map(c => c.join(',')).join(' ');
+  const dots = coords.map(([x,y]) => `<circle cx="${x}" cy="${y}" r="3" fill="var(--brass-bright)"/>`).join('');
+  return `<svg width="100%" viewBox="0 0 ${w} ${h}" style="overflow:visible;">
+    <polyline points="${path}" fill="none" stroke="var(--brass)" stroke-width="2"/>
+    ${dots}
+    <text x="${pad}" y="${h-2}" fill="var(--parchment-dim)" font-size="9">${min}${suffix}</text>
+    <text x="${w-pad-24}" y="${h-2}" fill="var(--parchment-dim)" font-size="9">${max}${suffix}</text>
+  </svg>`;
+}
+
+function openDetail(id){
+  const ex = state.exercises[id];
+  if(!ex) return;
+  const chart = buildChartSVG(ex.log, ex.unit);
+  const rows = (ex.log.slice().reverse()).map(e => `
+    <tr><td>${formatDateDisplay(e.date)}</td><td>${e.weight}${ex.unit === 'min' ? 'min' : 'lbs'}</td><td>${e.sets}×${e.reps}</td><td>${e.notes || ''}</td></tr>
+  `).join('');
+  document.getElementById('sheet-content').innerHTML = `
+    <div class="sheet-head"><h3>${ex.name}</h3><button class="close-btn" onclick="closeDetail()">&times;</button></div>
+    <div class="chart-wrap">${chart}</div>
+    ${ex.log.length ? `<table class="history-table"><thead><tr><th>Date</th><th>Weight</th><th>Sets×Reps</th><th>Notes</th></tr></thead><tbody>${rows}</tbody></table>`
+      : '<div class="empty">No sessions logged yet.</div>'}
+  `;
+  document.getElementById('overlay').classList.add('open');
+}
+function closeDetail(){ document.getElementById('overlay').classList.remove('open'); }
+document.getElementById('overlay').addEventListener('click', (e) => { if(e.target.id === 'overlay') closeDetail(); });
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('main section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+loadState();
+initFirebase();
+</script>
+</body>
+</html>
